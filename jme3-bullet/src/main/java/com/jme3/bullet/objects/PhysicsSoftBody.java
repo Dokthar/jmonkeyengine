@@ -33,6 +33,7 @@ package com.jme3.bullet.objects;
 
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
@@ -91,20 +92,26 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 //	btSoftBodyWorldInfo*	getWorldInfo(); done
   /*  public boolean checkLink(int node0, int node1) {
 
+     }
+
+     public boolean checkLink(SoftBodyNode node0, SoftBodyNode node1) {
+
+     }
+
+     public boolean checkFace(int node0, int node1, int node2) {
+
+     }
+
+     public boolean checkFace(SoftBodyNode node0, SoftBodyNode node1, SoftBodyNode node2) { //<--- do not existe in bullet
+
+     }
+     */
+    public void appendMaterial(SoftBodyMaterial material) {
+        appendMaterial(objectId, material); 
     }
 
-    public boolean checkLink(SoftBodyNode node0, SoftBodyNode node1) {
+    private native void appendMaterial(long objectId, SoftBodyMaterial material);
 
-    }
-
-    public boolean checkFace(int node0, int node1, int node2) {
-
-    }
-
-    public boolean checkFace(SoftBodyNode node0, SoftBodyNode node1, SoftBodyNode node2) { //<--- do not existe in bullet
-
-    }
-*/
     /* Append anchor */
     public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
 
@@ -139,18 +146,24 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     /* Add force (or gravity) to a node of the body */
     public void addForce(Vector3f force, int node) {
-
+        addForce(objectId, force, node);
     }
+
+    private native void addForce(long objectId, Vector3f force, int node);
 
     /* Add aero force to a node of the body */
     public void addAeroForceToNode(Vector3f windVelocity, int nodeIndex) {
-
+        addAeroForceToNode(objectId, windVelocity, nodeIndex);
     }
+
+    private native void addAeroForceToNode(long objectId, Vector3f windVelocity, int nodeIndex);
+
     /* Add aero force to a face of the body */
-
     public void addAeroForceToFace(Vector3f windVelocity, int faceIndex) {
-
+        addAeroForceToFace(objectId, windVelocity, faceIndex);
     }
+
+    private native void addAeroForceToFace(long objectId, Vector3f windVelocity, int faceIndex);
 
     /* Add velocity to the entire body */
     public void addVelocity(Vector3f velocity) {
@@ -168,212 +181,297 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     }
 
     /* Transform */
-    public void setTransform(Transform trs) {
-
+    public void setPhysicsTransform(Transform trs) {
+        setPhysicsTransform(objectId, trs);
     }
+
+    private native void setPhysicsTransform(long objectId, Transform trs);
+
+    public Transform getPhysicsTransform() {
+        Transform trs = new Transform();
+        getPhysicsTransform(objectId, trs);
+        return trs;
+    }
+
+    private native void getPhysicsTransform(long objectId, Transform trs);
 
     /* Translate */
-    public void translate(Vector3f vec) {
-
+    public void setPhysicsLocation(Vector3f vec) {
+        setPhysicsLocation(objectId, vec);
     }
+
+    private native void setPhysicsLocation(long objectId, Vector3f vec);
+
+    public Vector3f getPhysicsLocation() {
+        Vector3f vec = new Vector3f();
+        getPhysicsLocation(objectId, vec);
+        return vec;
+    }
+
+    private native void getPhysicsLocation(long objectId, Vector3f vec);
+
     /* Rotate */
-
-    public void rotate(Quaternion rot) {
-
+    public void setPhysicsRotation(Quaternion rot) {
+        setPhysicsRotation(objectId, rot);
     }
+
+    private native void setPhysicsRotation(long objectId, Quaternion rot);
+
+    public Quaternion getPhysicsRotation() {
+        Quaternion rot = new Quaternion();
+        getPhysicsRotation(objectId, rot);
+        return rot;
+    }
+
+    private native void getPhysicsRotation(long objectId, Quaternion rot);
+
     /* Scale */
-
-    public void scale(Vector3f scl) {
-
+    public void setPhysicsScale(Vector3f scl) {
+        setPhysicsScale(objectId, scl);
     }
 
+    private native void setPhysicsScale(long objectId, Vector3f scl);
+
+    public Vector3f getPhysicsScale() {
+        Vector3f scl = new Vector3f();
+        getPhysicsScale(objectId, scl);
+        return scl;
+    }
+
+    private native void getPhysicsScale(long objectId, Vector3f scl);
+
+    public float getRestLengthScale() {
+        return getRestLenghtScale(objectId);
+    }
+
+    /* Get link resting lengths scale */
+    private native float getRestLenghtScale(long objectId);
+
+    /* Scale resting length of all springs */
+    public void setRestLengthScale(float scale) {
+        setRestLenghtScale(objectId, scale);
+    }
+
+    private native void setRestLenghtScale(long objectId, float scale);
+
+    /* Set current state as pose */
+    public void setPose(boolean bvolume, boolean bframe) {
+        setPose(objectId, bvolume, bframe);
+    }
+
+    private native void setPose(long objectId, boolean bvolume, boolean bframe);
+
+    /* Set current link lengths as resting lengths */
+    public void resetLinkRestLengths() {
+        resetLinkRestLengths(objectId);
+    }
+
+    private native void resetLinkRestLengths(long objectId);
+
+    /* Return the volume */
+    public float getVolume() {
+        return getVolume(objectId);
+    }
+
+    private native float getVolume(long objectId);
+
+    /* Cluster count */
+    public int getClusterCount() {
+        return getClusterCount(objectId);
+    }
+
+    private native int getClusterCount(long objectId);
+
+    /* Cluster center of mass */
+    /*public static Vector3f clusterCom(const Cluster* cluster); */
+    public Vector3f getClusterCenterOfMass(int clusterId) {
+        Vector3f vec = new Vector3f();
+        getClusterCenterOfMass(objectId, clusterId, vec);
+        return vec;
+    }
+
+    private native void getClusterCenterOfMass(long objectId, int clusterId, Vector3f vec);
+
+    /* Cluster velocity at rpos */
+    /*public static Vector3f clusterVelocity(const Cluster* cluster,const btVector3& rpos);*/
+    /* Cluster impulse */
+    /*static void	clusterVImpulse(Cluster* cluster,const btVector3& rpos,const btVector3& impulse);
+     static void	clusterDImpulse(Cluster* cluster,const btVector3& rpos,const btVector3& impulse);
+     static void	clusterImpulse(Cluster* cluster,const btVector3& rpos,const Impulse& impulse);
+     static void	clusterVAImpulse(Cluster* cluster,const btVector3& impulse);
+     static void	clusterDAImpulse(Cluster* cluster,const btVector3& impulse);
+     static void	clusterAImpulse(Cluster* cluster,const Impulse& impulse);
+     static void	clusterDCImpulse(Cluster* cluster,const btVector3& impulse);*/
+    /* Generate bending constraints based on distance in the adjency graph */
+    /*public int generateBendingConstraints( int distance, Material* mat=0){
+        
+    }*/
+    
+    /* Randomize constraints to reduce solver bias */
+    public void randomizeConstraints() {
+        randomizeConstraints(objectId);
+    }
+
+    private native void randomizeConstraints(long objectId);
+
+    /* Release clusters */
+    public void releaseCluster(int index) {
+        releaseCluster(objectId, index);
+    }
+
+    private native void releaseCluster(long objectId, int index);
+
+    public void releaseClusters() {
+        releaseClusters(objectId);
+    }
+
+    private native void releaseClusters(long objectId);
+
+    /* Generate clusters (K-mean) */
+///generateClusters with k=0 will create a convex cluster for each tetrahedron or triangle
+///otherwise an approximation will be used (better performance)
+    public int generateClusters(int k) {
+        return generateClusters(k, 8192);
+    }
+
+    public int generateClusters(int k, int maxiterations) {
+        return generateClusters(objectId, k, maxiterations);
+    }
+
+    private native int generateClusters(long objectId, int k, int maxiterations);
+
+    /* Refine */
+    /*public void refine(ImplicitFn* ifn,float accurary,boolean cut);*/
+    /* CutLink */
+    public boolean cutLink(int node0, int node1, float position) {
+        return false;
+    }
+    /*public boolean cutLink(Node* node0, Node* node1, float position){
+    
+     }*/
+///Ray casting using rayFrom and rayTo in worldspace, (not direction!)
+/*public boolean rayTest(Vector3f rayFrom, Vector3f rayTo, sRayCast& results);*/
+    /* Solver presets */
+    /*public void setSolver(eSolverPresets::_ preset);*/
+
+    /* predictMotion */
+    public void predictMotion(float dt) {
+        predictMotion(objectId, dt);
+    }
+
+    private native void predictMotion(long objectId, float dt);
+    /* solveConstraints */
+
+    public void solveConstraints() {
+        solveConstraints(objectId);
+    }
+
+    private native void solveConstraints(long objectId);
+
+    /* staticSolve */
+    public void staticSolve(int iterations) {
+        staticSolce(objectId, iterations);
+    }
+
+    private native void staticSolce(long objectId, int iterations);
+
+    /* solveCommonConstraints */
+    /*public static void solveCommonConstraints(btSoftBody** bodies,int count,int iterations){
+    
+     }*/
+    /* solveClusters */
+    /*public static void solveClusters(const btAlignedObjectArray<btSoftBody*>& bodies){
+    
+     }*/
+    /* integrateMotion */
+    public void integrateMotion() {
+        integrateMotion(objectId);
+    }
+
+    private native void integrateMotion(long objectId);
+    /* defaultCollisionHandlers */
+    /*public void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap){
+    
+     }*/
+
+    public void defaultCollisionHandler(PhysicsSoftBody psb) {
+        defaultCollisionHandler(psb.objectId);
+    }
+
+    private native void defaultCollisionHandler(long objectId);
+
+    /*============*
+     * data Struct
+     *============*/
+    class SoftBodyMaterial {
+
+        private float linearStiffnessFactor; // Linear stiffness coefficient [0,1]
+        private float angularStiffnessFactor; // Area/Angular stiffness coefficient [0,1]
+        private float volumeStiffnessFactor; // Volume stiffness coefficient [0,1]
+        private int flags; // Flags
+
+        public SoftBodyMaterial(float linearStiffnessFactor, float angularStiffnessFactor, float volumeStiffnessFactor, int flags) {
+            this.linearStiffnessFactor = linearStiffnessFactor;
+            this.angularStiffnessFactor = angularStiffnessFactor;
+            this.volumeStiffnessFactor = volumeStiffnessFactor;
+            this.flags = flags;
+        }
+
+        /**
+         * @return the linearStiffnessFactor
+         */
+        public float getLinearStiffnessFactor() {
+            return linearStiffnessFactor;
+        }
+
+        /**
+         * @param linearStiffnessFactor the linearStiffnessFactor to set
+         */
+        public void setLinearStiffnessFactor(float linearStiffnessFactor) {
+            this.linearStiffnessFactor = linearStiffnessFactor;
+        }
+
+        /**
+         * @return the angularStiffnessFactor
+         */
+        public float getAngularStiffnessFactor() {
+            return angularStiffnessFactor;
+        }
+
+        /**
+         * @param angularStiffnessFactor the angularStiffnessFactor to set
+         */
+        public void setAngularStiffnessFactor(float angularStiffnessFactor) {
+            this.angularStiffnessFactor = angularStiffnessFactor;
+        }
+
+        /**
+         * @return the volumeStiffnessFactor
+         */
+        public float getVolumeStiffnessFactor() {
+            return volumeStiffnessFactor;
+        }
+
+        /**
+         * @param volumeStiffnessFactor the volumeStiffnessFactor to set
+         */
+        public void setVolumeStiffnessFactor(float volumeStiffnessFactor) {
+            this.volumeStiffnessFactor = volumeStiffnessFactor;
+        }
+
+        /**
+         * @return the flags
+         */
+        public int getFlags() {
+            return flags;
+        }
+
+        /**
+         * @param flags the flags to set
+         */
+        public void setFlags(int flags) {
+            this.flags = flags;
+        }
+
+    }
 }
-
-class SoftBodyWorldInfo {
-
-    private float airDensity;
-    private float waterDensity;
-    private float waterOffset;
-    private float maxDisplacement; //avoid soft body from 'exploding' so use some upper threshold of maximum motion that a node can travel per frame
-    private Vector3f waterNormal;
-    //private btBroadphaseInterface broadphase;
-    //private btDispatcher dispatcher;
-    private Vector3f gravity;
-    //private btSparseSdf<3> sparseSdf; // <- SparseSdf can be avoided or at least just store the Cellsize (3) : private int sparseSdfSize;
-    //SparseSdf is used by bullet but never modifyed
-
-    public SoftBodyWorldInfo() {  //create with default values
-        airDensity = 1.2f;
-        waterDensity = 0;
-        waterOffset = 0;
-        maxDisplacement = 1000.f;
-        waterNormal = Vector3f.ZERO;
-        //broadphase(0);
-        //dispatcher(0);
-        gravity = Vector3f.UNIT_Y.mult(-10);
-    }
-
-    public void setSoftBodyWorldInfo(SoftBodyWorldInfo worldInfo) {
-        this.airDensity = worldInfo.airDensity;
-        this.waterDensity = worldInfo.waterDensity;
-        this.waterOffset = worldInfo.waterOffset;
-        this.maxDisplacement = worldInfo.maxDisplacement;
-        this.waterNormal = worldInfo.waterNormal;
-        this.gravity = worldInfo.gravity;
-    }
-
-    /**
-     * @return the airDensity
-     */
-    public float getAirDensity() {
-        return airDensity;
-    }
-
-    /**
-     * @param airDensity the airDensity to set
-     */
-    public void setAirDensity(float airDensity) {
-        this.airDensity = airDensity;
-    }
-
-    /**
-     * @return the waterDensity
-     */
-    public float getWaterDensity() {
-        return waterDensity;
-    }
-
-    /**
-     * @param waterDensity the waterDensity to set
-     */
-    public void setWaterDensity(float waterDensity) {
-        this.waterDensity = waterDensity;
-    }
-
-    /**
-     * @return the waterOffset
-     */
-    public float getWaterOffset() {
-        return waterOffset;
-    }
-
-    /**
-     * @param waterOffset the waterOffset to set
-     */
-    public void setWaterOffset(float waterOffset) {
-        this.waterOffset = waterOffset;
-    }
-
-    /**
-     * @return the maxDisplacement
-     */
-    public float getMaxDisplacement() {
-        return maxDisplacement;
-    }
-
-    /**
-     * @param maxDisplacement the maxDisplacement to set
-     */
-    public void setMaxDisplacement(float maxDisplacement) {
-        this.maxDisplacement = maxDisplacement;
-    }
-
-    /**
-     * @return the waterNormal
-     */
-    public Vector3f getWaterNormal() {
-        return waterNormal;
-    }
-
-    /**
-     * @param waterNormal the waterNormal to set
-     */
-    public void setWaterNormal(Vector3f waterNormal) {
-        this.waterNormal = waterNormal;
-    }
-
-    /**
-     * @return the gravity
-     */
-    public Vector3f getGravity() {
-        return gravity;
-    }
-
-    /**
-     * @param gravity the gravity to set
-     */
-    public void setGravity(Vector3f gravity) {
-        this.gravity = gravity;
-    }
-}
-
-
-/*public PhysicsSoftBody(SoftBodyWorldInfo worldInfo, ) /*
- btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo,int node_count, const btVector3* x, const btScalar* m)
- :m_softBodySolver(0),m_worldInfo(worldInfo)
- {
- // Init 
- initDefaults();
- // Default material 
- Material* pm=appendMaterial();
- pm->m_kLST = 1;
- pm->m_kAST = 1;
- pm->m_kVST = 1;
- pm->m_flags = fMaterial::Default;
- // Nodes 
- const btScalar margin=getCollisionShape()->getMargin();
- m_nodes.resize(node_count);
- for(int i=0,ni=node_count;i<ni;++i)
- {
- Node& n=m_nodes[i];
- ZeroInitialize(n);
- n.m_x	= x?*x++:btVector3(0,0,0);
- n.m_q	= n.m_x;
- n.m_im	= m?*m++:1;
- n.m_im	= n.m_im>0?1/n.m_im:0;
- n.m_leaf	= m_ndbvt.insert(btDbvtVolume::FromCR(n.m_x,margin),&n);
- n.m_material= pm;
- }
- updateBounds();
- }
-            
- */ /*
- btSoftBody::btSoftBody(btSoftBodyWorldInfo* worldInfo)
- :m_worldInfo(worldInfo)
- {
- initDefaults();
- }
- */
-/*  
-      
- public void setLinearVelocity(Vector3f vec){
-        
- }
-
- public Vector3f getLinearVelocity(){
- return Vector3f.NAN;
- }
-    
- public void setMass(float value, int node){
-        
- }
-    
- public float getMass(int node){
- return 0;
- }
-    
- public void setTotalMass(float value){
-        
- }
-    
- */
-
-/* USE CASE : 
-      
- create a btSoftBody (psb) 
- add the SoftBody into a SoftDynamicsWorld
- psb.setVolumeMass
- psb.m_cfg.piterations 2 ?????????
-      
- psb->m_cfg.collisions = 
- */
