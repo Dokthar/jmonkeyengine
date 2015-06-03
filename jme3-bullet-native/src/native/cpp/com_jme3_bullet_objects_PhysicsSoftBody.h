@@ -52,7 +52,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_initDefault
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    setSoftBodyWorldInfo
- * Signature: (JLcom/jme3/bullet/objects/PhysicsSoftBody/SoftBodyWorldInfo;)V
+ * Signature: (JLcom/jme3/bullet/objects/infos/SoftBodyWorldInfo;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setSoftBodyWorldInfo
   (JNIEnv *, jobject, jlong, jobject);
@@ -60,7 +60,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setSoftBodyW
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    getSoftBodyWorldInfo
- * Signature: (JLcom/jme3/bullet/objects/PhysicsSoftBody/SoftBodyWorldInfo;)V
+ * Signature: (JLcom/jme3/bullet/objects/infos/SoftBodyWorldInfo;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getSoftBodyWorldInfo
   (JNIEnv *, jobject, jlong, jobject);
@@ -68,10 +68,10 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getSoftBodyW
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    appendMaterial
- * Signature: (JFFFI)V
+ * Signature: (JLcom/jme3/bullet/objects/PhysicsSoftBody/SoftBodyMaterial;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendMaterial
-  (JNIEnv *, jobject, jlong, jfloat, jfloat, jfloat, jint);
+  (JNIEnv *, jobject, jlong, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody

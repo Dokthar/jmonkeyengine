@@ -34,6 +34,7 @@ package com.jme3.bullet;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.objects.PhysicsSoftBody;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
+import com.jme3.math.Vector3f;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
@@ -50,24 +51,43 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     private static final Logger logger = Logger.getLogger(PhysicsSpace.class.getName());
     private Map<Long, PhysicsSoftBody> softBodies = new ConcurrentHashMap<Long, PhysicsSoftBody>();
 
-    /*
-    
-     btSoftBodyArray m_softBodies;
+    /*    
+     btSoftBodyArray m_softBodies; <- done
      int	m_drawFlags;
      bool	m_drawNodeTree;
      bool	m_drawFaceTree;
      bool	m_drawClusterTree;
-     btSoftBodyWorldInfo m_sbi;
+     btSoftBodyWorldInfo m_sbi; <- done
      ///Solver classes that encapsulate multiple soft bodies for solving
      btSoftBodySolver *m_softBodySolver;
      bool	m_ownsSolver;
      */
-    /*
-     public void addSoftBody(PhysicsSoftBody body,
-     short int collisionFilterGroup=btBroadphaseProxy::DefaultFilter,
-     short int collisionFilterMask=btBroadphaseProxy::AllFilter){
+
+    public PhysicsSoftSpace() {
+    }
+
+    public PhysicsSoftSpace(BroadphaseType broadphaseType) {
+        super(broadphaseType);
+    }
+
+    public PhysicsSoftSpace(Vector3f worldMin, Vector3f worldMax) {
+        super(worldMin, worldMax);
+    }
+
+    public PhysicsSoftSpace(Vector3f worldMin, Vector3f worldMax, BroadphaseType broadphaseType) {
+        super(worldMin, worldMax, broadphaseType);
+    }
     
-     }*/
+    @Override
+    public void create() {
+        long id = createPhysicsSoftSpace(getWorldMin(), getWorldMax(), getBroadphaseType().ordinal(), false);
+        setSpaceId(id);
+        pQueueTL.set(pQueue);
+        physicsSpaceTL.set(this);
+    }
+
+    private native long createPhysicsSoftSpace(Vector3f min, Vector3f max, int broadphaseType, boolean threading);
+
     @Override
     public void add(Object obj) {
         if (obj instanceof PhysicsSoftBody) {
@@ -112,6 +132,8 @@ public class PhysicsSoftSpace extends PhysicsSpace {
         }
         softBodies.put(body.getObjectId(), body);
         logger.log(Level.FINE, "Adding SoftBody {0} to physics space.", body.getObjectId());
+        //used to avoid having to set the SoftBodyWorldInfo in the SoftBody Constructor
+        body.setSoftBodyWorldInfo(getWorldInfo());
         addSoftBody(getSpaceId(), body.getObjectId());
     }
 
@@ -125,20 +147,19 @@ public class PhysicsSoftSpace extends PhysicsSpace {
         softBodies.remove(body.getObjectId());
         logger.log(Level.FINE, "Removing SoftBody {0} to physics space.", body.getObjectId());
         removeSoftBody(getSpaceId(), body.getObjectId());
-        
+
     }
 
     private native void removeSoftBody(long space, long id);
 
     /*
-    public int getDrawFlags() {
-        return 0;
-    }
+     public int getDrawFlags() {
+     return 0;
+     }
 
-    public void setDrawFlags(int f) {
+     public void setDrawFlags(int f) {
 
-    }*/
-
+     }*/
     public SoftBodyWorldInfo getWorldInfo() {
         SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo();
         getWorldInfo(getSpaceId(), worldInfo);
@@ -146,6 +167,12 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     }
 
     private native void getWorldInfo(long objectId, SoftBodyWorldInfo worldInfo);
+
+    public void setWorldInfo(SoftBodyWorldInfo worldInfo) {
+        setWorldInfo(getSpaceId(), worldInfo);
+    }
+
+    private native void setWorldInfo(long objectId, SoftBodyWorldInfo worldInfo);
 
     /*
      virtual btDynamicsWorldType getWorldType() const

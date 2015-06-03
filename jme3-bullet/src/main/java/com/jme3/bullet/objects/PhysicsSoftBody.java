@@ -48,6 +48,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     //btSoftBodyWorldInfo is a data struct stored into btSoftBody.h
     //public PhysicsSoftBody(SoftBodyWorldInfo worldInfo, int node_count, Vector3f x, float m) 
     public PhysicsSoftBody(CollisionShape shape) {
+        initDefault();
         collisionShape = shape;
         //rebuildRigidBody();
     }
@@ -56,12 +57,12 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public PhysicsSoftBody() {
         initDefault();
     }
-
+/*
     public PhysicsSoftBody(SoftBodyWorldInfo worldInfo) {
         initDefault();
         setSoftBodyWorldInfo(worldInfo);
     }
-
+*/
     private void initDefault() {
         initDefault(objectId);
     }
@@ -69,6 +70,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     private native void initDefault(long objectId);
 
     public void setSoftBodyWorldInfo(SoftBodyWorldInfo worldinfo) {
+        setSoftBodyWorldInfo(objectId, worldinfo);
     }
 
     private native void setSoftBodyWorldInfo(long objectId, SoftBodyWorldInfo worldinfo);

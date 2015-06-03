@@ -74,15 +74,15 @@ public class PhysicsSpace {
     public static final int AXIS_Y = 1;
     public static final int AXIS_Z = 2;
     private long physicsSpaceId = 0;
-    private static ThreadLocal<ConcurrentLinkedQueue<AppTask<?>>> pQueueTL =
+    protected static ThreadLocal<ConcurrentLinkedQueue<AppTask<?>>> pQueueTL =
             new ThreadLocal<ConcurrentLinkedQueue<AppTask<?>>>() {
                 @Override
                 protected ConcurrentLinkedQueue<AppTask<?>> initialValue() {
                     return new ConcurrentLinkedQueue<AppTask<?>>();
                 }
             };
-    private ConcurrentLinkedQueue<AppTask<?>> pQueue = new ConcurrentLinkedQueue<AppTask<?>>();
-    private static ThreadLocal<PhysicsSpace> physicsSpaceTL = new ThreadLocal<PhysicsSpace>();
+    protected ConcurrentLinkedQueue<AppTask<?>> pQueue = new ConcurrentLinkedQueue<AppTask<?>>();
+    protected static ThreadLocal<PhysicsSpace> physicsSpaceTL = new ThreadLocal<PhysicsSpace>();
     private BroadphaseType broadphaseType = BroadphaseType.DBVT;
 //    private DiscreteDynamicsWorld dynamicsWorld = null;
 //    private BroadphaseInterface broadphase;
@@ -939,6 +939,16 @@ public class PhysicsSpace {
     public long getSpaceId() {
         return physicsSpaceId;
     }
+    
+    /**
+    * // * used internally //
+    * 
+    * @param spaceId 
+    */
+    public void setSpaceId(long spaceId) {
+        physicsSpaceId = spaceId;
+    }
+
 
     public BroadphaseType getBroadphaseType() {
         return broadphaseType;
