@@ -9,10 +9,10 @@ extern "C" {
 #endif
 /*
  * Class:     com_jme3_bullet_objects_infos_SoftBodyWorldInfo
- * Method:    crt_SoftBodyWordlInfo
+ * Method:    createSoftBodyWorldInfo
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_crt_1SoftBodyWordlInfo
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_createSoftBodyWorldInfo
   (JNIEnv *, jobject);
 
 /*
@@ -81,10 +81,10 @@ JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_ge
 
 /*
  * Class:     com_jme3_bullet_objects_infos_SoftBodyWorldInfo
- * Method:    setMacDisplacement
+ * Method:    setMaxDisplacement
  * Signature: (JF)V
  */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setMacDisplacement
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setMaxDisplacement
   (JNIEnv *, jobject, jlong, jfloat);
 
 /*

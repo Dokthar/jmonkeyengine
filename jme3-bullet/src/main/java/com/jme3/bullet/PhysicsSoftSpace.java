@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * @author dokthar
  */
 public class PhysicsSoftSpace extends PhysicsSpace {
-
+    
     private static final Logger logger = Logger.getLogger(PhysicsSpace.class.getName());
     private Map<Long, PhysicsSoftBody> softBodies = new ConcurrentHashMap<Long, PhysicsSoftBody>();
 
@@ -62,18 +62,17 @@ public class PhysicsSoftSpace extends PhysicsSpace {
      btSoftBodySolver *m_softBodySolver;
      bool	m_ownsSolver;
      */
-
     public PhysicsSoftSpace() {
     }
-
+    
     public PhysicsSoftSpace(BroadphaseType broadphaseType) {
         super(broadphaseType);
     }
-
+    
     public PhysicsSoftSpace(Vector3f worldMin, Vector3f worldMax) {
         super(worldMin, worldMax);
     }
-
+    
     public PhysicsSoftSpace(Vector3f worldMin, Vector3f worldMax, BroadphaseType broadphaseType) {
         super(worldMin, worldMax, broadphaseType);
     }
@@ -85,9 +84,9 @@ public class PhysicsSoftSpace extends PhysicsSpace {
         pQueueTL.set(pQueue);
         physicsSpaceTL.set(this);
     }
-
+    
     private native long createPhysicsSoftSpace(Vector3f min, Vector3f max, int broadphaseType, boolean threading);
-
+    
     @Override
     public void add(Object obj) {
         if (obj instanceof PhysicsSoftBody) {
@@ -96,7 +95,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
             super.add(obj);
         }
     }
-
+    
     @Override
     public void addCollisionObject(PhysicsCollisionObject obj) {
         if (obj instanceof PhysicsSoftBody) {
@@ -105,7 +104,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
             super.addCollisionObject(obj);
         }
     }
-
+    
     @Override
     public void remove(Object obj) {
         if (obj instanceof PhysicsSoftBody) {
@@ -124,7 +123,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
             super.removeCollisionObject(obj);
         }
     }
-
+    
     private void addSoftBody(PhysicsSoftBody body) {
         if (softBodies.containsKey(body.getObjectId())) {
             logger.log(Level.WARNING, "SoftBody {0} already exists in PhysicsSpace, cannot add.", body);
@@ -136,9 +135,9 @@ public class PhysicsSoftSpace extends PhysicsSpace {
         body.setSoftBodyWorldInfo(getWorldInfo());
         addSoftBody(getSpaceId(), body.getObjectId());
     }
-
+    
     private native void addSoftBody(long space, long id);
-
+    
     private void removeSoftBody(PhysicsSoftBody body) {
         if (!softBodies.containsKey(body.getObjectId())) {
             logger.log(Level.WARNING, "SoftObject {0} does not exist in PhysicsSpace, cannot remove.", body);
@@ -147,9 +146,9 @@ public class PhysicsSoftSpace extends PhysicsSpace {
         softBodies.remove(body.getObjectId());
         logger.log(Level.FINE, "Removing SoftBody {0} to physics space.", body.getObjectId());
         removeSoftBody(getSpaceId(), body.getObjectId());
-
+        
     }
-
+    
     private native void removeSoftBody(long space, long id);
 
     /*
@@ -161,18 +160,18 @@ public class PhysicsSoftSpace extends PhysicsSpace {
 
      }*/
     public SoftBodyWorldInfo getWorldInfo() {
-        SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo();
-        getWorldInfo(getSpaceId(), worldInfo);
+        long worlInfoId = getWorldInfo(getSpaceId());
+        SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo(worlInfoId);
         return worldInfo;
     }
-
-    private native void getWorldInfo(long objectId, SoftBodyWorldInfo worldInfo);
-
+    
+    private native long getWorldInfo(long objectId);
+    
     public void setWorldInfo(SoftBodyWorldInfo worldInfo) {
-        setWorldInfo(getSpaceId(), worldInfo);
+        setWorldInfo(getSpaceId(), worldInfo.getWorldInfoId());
     }
-
-    private native void setWorldInfo(long objectId, SoftBodyWorldInfo worldInfo);
+    
+    private native void setWorldInfo(long objectId, long worldInfoId);
 
     /*
      virtual btDynamicsWorldType getWorldType() const

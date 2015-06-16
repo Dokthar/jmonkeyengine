@@ -36,4 +36,5 @@
 /**
  * Author: dokthar
  */
-
+jmePhysicsSoftSpace::jmePhysicsSoftSpace(JNIEnv* env, jobject javaSpace) 
+: super(env, javaSpace){};

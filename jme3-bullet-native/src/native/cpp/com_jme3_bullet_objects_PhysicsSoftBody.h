@@ -43,6 +43,22 @@ extern "C" {
 #define com_jme3_bullet_objects_PhysicsSoftBody_COLLISION_GROUP_16 32768L
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    ctr_PhysicsSoftBody
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_ctr_1PhysicsSoftBody__
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    ctr_PhysicsSoftBody
+ * Signature: (I[Lcom/jme3/math/Vector3f;[F)J
+ */
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_ctr_1PhysicsSoftBody__I_3Lcom_jme3_math_Vector3f_2_3F
+  (JNIEnv *, jobject, jint, jobjectArray, jfloatArray);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    initDefault
  * Signature: (J)V
  */
@@ -52,18 +68,18 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_initDefault
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    setSoftBodyWorldInfo
- * Signature: (JLcom/jme3/bullet/objects/infos/SoftBodyWorldInfo;)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setSoftBodyWorldInfo
-  (JNIEnv *, jobject, jlong, jobject);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    getSoftBodyWorldInfo
- * Signature: (JLcom/jme3/bullet/objects/infos/SoftBodyWorldInfo;)V
+ * Signature: (J)J
  */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getSoftBodyWorldInfo
-  (JNIEnv *, jobject, jlong, jobject);
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getSoftBodyWorldInfo
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody

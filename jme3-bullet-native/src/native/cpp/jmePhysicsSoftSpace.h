@@ -30,28 +30,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <jni.h>
-#include "btBulletDynamicsCommon.h"
-#include "btBulletCollisionCommon.h"
-#include "BulletCollision/CollisionDispatch/btCollisionDispatcher.h"
-#include "BulletCollision/CollisionDispatch/btCollisionObject.h"
-#include "BulletCollision/CollisionDispatch/btGhostObject.h"
-#include "BulletDynamics/Character/btKinematicCharacterController.h"
-#ifdef _WIN32
-#include "BulletMultiThreaded/Win32ThreadSupport.h"
-#else
-#include "BulletMultiThreaded/PosixThreadSupport.h"
-#endif
-#include "BulletMultiThreaded/btParallelConstraintSolver.h"
-#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "BulletMultiThreaded/SpuCollisionTaskProcess.h"
-#include "BulletMultiThreaded/SequentialThreadSupport.h"
-#include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
-#include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
-#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "jmePhysicsSpace.h"
+
 
 /**
  * Author: Dokthar
  */
 class jmePhysicsSoftSpace : jmePhysicsSpace {
-   
+
+public:
+	jmePhysicsSoftSpace(){};
+	~jmePhysicsSoftSpace();
+        jmePhysicsSoftSpace(JNIEnv*, jobject);
+
+// Signature: (Lcom/jme3/math/Vector3f;Lcom/jme3/math/Vector3f;IZ)V
+void createPhysicsSoftSpace(jobject, jobject, jint, jboolean);
+
 };

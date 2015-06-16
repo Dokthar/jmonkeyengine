@@ -62,12 +62,17 @@ public class SoftBodyWorldInfo {
          //broadphase(0);
          //dispatcher(0);
          gravity = Vector3f.UNIT_Y.mult(-10);*/
-        worldInfoId = crt_SoftBodyWordlInfo();
+        worldInfoId = createSoftBodyWorldInfo();
     }
-
-    private native long crt_SoftBodyWordlInfo();
+        
+    public SoftBodyWorldInfo(long worldId){
+        worldInfoId = worldId;
+    }
+ 
+    private native long createSoftBodyWorldInfo();
 
     public SoftBodyWorldInfo(SoftBodyWorldInfo worldInfo) {
+        worldInfoId = createSoftBodyWorldInfo();
         setSoftBodyWorldInfo(worldInfo);
     }
 
@@ -144,10 +149,10 @@ public class SoftBodyWorldInfo {
      * @param maxDisplacement the maxDisplacement to set
      */
     public void setMaxDisplacement(float maxDisplacement) {
-        setMacDisplacement(worldInfoId, maxDisplacement);
+        setMaxDisplacement(worldInfoId, maxDisplacement);
     }
 
-    public native void setMacDisplacement(long worldInfoId, float maxDisplacement);
+    public native void setMaxDisplacement(long worldInfoId, float maxDisplacement);
 
     /**
      * @return the waterNormal
@@ -190,7 +195,8 @@ public class SoftBodyWorldInfo {
     private native void setGravity(long worldInfoId, Vector3f vec);
 
     /**
-     * @return the worldInfoId
+     *  <!> used internal !
+     * @return the native Id of the SoftBodyWorldInfo
      */
     public long getWorldInfoId() {
         return worldInfoId;

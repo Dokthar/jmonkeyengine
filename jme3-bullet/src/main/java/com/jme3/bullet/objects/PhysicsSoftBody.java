@@ -44,25 +44,33 @@ import com.jme3.math.Vector3f;
  */
 public class PhysicsSoftBody extends PhysicsCollisionObject {
 
-    //Constructor past form btSoftBody
-    //btSoftBodyWorldInfo is a data struct stored into btSoftBody.h
-    //public PhysicsSoftBody(SoftBodyWorldInfo worldInfo, int node_count, Vector3f x, float m) 
-    public PhysicsSoftBody(CollisionShape shape) {
-        initDefault();
-        collisionShape = shape;
-        //rebuildRigidBody();
+    public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
+        objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
     }
 
+    /* public PhysicsSoftBody(CollisionShape shape) {
+     objectId = ctr_PhysicsSoftBofy();
+     initDefault();
+     collisionShape = shape;
+     //rebuildRigidBody();
+     }*/
 //private SoftBodyWorldInfo softworldinfo;
     public PhysicsSoftBody() {
+        objectId = ctr_PhysicsSoftBody();
         initDefault();
     }
-/*
-    public PhysicsSoftBody(SoftBodyWorldInfo worldInfo) {
-        initDefault();
-        setSoftBodyWorldInfo(worldInfo);
-    }
-*/
+    /*
+     public PhysicsSoftBody(SoftBodyWorldInfo worldInfo) {
+     initDefault();
+     setSoftBodyWorldInfo(worldInfo);
+     }
+     */
+
+    private native long ctr_PhysicsSoftBody();
+
+    private native long ctr_PhysicsSoftBody(int size, Vector3f[] vertices, float[] mass);
+    //private native long ctr_PhysicsSoftBody(int nodeCount, Vector3f x, float m);
+
     private void initDefault() {
         initDefault(objectId);
     }
@@ -70,18 +78,18 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     private native void initDefault(long objectId);
 
     public void setSoftBodyWorldInfo(SoftBodyWorldInfo worldinfo) {
-        setSoftBodyWorldInfo(objectId, worldinfo);
+        setSoftBodyWorldInfo(objectId, worldinfo.getWorldInfoId());
     }
 
-    private native void setSoftBodyWorldInfo(long objectId, SoftBodyWorldInfo worldinfo);
+    private native void setSoftBodyWorldInfo(long objectId, long worldinfoId);
 
     public SoftBodyWorldInfo getSoftBodyWorldInfo() {
-        SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo();
-        getSoftBodyWorldInfo(objectId, worldInfo);
+        long worldInfoId = getSoftBodyWorldInfo(objectId);
+        SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo(worldInfoId); // <-point on the same native object
         return worldInfo;
     }
 
-    private native void getSoftBodyWorldInfo(long objectId, SoftBodyWorldInfo worldInfo);
+    private native long getSoftBodyWorldInfo(long objectId);
 
     /*public static PhysicsSoftBody creatFromTriMesh(Mesh mesh);
 
@@ -109,7 +117,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
      }
      */
     public void appendMaterial(SoftBodyMaterial material) {
-        appendMaterial(objectId, material); 
+        appendMaterial(objectId, material);
     }
 
     private native void appendMaterial(long objectId, SoftBodyMaterial material);
@@ -307,8 +315,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     /* Generate bending constraints based on distance in the adjency graph */
     /*public int generateBendingConstraints( int distance, Material* mat=0){
         
-    }*/
-    
+     }*/
     /* Randomize constraints to reduce solver bias */
     public void randomizeConstraints() {
         randomizeConstraints(objectId);
