@@ -32,7 +32,8 @@
 #include "com_jme3_bullet_PhysicsSoftSpace.h"
 #include "jmePhysicsSoftSpace.h"
 #include "jmeBulletUtil.h"
-
+#include "BulletSoftBody/btSoftBody.h"
+#include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 
 /**
  * Author: Dokthar
@@ -80,7 +81,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSoftSpace_addSoftBody
         }
         jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
         userPointer -> space = space;
-        space->getDynamicsWorld()->addSoftBody(collisionObject);
+        ((btSoftRigidDynamicsWorld*)space->getDynamicsWorld())->addSoftBody(collisionObject);
 }
 
 /*
@@ -104,7 +105,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSoftSpace_removeSoftBody
         }
         jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
         userPointer -> space = space;
-        space->getDynamicsWorld()->removeSoftBody(collisionObject);
+        ((btSoftRigidDynamicsWorld*)space->getDynamicsWorld())->removeSoftBody(collisionObject);
 }
 
 

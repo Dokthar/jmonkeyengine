@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "jmePhysicsSpace.h"
+#include "jmePhysicsSoftSpace.h"
 #include "jmeBulletUtil.h"
 #include <stdio.h>
 
@@ -37,4 +37,4 @@
  * Author: dokthar
  */
 jmePhysicsSoftSpace::jmePhysicsSoftSpace(JNIEnv* env, jobject javaSpace) 
-: super(env, javaSpace){};
+: jmePhysicsSpace(env, javaSpace){};

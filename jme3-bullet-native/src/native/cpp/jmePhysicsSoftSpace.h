@@ -32,11 +32,10 @@
 #include <jni.h>
 #include "jmePhysicsSpace.h"
 
-
 /**
  * Author: Dokthar
  */
-class jmePhysicsSoftSpace : jmePhysicsSpace {
+class jmePhysicsSoftSpace : public jmePhysicsSpace {
 
 public:
 	jmePhysicsSoftSpace(){};

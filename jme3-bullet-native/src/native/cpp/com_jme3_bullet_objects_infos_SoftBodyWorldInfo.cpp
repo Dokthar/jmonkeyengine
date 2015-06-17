@@ -49,7 +49,7 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_createSoftBodyWorldInfo
     (JNIEnv *env, jobject object) {
         jmeClasses::initJavaClasses(env);
-        btSoftBodyWorldInfo worldInfo = btSoftBodyWorldInfo();
+        btSoftBodyWorldInfo* worldInfo = new btSoftBodyWorldInfo();
         return reinterpret_cast<jlong> (worldInfo);
     }
 
@@ -60,24 +60,24 @@ extern "C" {
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setSoftBodyWorldInfo
     (JNIEnv *env, jobject object, jlong worldId, jlong copyId) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
-        btSoftBodyWorldInfo copy = reinterpret_cast<btSoftBodyWorldInfo*> (copyId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* copy = reinterpret_cast<btSoftBodyWorldInfo*> (copyId);
 
-        if (world == null || copy == null) {
+        if (world == NULL || copy == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
         if (world != copy) {
-            world.air_density = copy.air_density;
-            world.water_density = copy.water_density;
-            world.water_offset = copy.water_offset;
-            world.m_maxDisplacement = copy.m_maxDiplacement;
-            world.water_normal = copy.water_normal;
-            world.m_broadphase = copy.m_broadphase; // <- <!> pointer variable
-            world.m_dispatcher = copy.m_dispatcher; // <- <!> pointer variable
-            world.m_gravity = copy.m_gravity;
-            world.m_sparseSdf = copy.m_sparseSdf;
+            world->air_density = copy->air_density;
+            world->water_density = copy->water_density;
+            world->water_offset = copy->water_offset;
+            world->m_maxDisplacement = copy->m_maxDisplacement;
+            world->water_normal = copy->water_normal;
+            world->m_broadphase = copy->m_broadphase; // <- <!> pointer variable
+            world->m_dispatcher = copy->m_dispatcher; // <- <!> pointer variable
+            world->m_gravity = copy->m_gravity;
+            world->m_sparsesdf = copy->m_sparsesdf;
         }
         return 0;
     }
@@ -89,14 +89,14 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_getAirDensity
     (JNIEnv *env, jobject object, jlong worldId) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return world.air_density;
+        return world->air_density;
     }
 
     /*
@@ -106,14 +106,14 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setAirDensity
     (JNIEnv *env, jobject object, jlong worldId, jfloat value) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        world.air_density = value;
+        world->air_density = value;
 
     }
 
@@ -124,14 +124,14 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_getWaterDensity
     (JNIEnv *env, jobject object, jlong worldId) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return world.water_density;
+        return world->water_density;
     }
 
     /*
@@ -141,14 +141,14 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setWaterDensity
     (JNIEnv *env, jobject object, jlong worldId, jfloat value) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        world.water_density = value;
+        world->water_density = value;
     }
 
     /*
@@ -158,14 +158,14 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_getWaterOffset
     (JNIEnv *env, jobject object, jlong worldId) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return world.water_offset;
+        return world->water_offset;
     }
 
     /*
@@ -175,14 +175,14 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setWaterOffset
     (JNIEnv *env, jobject object, jlong worldId, jfloat value) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        world.water_offset = value;
+        world->water_offset = value;
     }
 
     /*
@@ -192,14 +192,14 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_getMaxDisplacement
     (JNIEnv *env, jobject object, jlong worldId) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return world.m_maxDisplacement;
+        return world->m_maxDisplacement;
     }
 
     /*
@@ -209,14 +209,14 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setMacDisplacement
     (JNIEnv *env, jobject object, jlong worldId, jfloat value) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        world.m_maxDisplacement = value;
+        world->m_maxDisplacement = value;
     }
 
     /*
@@ -226,14 +226,14 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_getWaterNormal
     (JNIEnv *env, jobject object, jlong worldId, jobject normal) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        jmeBulletUtil::convert(env, &world.water_normal, normal);
+        jmeBulletUtil::convert(env, &world->water_normal, normal);
     }
 
     /*
@@ -243,16 +243,16 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setWaterNormal
     (JNIEnv *env, jobject object, jlong worldId, jobject normal) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, normal, &vec);
-        world.water_normal = vec;
+        world->water_normal = vec;
 
     }
 
@@ -263,14 +263,14 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_getGravity
     (JNIEnv *env, jobject object, jlong worldId, jobject gravity) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        jmeBulletUtil::convert(env, &world.m_gravity, gravity);
+        jmeBulletUtil::convert(env, &world->m_gravity, gravity);
     }
 
     /*
@@ -280,16 +280,16 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_infos_SoftBodyWorldInfo_setGravity
     (JNIEnv *env, jobject object, jlong worldId, jobject gravity) {
-        btSoftBodyWorldInfo world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
+        btSoftBodyWorldInfo* world = reinterpret_cast<btSoftBodyWorldInfo*> (worldId);
 
-        if (world == null) {
+        if (world == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, gravity, &vec);
-        world.m_gravity = vec;
+        world->m_gravity = vec;
 
     }
 

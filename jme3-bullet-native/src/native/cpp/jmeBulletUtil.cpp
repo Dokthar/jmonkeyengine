@@ -442,7 +442,7 @@ void jmeBulletUtil::convert(JNIEnv* env, const btTransform* in, jobject out) {
     convert(env, ,  scale_vec);
      */
 
-    convert(env, in.getOrigin(), translation_vec);
-    convertQuat(env, in.getBasis(), rot_quat); //btMatrix3x3 to Quaternion
+    convert(env, &in->getOrigin(), translation_vec);
+    convertQuat(env, &in->getBasis(), rot_quat); //btMatrix3x3 to Quaternion
 
 }
