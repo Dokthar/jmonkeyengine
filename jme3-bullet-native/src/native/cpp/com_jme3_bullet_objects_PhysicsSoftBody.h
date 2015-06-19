@@ -43,6 +43,14 @@ extern "C" {
 #define com_jme3_bullet_objects_PhysicsSoftBody_COLLISION_GROUP_16 32768L
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    createFromTriMesh
+ * Signature: (I[F[IZ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createFromTriMesh
+  (JNIEnv *, jobject, jint, jfloatArray, jintArray, jboolean);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    ctr_PhysicsSoftBody
  * Signature: ()J
  */

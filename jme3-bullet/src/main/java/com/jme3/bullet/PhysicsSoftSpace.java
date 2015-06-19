@@ -63,6 +63,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
      bool	m_ownsSolver;
      */
     public PhysicsSoftSpace() {
+        super();
     }
     
     public PhysicsSoftSpace(BroadphaseType broadphaseType) {

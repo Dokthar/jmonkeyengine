@@ -37,6 +37,11 @@ import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.util.BufferUtils;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 /**
  *
@@ -48,23 +53,24 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
     }
 
-    /* public PhysicsSoftBody(CollisionShape shape) {
-     objectId = ctr_PhysicsSoftBofy();
-     initDefault();
-     collisionShape = shape;
-     //rebuildRigidBody();
-     }*/
-//private SoftBodyWorldInfo softworldinfo;
     public PhysicsSoftBody() {
         objectId = ctr_PhysicsSoftBody();
         initDefault();
     }
-    /*
-     public PhysicsSoftBody(SoftBodyWorldInfo worldInfo) {
-     initDefault();
-     setSoftBodyWorldInfo(worldInfo);
-     }
-     */
+
+    public PhysicsSoftBody(Mesh triMesh) {
+// must check if the mesh have %3 vertices
+        objectId = createFromTriMesh(triMesh);
+    }
+
+    private long createFromTriMesh(Mesh triMesh) {
+        int[] index = BufferUtils.getIntArray((IntBuffer) triMesh.getBuffer(VertexBuffer.Type.Index).getData());
+        float[] positions = BufferUtils.getFloatArray((FloatBuffer) triMesh.getBuffer(VertexBuffer.Type.Position).getData());
+
+        return createFromTriMesh(index.length / 3, positions, index, false);
+    }
+
+    private native long createFromTriMesh(int nbFace, float[] vertices, int[] index, boolean randomizeConstraints);
 
     private native long ctr_PhysicsSoftBody();
 

@@ -31,6 +31,8 @@
  */
 #include <jni.h>
 #include "jmePhysicsSpace.h"
+#include "BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h"
+#include "BulletSoftBody/btSoftRigidDynamicsWorld.h"
 
 /**
  * Author: Dokthar
