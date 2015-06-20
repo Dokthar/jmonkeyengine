@@ -51,6 +51,7 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         btSoftBodyWorldInfo* wordInfo = new btSoftBodyWorldInfo();
         btSoftBody* body = new btSoftBody(wordInfo);
+        body->setUserPointer(NULL);
         return reinterpret_cast<jlong> (body);
     }
 
@@ -72,6 +73,7 @@ extern "C" {
         jfloat *masses = env->GetFloatArrayElements(massArray, NULL);
         
         btSoftBody* body = new btSoftBody(wordInfo, nodeCount, positions, masses);
+        body->setUserPointer(NULL);
         return reinterpret_cast<jlong> (body);
     }
 

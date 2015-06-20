@@ -45,13 +45,6 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSoftSpace_removeSoftBody
 JNIEXPORT jlong JNICALL Java_com_jme3_bullet_PhysicsSoftSpace_getWorldInfo
   (JNIEnv *, jobject, jlong);
 
-/*
- * Class:     com_jme3_bullet_PhysicsSoftSpace
- * Method:    setWorldInfo
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSoftSpace_setWorldInfo
-  (JNIEnv *, jobject, jlong, jlong);
 
 #ifdef __cplusplus
 }

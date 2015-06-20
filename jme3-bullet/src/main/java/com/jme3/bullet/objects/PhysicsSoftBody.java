@@ -51,16 +51,19 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
         objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
+        initUserPointer();
     }
 
     public PhysicsSoftBody() {
         objectId = ctr_PhysicsSoftBody();
         initDefault();
+        initUserPointer();
     }
 
     public PhysicsSoftBody(Mesh triMesh) {
 // must check if the mesh have %3 vertices
         objectId = createFromTriMesh(triMesh);
+        initUserPointer();
     }
 
     private long createFromTriMesh(Mesh triMesh) {

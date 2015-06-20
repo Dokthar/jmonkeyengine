@@ -157,3 +157,7 @@ void jmePhysicsSoftSpace::createPhysicsSoftSpace(jobject min_vec, jobject max_ve
         gContactProcessedCallback = &jmePhysicsSpace::contactProcessedCallback;
     }
 }
+
+btSoftRigidDynamicsWorld* jmePhysicsSoftSpace::getSoftDynamicsWorld() {
+    return (btSoftRigidDynamicsWorld*) dynamicsWorld;
+}

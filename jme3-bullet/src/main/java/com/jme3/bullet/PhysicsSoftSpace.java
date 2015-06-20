@@ -168,11 +168,14 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     
     private native long getWorldInfo(long objectId);
     
-    public void setWorldInfo(SoftBodyWorldInfo worldInfo) {
-        setWorldInfo(getSpaceId(), worldInfo.getWorldInfoId());
-    }
+    /*public void setWorldInfo(SoftBodyWorldInfo worldInfo) {
+        //no native getter for setting worldInfo
+        //plus the PhysicsSoftSpace worldInfo is shared by default with all SoftBodies
+        //setWorldInfo(getSpaceId(), worldInfo.getWorldInfoId());
+    }*/
     
-    private native void setWorldInfo(long objectId, long worldInfoId);
+
+    //private native void setWorldInfo(long objectId, long worldInfoId);
 
     /*
      virtual btDynamicsWorldType getWorldType() const
