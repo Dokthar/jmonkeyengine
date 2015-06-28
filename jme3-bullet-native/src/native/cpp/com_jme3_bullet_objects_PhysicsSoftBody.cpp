@@ -55,7 +55,7 @@ extern "C" {
         return reinterpret_cast<jlong> (body);
     }
 
-        /*
+    /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    ctr_PhysicsSoftBody
      * Signature: (I[Lcom/jme3/math/Vector3f;[F)J
@@ -64,14 +64,14 @@ extern "C" {
     (JNIEnv *env, jobject object, jint nodeCount, jobjectArray vec, jfloatArray massArray) {
         jmeClasses::initJavaClasses(env);
         btSoftBodyWorldInfo* wordInfo = new btSoftBodyWorldInfo();
-        
+
         //converting arrays
         btVector3 positions[nodeCount];
         for (int i = 0; i < nodeCount; i++) {
-            jmeBulletUtil::convert(env, vec+i, positions+i);
+            jmeBulletUtil::convert(env, vec + i, positions + i);
         }
         jfloat *masses = env->GetFloatArrayElements(massArray, NULL);
-        
+
         btSoftBody* body = new btSoftBody(wordInfo, nodeCount, positions, masses);
         body->setUserPointer(NULL);
         return reinterpret_cast<jlong> (body);
@@ -379,6 +379,47 @@ extern "C" {
         }
         return body->clusterCount();
     }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getVertices
+     * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getVertices
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject callback) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+
+        btVector3 vertexA, vertexB, vertexC;
+
+        for (int i = 0; i < body->m_faces.size(); i++) {
+            const btSoftBody::Face& f = body->m_faces[i];
+
+            // Grab the data for this triangle from the hull
+            vertexA = f.m_n[0]->m_x;
+            vertexB = f.m_n[1]->m_x;
+            vertexC = f.m_n[2]->m_x;
+
+
+            // Put the verticies into the vertex buffer
+            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertexA.getX(), vertexA.getY(), vertexA.getZ());
+            if (env->ExceptionCheck()) {
+                env->Throw(env->ExceptionOccurred());
+                return;
+            }
+            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertexB.getX(), vertexB.getY(), vertexB.getZ());
+            if (env->ExceptionCheck()) {
+                env->Throw(env->ExceptionOccurred());
+                return;
+            }
+            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertexC.getX(), vertexC.getY(), vertexC.getZ());
+            if (env->ExceptionCheck()) {
+                env->Throw(env->ExceptionOccurred());
+                return;
+            }
+        }
+
+    }
+
 
 #ifdef __cplusplus
 }

@@ -321,6 +321,14 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_integrateMot
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_defaultCollisionHandler
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getVertices
+ * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getVertices
+  (JNIEnv *, jclass, jlong, jobject);
+
 #ifdef __cplusplus
 }
 #endif

@@ -34,11 +34,15 @@ package com.jme3.bullet.objects;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
+import com.jme3.bullet.util.DebugMeshCallback;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -221,10 +225,16 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void setPhysicsLocation(long objectId, Vector3f vec);
 
+    public Vector3f getPhysicsLocation(Vector3f store) {
+        if (store == null) {
+            store = new Vector3f();
+        }
+        getPhysicsLocation(objectId, store);
+        return store;
+    }
+
     public Vector3f getPhysicsLocation() {
-        Vector3f vec = new Vector3f();
-        getPhysicsLocation(objectId, vec);
-        return vec;
+        return getPhysicsLocation(null);
     }
 
     private native void getPhysicsLocation(long objectId, Vector3f vec);
@@ -236,10 +246,16 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void setPhysicsRotation(long objectId, Quaternion rot);
 
+    public Quaternion getPhysicsRotation(Quaternion store) {
+        if (store == null) {
+            store = new Quaternion();
+        }
+        getPhysicsRotation(objectId, store);
+        return store;
+    }
+
     public Quaternion getPhysicsRotation() {
-        Quaternion rot = new Quaternion();
-        getPhysicsRotation(objectId, rot);
-        return rot;
+        return getPhysicsRotation(null);
     }
 
     private native void getPhysicsRotation(long objectId, Quaternion rot);
@@ -417,6 +433,43 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     }
 
     private native void defaultCollisionHandler(long objectId);
+
+    /*
+     Since bullet SoftBody don't use btCollisionShape, its not possible to use the DebugShapeFactory.
+     The following code is almost the same , but specially for SoftBody. 
+     Theses methods are static (same as in DebugShapeFactory) so the code can be easily moved somewhere else.
+     */
+    public static Spatial getDebugShape(PhysicsSoftBody softBody) {
+        if (softBody == null) {
+            return null;
+        }
+        Spatial debugShape;
+        debugShape = createDebugShape(softBody);
+        if (debugShape == null) {
+            return null;
+        }
+        debugShape.updateGeometricState();
+        return debugShape;
+    }
+
+    private static Geometry createDebugShape(PhysicsSoftBody softBody) {
+        Geometry geom = new Geometry();
+        geom.setMesh(getDebugMesh(softBody));
+//        geom.setLocalScale(softBody.getScale());
+        geom.updateModelBound();
+        return geom;
+    }
+
+    public static Mesh getDebugMesh(PhysicsSoftBody softBody) {
+        Mesh mesh = new Mesh();
+        DebugMeshCallback callback = new DebugMeshCallback();
+        getVertices(softBody.getObjectId(), callback);
+        mesh.setBuffer(Type.Position, 3, callback.getVertices());
+        mesh.getFloatBuffer(Type.Position).clear();
+        return mesh;
+    }
+
+    private static native void getVertices(long bodyId, DebugMeshCallback buffer);
 
     /*============*
      * data Struct
