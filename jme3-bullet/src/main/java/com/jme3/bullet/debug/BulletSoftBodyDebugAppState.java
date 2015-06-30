@@ -32,9 +32,7 @@
 package com.jme3.bullet.debug;
 
 import com.jme3.bullet.PhysicsSoftSpace;
-import com.jme3.bullet.PhysicsSpace;
 import static com.jme3.bullet.debug.BulletDebugAppState.logger;
-import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.bullet.objects.PhysicsSoftBody;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -59,16 +57,6 @@ public class BulletSoftBodyDebugAppState extends BulletDebugAppState {
     @Override
     public void update(float tpf) {
         super.update(tpf);
-        //update all object links
-     /*   updateRigidBodies();
-         updateGhosts();
-         updateCharacters();
-         updateJoints();
-         updateVehicles();
-         //update our debug root node
-         physicsDebugRootNode.updateLogicalState(tpf);
-         physicsDebugRootNode.updateGeometricState();
-         */
         updateSoftBodies();
         physicsDebugRootNode.updateLogicalState(tpf);
         physicsDebugRootNode.updateGeometricState();

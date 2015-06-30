@@ -44,7 +44,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 /**
- *  This class can't be into the jme3-bullet common.
+ * This class can't be into the jme3-bullet common.
+ *
  * @author dokthar
  */
 public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
@@ -52,17 +53,16 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
     protected final PhysicsSoftBody body;
     protected final Vector3f location = new Vector3f();
     protected final Quaternion rotation = new Quaternion();
-    //protected CollisionShape myShape; there are acctualy not such things with softBodies :/
     protected Spatial geom;
 
     public BulletSoftBodyDebugControl(BulletDebugAppState debugAppState, PhysicsSoftBody body) {
         super(debugAppState);
         this.body = body;
-        /*                myShape = body.getCollisionShape();
-         this.geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
-         this.geom.setName(body.toString());
-         geom.setMaterial(debugAppState.DEBUG_BLUE);
-         */
+
+        geom = PhysicsSoftBody.getDebugShape(body);
+        geom.setName(body.toString());
+        geom.setMaterial(debugAppState.DEBUG_BLUE);
+
     }
 
     @Override
@@ -82,15 +82,15 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
 
         Node node = (Node) this.spatial;
         node.detachChild(geom);
-        geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
+        geom = PhysicsSoftBody.getDebugShape(body);
 
         node.attachChild(geom);
 
-   //     if (body.isActive()) {
-            geom.setMaterial(debugAppState.DEBUG_RED);
- /*       } else {
-            geom.setMaterial(debugAppState.DEBUG_BLUE);
-        }*/
+        //     if (body.isActive()) {
+        geom.setMaterial(debugAppState.DEBUG_RED);
+        /*       } else {
+         geom.setMaterial(debugAppState.DEBUG_BLUE);
+         }*/
         applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
         // scale not fully supported yet
         //geom.setLocalScale(body.getCollisionShape().getScale()); 
@@ -99,6 +99,5 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
     }
-    
 
 }
