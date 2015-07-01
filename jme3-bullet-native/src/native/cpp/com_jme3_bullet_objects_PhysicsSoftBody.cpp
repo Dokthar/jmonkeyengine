@@ -36,10 +36,50 @@
 #include "com_jme3_bullet_objects_PhysicsSoftBody.h"
 #include "jmeBulletUtil.h"
 #include "BulletSoftBody/btSoftBody.h"
+#include "BulletSoftBody/btSoftBodyHelpers.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    createFromTriMesh
+     * Signature: (JZ)J
+     */
+    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createFromTriMesh
+    (JNIEnv *env, jobject object, jlong triangleIndexVertexArrayID, jboolean randomizeConstraints) {
+        jmeClasses::initJavaClasses(env);
+        btTriangleIndexVertexArray* array = reinterpret_cast<btTriangleIndexVertexArray*> (triangleIndexVertexArrayID);
+        btSoftBodyWorldInfo* worldInfo = new btSoftBodyWorldInfo();
+
+        const int subPart = 0; //get the default one
+        const unsigned char *vertexBase;
+        int numverts;
+        PHY_ScalarType vertexType;
+        int vertexStride;
+        const unsigned char *triangleBase;
+        int triangleStride;
+        int nbTriangles;
+        PHY_ScalarType triangleType;
+        array->getLockedReadOnlyVertexIndexBase(&vertexBase, numverts, vertexType, vertexStride, &triangleBase, triangleStride, nbTriangles, triangleType, subPart);
+
+        array->unLockReadOnlyVertexBase(subPart);
+
+        float* vertices = reinterpret_cast<float*> (&vertexBase);
+        int* triangles = reinterpret_cast<int*> (&triangleBase);
+        int maxidx = 0;
+        int i, ni;
+        for (i = 0, ni = nbTriangles * 3; i < ni; ++i) {
+            maxidx = btMax(triangles[i], maxidx);
+            printf("triangle %d, max %d\n", triangles[i], maxidx);
+        }
+        const bool random = randomizeConstraints;
+        btSoftBody* body = btSoftBodyHelpers::CreateFromTriMesh(*worldInfo, vertices, triangles, nbTriangles, &random);
+
+        body->setUserPointer(NULL);
+        return reinterpret_cast<jlong> (body);
+    }
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody

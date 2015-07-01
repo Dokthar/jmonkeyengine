@@ -32,9 +32,9 @@
 package com.jme3.bullet.objects;
 
 import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.bullet.util.DebugMeshCallback;
+import com.jme3.bullet.util.NativeMeshUtil;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
@@ -71,13 +71,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     }
 
     private long createFromTriMesh(Mesh triMesh) {
-        int[] index = BufferUtils.getIntArray((IntBuffer) triMesh.getBuffer(VertexBuffer.Type.Index).getData());
-        float[] positions = BufferUtils.getFloatArray((FloatBuffer) triMesh.getBuffer(VertexBuffer.Type.Position).getData());
-
-        return createFromTriMesh(index.length / 3, positions, index, false);
+        long dataId = NativeMeshUtil.getTriangleIndexVertexArray(triMesh);
+        return createFromTriMesh(dataId, false);
     }
 
-    private native long createFromTriMesh(int nbFace, float[] vertices, int[] index, boolean randomizeConstraints);
+    private native long createFromTriMesh(long triangleIndexVertexArrayID, boolean randomizeConstraints);
 
     private native long ctr_PhysicsSoftBody();
 
