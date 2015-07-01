@@ -54,26 +54,19 @@ extern "C" {
         btSoftBodyWorldInfo* worldInfo = new btSoftBodyWorldInfo();
 
         const int subPart = 0; //get the default one
-        const unsigned char *vertexBase;
+        unsigned char *vertexBase;
         int numverts;
         PHY_ScalarType vertexType;
         int vertexStride;
-        const unsigned char *triangleBase;
+        unsigned char *triangleBase;
         int triangleStride;
         int nbTriangles;
         PHY_ScalarType triangleType;
-        array->getLockedReadOnlyVertexIndexBase(&vertexBase, numverts, vertexType, vertexStride, &triangleBase, triangleStride, nbTriangles, triangleType, subPart);
-
-        array->unLockReadOnlyVertexBase(subPart);
-
-        float* vertices = reinterpret_cast<float*> (&vertexBase);
-        int* triangles = reinterpret_cast<int*> (&triangleBase);
-        int maxidx = 0;
-        int i, ni;
-        for (i = 0, ni = nbTriangles * 3; i < ni; ++i) {
-            maxidx = btMax(triangles[i], maxidx);
-            printf("triangle %d, max %d\n", triangles[i], maxidx);
-        }
+        array->getLockedVertexIndexBase(&vertexBase, numverts, vertexType, vertexStride, &triangleBase, triangleStride, nbTriangles, triangleType, subPart);
+        array->unLockVertexBase(subPart);
+        
+        float* vertices = (float*) vertexBase;
+        int* triangles = (int*) triangleBase;
         const bool random = randomizeConstraints;
         btSoftBody* body = btSoftBodyHelpers::CreateFromTriMesh(*worldInfo, vertices, triangles, nbTriangles, &random);
 
