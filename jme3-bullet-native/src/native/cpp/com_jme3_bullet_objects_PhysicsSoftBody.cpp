@@ -45,29 +45,16 @@ extern "C" {
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    createFromTriMesh
-     * Signature: (JZ)J
+     * Signature: (Lcom/jme3/scene/mesh/IntBuffer;Ljava/nio/FloatBuffer;IZ)J
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createFromTriMesh
-    (JNIEnv *env, jobject object, jlong triangleIndexVertexArrayID, jboolean randomizeConstraints) {
+    (JNIEnv *env, jobject object, jobject triangleIndexBuffer, jobject vertexBuffer, jint nbTriangles, jboolean random) {
         jmeClasses::initJavaClasses(env);
-        btTriangleIndexVertexArray* array = reinterpret_cast<btTriangleIndexVertexArray*> (triangleIndexVertexArrayID);
         btSoftBodyWorldInfo* worldInfo = new btSoftBodyWorldInfo();
 
-        const int subPart = 0; //get the default one
-        unsigned char *vertexBase;
-        int numverts;
-        PHY_ScalarType vertexType;
-        int vertexStride;
-        unsigned char *triangleBase;
-        int triangleStride;
-        int nbTriangles;
-        PHY_ScalarType triangleType;
-        array->getLockedVertexIndexBase(&vertexBase, numverts, vertexType, vertexStride, &triangleBase, triangleStride, nbTriangles, triangleType, subPart);
-        array->unLockVertexBase(subPart);
-        
-        float* vertices = (float*) vertexBase;
-        int* triangles = (int*) triangleBase;
-        const bool random = randomizeConstraints;
+        int* triangles = (int*) env->GetDirectBufferAddress(triangleIndexBuffer);
+        float* vertices = (float*) env->GetDirectBufferAddress(vertexBuffer);
+
         btSoftBody* body = btSoftBodyHelpers::CreateFromTriMesh(*worldInfo, vertices, triangles, nbTriangles, &random);
 
         body->setUserPointer(NULL);
@@ -421,6 +408,11 @@ extern "C" {
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getVertices
     (JNIEnv *env, jclass clazz, jlong bodyId, jobject callback) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
 
         btVector3 vertexA, vertexB, vertexC;
 
@@ -450,7 +442,72 @@ extern "C" {
                 return;
             }
         }
+    }
 
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getIndexes
+     * Signature: (JLjava/nio/IntBuffer;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getIndexes
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject indexBuffer) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jint* indexes = (jint*) env->GetDirectBufferAddress(indexBuffer);
+        
+        btSoftBody::Node* firstNode = &body->m_nodes[0];
+        
+        for (int i = 0; i < body->m_faces.size(); i++) {
+            const btSoftBody::Face& f = body->m_faces[i];
+            indexes[i*3+0] = int(f.m_n[0] - firstNode);
+            indexes[i*3+1] = int(f.m_n[1] - firstNode);
+            indexes[i*3+2] = int(f.m_n[2] - firstNode);
+        }
+
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getNumTriangle
+     * Signature: (J)I
+     */
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNumTriangle
+    (JNIEnv *env, jclass clazz, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_faces.size();
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    updateMesh
+     * Signature: (JLjava/nio/FloatBuffer;I)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateMesh
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject verticesBuffer, jint nbTriangles) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        jfloat* vertices = (jfloat*) env->GetDirectBufferAddress(verticesBuffer);
+
+        for (int i = 0; i < body->m_nodes.size(); ++i) {
+            const btSoftBody::Node& n = body->m_nodes[i];
+            vertices[i * 3 + 0] = n.m_x.getX();
+            vertices[i * 3 + 1] = n.m_x.getY();
+            vertices[i * 3 + 2] = n.m_x.getZ();
+        }
     }
 
 

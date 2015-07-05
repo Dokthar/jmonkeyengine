@@ -43,7 +43,9 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -70,12 +72,21 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         initUserPointer();
     }
 
+    // SoftBodies need to have a direct access to JME's Mesh buffer in order a have a more
+    // efficient way when updating the Mesh each frame
     private long createFromTriMesh(Mesh triMesh) {
-        long dataId = NativeMeshUtil.getTriangleIndexVertexArray(triMesh);
-        return createFromTriMesh(dataId, false);
+        IntBuffer indexBuffer = BufferUtils.createIntBuffer(triMesh.getTriangleCount() * 3);
+        FloatBuffer positionBuffer = triMesh.getFloatBuffer(Type.Position);
+
+        IndexBuffer indices = triMesh.getIndicesAsList();
+        int indicesLength = triMesh.getTriangleCount() * 3;
+        for (int i = 0; i < indicesLength; i++) {
+            indexBuffer.put(indices.get(i));
+        }
+        return createFromTriMesh(indexBuffer, positionBuffer, triMesh.getTriangleCount(), false);
     }
 
-    private native long createFromTriMesh(long triangleIndexVertexArrayID, boolean randomizeConstraints);
+    private native long createFromTriMesh(IntBuffer triangles, FloatBuffer vertices, int numTriangles, boolean randomizeConstraints);
 
     private native long ctr_PhysicsSoftBody();
 
@@ -437,37 +448,50 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
      The following code is almost the same , but specially for SoftBody. 
      Theses methods are static (same as in DebugShapeFactory) so the code can be easily moved somewhere else.
      */
-    public static Spatial getDebugShape(PhysicsSoftBody softBody) {
+    public static Geometry createDebugShape(PhysicsSoftBody softBody) {
         if (softBody == null) {
             return null;
         }
-        Spatial debugShape;
-        debugShape = createDebugShape(softBody);
-        if (debugShape == null) {
-            return null;
-        }
+        Geometry debugShape = new Geometry();
+        debugShape.setMesh(getDebugMesh(softBody));
+        debugShape.updateModelBound();
         debugShape.updateGeometricState();
         return debugShape;
     }
 
-    private static Geometry createDebugShape(PhysicsSoftBody softBody) {
-        Geometry geom = new Geometry();
-        geom.setMesh(getDebugMesh(softBody));
-//        geom.setLocalScale(softBody.getScale());
-        geom.updateModelBound();
-        return geom;
-    }
-
     public static Mesh getDebugMesh(PhysicsSoftBody softBody) {
         Mesh mesh = new Mesh();
-        DebugMeshCallback callback = new DebugMeshCallback();
-        getVertices(softBody.getObjectId(), callback);
-        mesh.setBuffer(Type.Position, 3, callback.getVertices());
+        mesh.setBuffer(Type.Position, 3, getVertices(softBody));
+        mesh.setBuffer(Type.Index, 3, getIndexes(softBody));
         mesh.getFloatBuffer(Type.Position).clear();
         return mesh;
     }
 
+    private static FloatBuffer getVertices(PhysicsSoftBody softBody) {
+        DebugMeshCallback callback = new DebugMeshCallback();
+        getVertices(softBody.getObjectId(), callback);
+        return callback.getVertices();
+    }
+
     private static native void getVertices(long bodyId, DebugMeshCallback buffer);
+
+    private static IntBuffer getIndexes(PhysicsSoftBody softBody) {
+        IntBuffer indexes = BufferUtils.createIntBuffer(getNumTriangle(softBody.getObjectId())*3);
+        getIndexes(softBody.getObjectId(), indexes);
+        return indexes;
+    }
+
+    private static native void getIndexes(long bodyId, IntBuffer buffer);
+        
+    private static native int getNumTriangle(long bodyId);
+    
+    public static void updateMesh(PhysicsSoftBody softBody, Mesh store) {
+        FloatBuffer positionBuffer = store.getFloatBuffer(Type.Position);
+        updateMesh(softBody.getObjectId(), positionBuffer, store.getVertexCount());
+        store.getBuffer(Type.Position).setUpdateNeeded();
+    }
+
+    private static native void updateMesh(long bodyId, FloatBuffer vertices, int numVertices);
 
     /*============*
      * data Struct

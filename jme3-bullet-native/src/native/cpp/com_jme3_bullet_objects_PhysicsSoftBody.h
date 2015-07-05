@@ -44,10 +44,10 @@ extern "C" {
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    createFromTriMesh
- * Signature: (JZ)J
+ * Signature: (Ljava/nio/IntBuffer;Ljava/nio/FloatBuffer;IZ)J
  */
 JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createFromTriMesh
-  (JNIEnv *, jobject, jlong, jboolean);
+  (JNIEnv *, jobject, jobject, jobject, jint, jboolean);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
@@ -328,6 +328,30 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_defaultColli
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getVertices
   (JNIEnv *, jclass, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getIndexes
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getIndexes
+  (JNIEnv *, jclass, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getNumTriangle
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNumTriangle
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    updateMesh
+ * Signature: (JLjava/nio/FloatBuffer;I)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateMesh
+  (JNIEnv *, jclass, jlong, jobject, jint);
 
 #ifdef __cplusplus
 }

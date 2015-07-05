@@ -31,15 +31,12 @@
  */
 package com.jme3.bullet.debug;
 
-import com.jme3.bullet.debug.AbstractPhysicsDebugControl;
-import com.jme3.bullet.debug.BulletDebugAppState;
-import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.bullet.objects.PhysicsSoftBody;
-import com.jme3.bullet.util.DebugShapeFactory;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
@@ -53,16 +50,16 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
     protected final PhysicsSoftBody body;
     protected final Vector3f location = new Vector3f();
     protected final Quaternion rotation = new Quaternion();
-    protected Spatial geom;
+    protected Geometry geom;
 
     public BulletSoftBodyDebugControl(BulletDebugAppState debugAppState, PhysicsSoftBody body) {
         super(debugAppState);
         this.body = body;
 
-        geom = PhysicsSoftBody.getDebugShape(body);
+        geom = PhysicsSoftBody.createDebugShape(body);
         geom.setName(body.toString());
         geom.setMaterial(debugAppState.DEBUG_BLUE);
-
+        geom.getMesh().setStreamed();
     }
 
     @Override
@@ -79,19 +76,13 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
 
     @Override
     protected void controlUpdate(float tpf) {
-
-        Node node = (Node) this.spatial;
-        node.detachChild(geom);
-        geom = PhysicsSoftBody.getDebugShape(body);
-
-        node.attachChild(geom);
-
         //     if (body.isActive()) {
+        PhysicsSoftBody.updateMesh(body, geom.getMesh());
         geom.setMaterial(debugAppState.DEBUG_RED);
         /*       } else {
          geom.setMaterial(debugAppState.DEBUG_BLUE);
          }*/
-        applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
+        //applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
         // scale not fully supported yet
         //geom.setLocalScale(body.getCollisionShape().getScale()); 
     }
