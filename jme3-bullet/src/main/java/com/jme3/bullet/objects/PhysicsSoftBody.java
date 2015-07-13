@@ -74,7 +74,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     // SoftBodies need to have a direct access to JME's Mesh buffer in order a have a more
     // efficient way when updating the Mesh each frame
-    private long createFromTriMesh(Mesh triMesh) {
+    protected long createFromTriMesh(Mesh triMesh) {
         IntBuffer indexBuffer = BufferUtils.createIntBuffer(triMesh.getTriangleCount() * 3);
         FloatBuffer positionBuffer = triMesh.getFloatBuffer(Type.Position);
 
@@ -485,13 +485,14 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         
     private static native int getNumTriangle(long bodyId);
     
-    public static void updateMesh(PhysicsSoftBody softBody, Mesh store) {
+    public static void updateMesh(PhysicsSoftBody softBody, Mesh store, boolean updateNormals) {
         FloatBuffer positionBuffer = store.getFloatBuffer(Type.Position);
-        updateMesh(softBody.getObjectId(), positionBuffer, store.getVertexCount());
+        FloatBuffer normalBuffer = store.getFloatBuffer(Type.Normal);
+        updateMesh(softBody.getObjectId(), positionBuffer, store.getVertexCount(), updateNormals, normalBuffer);
         store.getBuffer(Type.Position).setUpdateNeeded();
     }
 
-    private static native void updateMesh(long bodyId, FloatBuffer vertices, int numVertices);
+    private static native void updateMesh(long bodyId, FloatBuffer vertices, int numVertices, boolean updateNormals, FloatBuffer normals);
 
     /*============*
      * data Struct

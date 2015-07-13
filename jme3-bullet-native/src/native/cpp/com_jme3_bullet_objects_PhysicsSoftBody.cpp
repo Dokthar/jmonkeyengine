@@ -458,14 +458,14 @@ extern "C" {
             return;
         }
         jint* indexes = (jint*) env->GetDirectBufferAddress(indexBuffer);
-        
+
         btSoftBody::Node* firstNode = &body->m_nodes[0];
-        
+
         for (int i = 0; i < body->m_faces.size(); i++) {
             const btSoftBody::Face& f = body->m_faces[i];
-            indexes[i*3+0] = int(f.m_n[0] - firstNode);
-            indexes[i*3+1] = int(f.m_n[1] - firstNode);
-            indexes[i*3+2] = int(f.m_n[2] - firstNode);
+            indexes[i * 3 + 0] = int(f.m_n[0] - firstNode);
+            indexes[i * 3 + 1] = int(f.m_n[1] - firstNode);
+            indexes[i * 3 + 2] = int(f.m_n[2] - firstNode);
         }
 
     }
@@ -489,10 +489,10 @@ extern "C" {
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    updateMesh
-     * Signature: (JLjava/nio/FloatBuffer;I)V
+     * Signature: (JLjava/nio/FloatBuffer;IZLjava/nio/FloatBuffer;)V
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateMesh
-    (JNIEnv *env, jclass clazz, jlong bodyId, jobject verticesBuffer, jint nbTriangles) {
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject verticesBuffer, jint nbTriangles, jboolean doNormalUpdate, jobject normalsBuffer) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
@@ -501,12 +501,26 @@ extern "C" {
         }
 
         jfloat* vertices = (jfloat*) env->GetDirectBufferAddress(verticesBuffer);
-
-        for (int i = 0; i < body->m_nodes.size(); ++i) {
-            const btSoftBody::Node& n = body->m_nodes[i];
-            vertices[i * 3 + 0] = n.m_x.getX();
-            vertices[i * 3 + 1] = n.m_x.getY();
-            vertices[i * 3 + 2] = n.m_x.getZ();
+        if (doNormalUpdate) {
+            jfloat* normals = (jfloat*) env->GetDirectBufferAddress(normalsBuffer);
+            
+            for (int i = 0; i < body->m_nodes.size(); ++i) {
+                const btSoftBody::Node& n = body->m_nodes[i];
+                vertices[i * 3 + 0] = n.m_x.getX();
+                vertices[i * 3 + 1] = n.m_x.getY();
+                vertices[i * 3 + 2] = n.m_x.getZ();
+                //--- normals
+                normals[i * 3 + 0] = n.m_n.getX();
+                normals[i * 3 + 1] = n.m_n.getY();
+                normals[i * 3 + 2] = n.m_n.getZ();
+            }
+        } else {
+            for (int i = 0; i < body->m_nodes.size(); ++i) {
+                const btSoftBody::Node& n = body->m_nodes[i];
+                vertices[i * 3 + 0] = n.m_x.getX();
+                vertices[i * 3 + 1] = n.m_x.getY();
+                vertices[i * 3 + 2] = n.m_x.getZ();
+            }
         }
     }
 

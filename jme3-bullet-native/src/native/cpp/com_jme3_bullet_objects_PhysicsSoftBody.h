@@ -348,10 +348,10 @@ JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNumTriang
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    updateMesh
- * Signature: (JLjava/nio/FloatBuffer;I)V
+ * Signature: (JLjava/nio/FloatBuffer;IZLjava/nio/FloatBuffer;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateMesh
-  (JNIEnv *, jclass, jlong, jobject, jint);
+  (JNIEnv *, jclass, jlong, jobject, jint, jboolean, jobject);
 
 #ifdef __cplusplus
 }
