@@ -84,9 +84,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         if (this.spatial != spatial) {
             this.spatial = spatial;
             this.mesh = getFirstGeometry(spatial).getMesh();
-            // @TODO : delete native object first
-            this.objectId = createFromTriMesh(mesh);
-            initUserPointer();
+            rebuildFromTriMesh(mesh);
         }
     }
 

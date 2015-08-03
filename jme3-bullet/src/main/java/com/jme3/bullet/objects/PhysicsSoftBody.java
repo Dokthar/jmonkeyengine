@@ -31,6 +31,7 @@
  */
 package com.jme3.bullet.objects;
 
+import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.bullet.util.DebugMeshCallback;
@@ -48,6 +49,8 @@ import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -55,35 +58,38 @@ import java.nio.IntBuffer;
  */
 public class PhysicsSoftBody extends PhysicsCollisionObject {
 
+    @Deprecated
     public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
         objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
-        initUserPointer();
+        postRebuild(false);
     }
 
     public PhysicsSoftBody() {
         objectId = ctr_PhysicsSoftBody();
         initDefault();
-        initUserPointer();
+        postRebuild(false);
     }
 
     public PhysicsSoftBody(Mesh triMesh) {
 // must check if the mesh have %3 vertices
-        objectId = createFromTriMesh(triMesh);
-        initUserPointer();
+        createFromTriMesh(triMesh);
     }
 
     // SoftBodies need to have a direct access to JME's Mesh buffer in order a have a more
     // efficient way when updating the Mesh each frame
-    protected long createFromTriMesh(Mesh triMesh) {
+    private final long createFromTriMesh(Mesh triMesh) {
         IntBuffer indexBuffer = BufferUtils.createIntBuffer(triMesh.getTriangleCount() * 3);
         FloatBuffer positionBuffer = triMesh.getFloatBuffer(Type.Position);
 
         IndexBuffer indices = triMesh.getIndicesAsList();
         int indicesLength = triMesh.getTriangleCount() * 3;
-        for (int i = 0; i < indicesLength; i++) {
+        for (int i = 0; i < indicesLength; i++) { // done because mesh indexs can use short or i am wrong
             indexBuffer.put(indices.get(i));
         }
-        return createFromTriMesh(indexBuffer, positionBuffer, triMesh.getTriangleCount(), false);
+        //Add
+        objectId = createFromTriMesh(indexBuffer, positionBuffer, triMesh.getTriangleCount(), false);
+        postRebuild(false);
+        return objectId;
     }
 
     private native long createFromTriMesh(IntBuffer triangles, FloatBuffer vertices, int numTriangles, boolean randomizeConstraints);
@@ -92,6 +98,52 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native long ctr_PhysicsSoftBody(int size, Vector3f[] vertices, float[] mass);
     //private native long ctr_PhysicsSoftBody(int nodeCount, Vector3f x, float m);
+
+    /**
+     * Builds/rebuilds the physics body when parameters have changed
+     */
+    /* protected void rebuildSoftBody(Mesh mesh) {
+
+     preRebuild();
+     if (mesh != null) {
+     objectId = createFromTriMesh(mesh);
+     } else {
+     objectId = ctr_PhysicsSoftBody();
+     }
+     Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created RigidBody {0}", Long.toHexString(objectId));
+     postRebuild();
+
+     }*/
+    protected void rebuildFromTriMesh(Mesh mesh) {
+        // {mesh != null} => {old Native object is removed & destroyed; new Native object is created & added}
+        boolean wasInWorld = isInWorld();
+        preRebuild();
+        objectId = createFromTriMesh(mesh);
+        postRebuild(wasInWorld);
+    }
+
+    protected final void preRebuild() {
+        // {} = > {remove the body from the physics space and detroy the native object}
+        
+        /* if (collisionShape instanceof MeshCollisionShape && mass != 0) {
+         throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
+         }*/
+        if (objectId != 0) {
+            if (isInWorld()) {
+                PhysicsSoftSpace.getPhysicsSoftSpace().remove(this);
+            }
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing RigidBody {0}", Long.toHexString(objectId));
+            finalizeNative(objectId);
+        }
+    }
+
+    protected final void postRebuild(boolean wasInWorld) {
+        // {} => {initUserPoint on the native object, if this wasInWorld add this into the physicsSpace}
+        initUserPointer();
+        if (wasInWorld) {
+            PhysicsSoftSpace.getPhysicsSoftSpace().add(this);
+        }
+    }
 
     private void initDefault() {
         initDefault(objectId);
@@ -443,6 +495,12 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void defaultCollisionHandler(long objectId);
 
+    public boolean isInWorld() {
+        return isInWorld(objectId);
+    }
+
+    private native boolean isInWorld(long objectId);
+
     /*
      Since bullet SoftBody don't use btCollisionShape, its not possible to use the DebugShapeFactory.
      The following code is almost the same , but specially for SoftBody. 
@@ -476,15 +534,15 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     private static native void getVertices(long bodyId, DebugMeshCallback buffer);
 
     private static IntBuffer getIndexes(PhysicsSoftBody softBody) {
-        IntBuffer indexes = BufferUtils.createIntBuffer(getNumTriangle(softBody.getObjectId())*3);
+        IntBuffer indexes = BufferUtils.createIntBuffer(getNumTriangle(softBody.getObjectId()) * 3);
         getIndexes(softBody.getObjectId(), indexes);
         return indexes;
     }
 
     private static native void getIndexes(long bodyId, IntBuffer buffer);
-        
+
     private static native int getNumTriangle(long bodyId);
-    
+
     public static void updateMesh(PhysicsSoftBody softBody, Mesh store, boolean updateNormals) {
         FloatBuffer positionBuffer = store.getFloatBuffer(Type.Position);
         FloatBuffer normalBuffer = store.getFloatBuffer(Type.Normal);

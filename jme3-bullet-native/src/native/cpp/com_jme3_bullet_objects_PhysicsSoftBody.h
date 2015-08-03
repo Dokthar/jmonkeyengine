@@ -323,6 +323,14 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_defaultColli
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    isInWorld
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_isInWorld
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    getVertices
  * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
  */

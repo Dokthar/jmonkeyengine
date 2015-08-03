@@ -402,6 +402,23 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    isInWorld
+     * Signature: (J)Z
+     */
+    JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_isInWorld
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
+        //boolean isInWorld = body->getBroadphaseHandle() != 0; // from bullet RigidBody
+        return body->getBroadphaseHandle() != 0;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    getVertices
      * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
      */
@@ -503,7 +520,7 @@ extern "C" {
         jfloat* vertices = (jfloat*) env->GetDirectBufferAddress(verticesBuffer);
         if (doNormalUpdate) {
             jfloat* normals = (jfloat*) env->GetDirectBufferAddress(normalsBuffer);
-            
+
             for (int i = 0; i < body->m_nodes.size(); ++i) {
                 const btSoftBody::Node& n = body->m_nodes[i];
                 vertices[i * 3 + 0] = n.m_x.getX();
