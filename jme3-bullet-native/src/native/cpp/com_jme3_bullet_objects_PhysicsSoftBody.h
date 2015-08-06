@@ -91,14 +91,6 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getSoftBody
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    appendMaterial
- * Signature: (JLcom/jme3/bullet/objects/PhysicsSoftBody/SoftBodyMaterial;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendMaterial
-  (JNIEnv *, jobject, jlong, jobject);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    addForce
  * Signature: (JLcom/jme3/math/Vector3f;)V
  */
@@ -128,6 +120,62 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForce
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToFace
   (JNIEnv *, jobject, jlong, jobject, jint);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setMass
+ * Signature: (JIF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMass
+  (JNIEnv *, jobject, jlong, jint, jfloat);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getMass
+ * Signature: (JI)F
+ */
+JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMass
+  (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getTotalMass
+ * Signature: (J)F
+ */
+JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getTotalMass
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setTotalMass
+ * Signature: (JFZ)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setTotalMass
+  (JNIEnv *, jobject, jlong, jfloat, jboolean);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setTotalDensity
+ * Signature: (JF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setTotalDensity
+  (JNIEnv *, jobject, jlong, jfloat);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setVolumeMass
+ * Signature: (JF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setVolumeMass
+  (JNIEnv *, jobject, jlong, jfloat);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setVolumeDensity
+ * Signature: (JF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setVolumeDensity
+  (JNIEnv *, jobject, jlong, jfloat);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
@@ -299,10 +347,10 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_solveConstra
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    staticSolce
+ * Method:    staticSolve
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_staticSolce
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_staticSolve
   (JNIEnv *, jobject, jlong, jint);
 
 /*
@@ -328,6 +376,30 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_defaultColli
  */
 JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_isInWorld
   (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setDynamicFriction
+ * Signature: (JF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setDynamicFriction
+  (JNIEnv *, jobject, jlong, jfloat);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setPoseMatching
+ * Signature: (JF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPoseMatching
+  (JNIEnv *, jobject, jlong, jfloat);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setPositionSolver
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPositionSolver
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody

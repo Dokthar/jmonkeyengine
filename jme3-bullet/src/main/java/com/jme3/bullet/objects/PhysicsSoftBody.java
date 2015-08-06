@@ -97,23 +97,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     private native long ctr_PhysicsSoftBody();
 
     private native long ctr_PhysicsSoftBody(int size, Vector3f[] vertices, float[] mass);
-    //private native long ctr_PhysicsSoftBody(int nodeCount, Vector3f x, float m);
 
-    /**
-     * Builds/rebuilds the physics body when parameters have changed
-     */
-    /* protected void rebuildSoftBody(Mesh mesh) {
-
-     preRebuild();
-     if (mesh != null) {
-     objectId = createFromTriMesh(mesh);
-     } else {
-     objectId = ctr_PhysicsSoftBody();
-     }
-     Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created RigidBody {0}", Long.toHexString(objectId));
-     postRebuild();
-
-     }*/
     protected void rebuildFromTriMesh(Mesh mesh) {
         // {mesh != null} => {old Native object is removed & destroyed; new Native object is created & added}
         boolean wasInWorld = isInWorld();
@@ -124,7 +108,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     protected final void preRebuild() {
         // {} = > {remove the body from the physics space and detroy the native object}
-        
+
         /* if (collisionShape instanceof MeshCollisionShape && mass != 0) {
          throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
          }*/
@@ -165,10 +149,6 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native long getSoftBodyWorldInfo(long objectId);
 
-    /*public static PhysicsSoftBody creatFromTriMesh(Mesh mesh);
-
-     }*/
-
     /* API */
 // public PhysicsSoftBody(SoftBodyWorldInfo worldInfo, int node_count, Vector3f x[], btScalar* m);
 // btSoftBody(	btSoftBodyWorldInfo* worldInfo); done 
@@ -190,20 +170,20 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
      }
      */
-    public void appendMaterial(SoftBodyMaterial material) {
-        appendMaterial(objectId, material);
-    }
+    /* public void appendMaterial(SoftBodyMaterial material) {
+     appendMaterial(objectId, material);
+     }
 
-    private native void appendMaterial(long objectId, SoftBodyMaterial material);
+     private native void appendMaterial(long objectId, SoftBodyMaterial material);*/
 
     /* Append anchor */
-    public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
+    /* public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
 
-    }
+     }
 
-    public void appendAnchor(int node, PhysicsRigidBody rigidBody, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence) {
+     public void appendAnchor(int node, PhysicsRigidBody rigidBody, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence) {
 
-    }
+     }*/
 
     /* Append linear joint	*/
     /*public void appendLinearJoint(const LJoint::Specs& specs,Cluster* body0,Body body1){
@@ -263,6 +243,59 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public void addVelocity(Vector3f velocity, int node) {
 
     }
+
+    /* Set mass */
+    public void setMass(int node, float mass){
+        setMass(objectId, node, mass);
+    }
+    
+    private native void setMass(long objectId, int node, float mass);
+    
+    /* Get mass */
+    public float getMass(int node){
+        return getMass(objectId, node);
+    }
+    
+    private native float getMass(long objectId, int node);
+
+    /* Get total mass */
+    public float getTotalMass(){
+        return getTotalMass(objectId);
+    }
+    
+    private native float getTotalMass(long objectId);
+
+    /* Set total mass (weighted by previous masses) */
+    public void setTotalMass(float mass, boolean fromfaces){
+        setTotalMass(objectId, mass, fromfaces);
+    }
+    
+    public void setTotalMass(float mass){
+        setTotalMass(mass, false);
+    }
+    
+    private native void setTotalMass(long objectId, float mass, boolean fromFaces);
+    
+/* Set total density */
+    public void setTotalDensity(float density){
+        setTotalDensity(objectId, density);
+    }
+    
+    private native void setTotalDensity(long objectId, float density);
+    
+    /* Set volume mass (using tetrahedrons) */
+    public void setVolumeMass(float mass){
+        setVolumeMass(objectId, mass);
+    }
+    
+    private native void setVolumeMass(long objectId, float mass);
+    
+    /* Set volume density (using tetrahedrons) */
+    public void setVolumeDensity(float density){
+        setVolumeDensity(objectId, density);
+    }
+    
+    private native void setVolumeDensity(long objectId, float density);
 
     /* Transform */
     public void setPhysicsTransform(Transform trs) {
@@ -455,8 +488,8 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     }
 
     private native void predictMotion(long objectId, float dt);
-    /* solveConstraints */
 
+    /* solveConstraints */
     public void solveConstraints() {
         solveConstraints(objectId);
     }
@@ -465,10 +498,10 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     /* staticSolve */
     public void staticSolve(int iterations) {
-        staticSolce(objectId, iterations);
+        staticSolve(objectId, iterations);
     }
 
-    private native void staticSolce(long objectId, int iterations);
+    private native void staticSolve(long objectId, int iterations);
 
     /* solveCommonConstraints */
     /*public static void solveCommonConstraints(btSoftBody** bodies,int count,int iterations){
@@ -501,6 +534,66 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native boolean isInWorld(long objectId);
 
+    /*====================*
+     Config access
+     *====================*/
+    /*struct	Config
+{
+eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
+btScalar kVCF; // Velocities correction factor (Baumgarte)
+btScalar kDP; // Damping coefficient [0,1]
+btScalar kDG; // Drag coefficient [0,+inf]
+btScalar kLF; // Lift coefficient [0,+inf]
+btScalar kPR; // Pressure coefficient [-inf,+inf]
+btScalar kVC; // Volume conversation coefficient [0,+inf]
+btScalar kDF; // Dynamic friction coefficient [0,1]
+btScalar kMT; // Pose matching coefficient [0,1]
+btScalar kCHR; // Rigid contacts hardness [0,1]
+btScalar kKHR; // Kinetic contacts hardness [0,1]
+btScalar kSHR; // Soft contacts hardness [0,1]
+btScalar kAHR; // Anchors hardness [0,1]
+btScalar kSRHR_CL; // Soft vs rigid hardness [0,1] (cluster only)
+btScalar kSKHR_CL; // Soft vs kinetic hardness [0,1] (cluster only)
+btScalar kSSHR_CL; // Soft vs soft hardness [0,1] (cluster only)
+btScalar kSR_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+btScalar kSK_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+btScalar kSS_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+btScalar maxvolume; // Maximum volume ratio for pose
+btScalar timescale; // Time scale
+int	viterations; // Velocities solver iterations
+int	piterations; // Positions solver iterations
+int	diterations; // Drift solver iterations
+int	citerations; // Cluster solver iterations
+int	collisions; // Collisions flags
+tVSolverArray m_vsequence; // Velocity solvers sequence
+tPSolverArray m_psequence; // Position solvers sequence
+tPSolverArray m_dsequence; // Drift solvers sequence
+};*/
+    
+    /*btScalar kDF; // Dynamic friction coefficient [0,1]*/
+    public void setDynamicFriction(float coefficient){
+        setDynamicFriction(objectId, coefficient);
+    }
+    
+    private native void setDynamicFriction(long objectId, float coefficient);
+
+    /*btScalar kMT; // Pose matching coefficient [0,1]*/
+    public void setPoseMatching(float coefficient){
+        setPoseMatching(objectId, coefficient);
+    }
+    
+    private native void setPoseMatching(long objectId, float coefficient);
+    
+    /*int	piterations; // Positions solver iterations*/
+    public void setPositionSolver(int iterations){
+        setPositionSolver(objectId, iterations);
+    }
+    
+    private native void setPositionSolver(long objectId, int iteration);
+        
+    /*====================*  
+     SoftBody to Mesh
+     *====================*/
     /*
      Since bullet SoftBody don't use btCollisionShape, its not possible to use the DebugShapeFactory.
      The following code is almost the same , but specially for SoftBody. 

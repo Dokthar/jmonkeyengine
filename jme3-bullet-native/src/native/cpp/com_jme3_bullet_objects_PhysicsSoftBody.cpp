@@ -174,6 +174,142 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    addForce
+     * Signature: (JLcom/jme3/math/Vector3f;I)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addForce__JLcom_jme3_math_Vector3f_2I
+    (JNIEnv *env, jobject object, jlong bodyId, jobject force, jint nodeId) {
+        //@TODO
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    addAeroForceToNode
+     * Signature: (JLcom/jme3/math/Vector3f;I)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToNode
+    (JNIEnv *env, jobject object, jlong bodyId, jobject force, jint nodeId) {
+        //@TODO
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    addAeroForceToFace
+     * Signature: (JLcom/jme3/math/Vector3f;I)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToFace
+    (JNIEnv *env, jobject object, jlong bodyId, jobject force, jint faceId) {
+        //@TODO
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setMass
+     * Signature: (JIF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMass
+    (JNIEnv *env, jobject object, jlong bodyId, jint nodeId, jfloat mass) {
+        //@TODO
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getMass
+     * Signature: (JI)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMass
+    (JNIEnv *env, jobject object, jlong bodyId, jint nodeId) {
+        //@TODO
+        return 0;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getTotalMass
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getTotalMass
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+
+        return body->getTotalMass();
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setTotalMass
+     * Signature: (JFZ)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setTotalMass
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat mass, jboolean fromFaces) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        body->setTotalMass(mass, fromFaces);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setTotalDensity
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setTotalDensity
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat density) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        body->setTotalDensity(density);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setVolumeMass
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setVolumeMass
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat mass) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        body->setVolumeMass(mass);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setVolumeDensity
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setVolumeDensity
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat density) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        body->setVolumeDensity(density);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    setPhysicsTransform
      * Signature: (JLcom/jme3/math/Transform;)V
      */
@@ -185,7 +321,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        // rotation still unavaliable with btTransform
+        // rotation still unavailable with btTransform
         btTransform trs = btTransform();
         jmeBulletUtil::convert(env, transform, &trs);
         // body->transform(body->m_initialWorldTransform.inverse());
@@ -206,7 +342,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        // rotation still unavaliable with btTransform
+        // rotation still unavailable with btTransform
         jmeBulletUtil::convert(env, &body->m_initialWorldTransform, transform);
     }
 
@@ -402,6 +538,94 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getClusterCenterOfMass
+     * Signature: (JILcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getClusterCenterOfMass
+    (JNIEnv *, jobject, jlong, jint, jobject);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    randomizeConstraints
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_randomizeConstraints
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->randomizeConstraints();
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    releaseCluster
+     * Signature: (JI)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_releaseCluster
+    (JNIEnv *, jobject, jlong, jint);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    releaseClusters
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_releaseClusters
+    (JNIEnv *, jobject, jlong);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    generateClusters
+     * Signature: (JII)I
+     */
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_generateClusters
+    (JNIEnv *, jobject, jlong, jint, jint);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    predictMotion
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_predictMotion
+    (JNIEnv *, jobject, jlong, jfloat);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    solveConstraints
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_solveConstraints
+    (JNIEnv *, jobject, jlong);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    staticSolce
+     * Signature: (JI)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_staticSolce
+    (JNIEnv *, jobject, jlong, jint);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    integrateMotion
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_integrateMotion
+    (JNIEnv *, jobject, jlong);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    defaultCollisionHandler
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_defaultCollisionHandler
+    (JNIEnv *, jobject, jlong);
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    isInWorld
      * Signature: (J)Z
      */
@@ -416,6 +640,65 @@ extern "C" {
         //boolean isInWorld = body->getBroadphaseHandle() != 0; // from bullet RigidBody
         return body->getBroadphaseHandle() != 0;
     }
+
+    /*====================*
+     Config access
+     *====================*/
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setDynamicFriction
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setDynamicFriction
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coefficient) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        body->m_cfg.kDF = coefficient;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setPoseMatching
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPoseMatching
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coefficient) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        body->m_cfg.kMT = coefficient;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setPositionSolver
+     * Signature: (JI)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPositionSolver
+    (JNIEnv *env, jobject object, jlong bodyId, jint iterations) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        body->m_cfg.piterations = iterations;
+    }
+
+    /*====================*  
+     SoftBody to Mesh
+     *====================*/
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
