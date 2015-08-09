@@ -170,11 +170,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
      }
      */
-    /* public void appendMaterial(SoftBodyMaterial material) {
+    /* public void appendMaterial(Material material) {
      appendMaterial(objectId, material);
      }
 
-     private native void appendMaterial(long objectId, SoftBodyMaterial material);*/
+     private native void appendMaterial(long objectId, Material material);*/
 
     /* Append anchor */
     /* public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
@@ -245,56 +245,56 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     }
 
     /* Set mass */
-    public void setMass(int node, float mass){
+    public void setMass(int node, float mass) {
         setMass(objectId, node, mass);
     }
-    
+
     private native void setMass(long objectId, int node, float mass);
-    
+
     /* Get mass */
-    public float getMass(int node){
+    public float getMass(int node) {
         return getMass(objectId, node);
     }
-    
+
     private native float getMass(long objectId, int node);
 
     /* Get total mass */
-    public float getTotalMass(){
+    public float getTotalMass() {
         return getTotalMass(objectId);
     }
-    
+
     private native float getTotalMass(long objectId);
 
     /* Set total mass (weighted by previous masses) */
-    public void setTotalMass(float mass, boolean fromfaces){
+    public void setTotalMass(float mass, boolean fromfaces) {
         setTotalMass(objectId, mass, fromfaces);
     }
-    
-    public void setTotalMass(float mass){
+
+    public void setTotalMass(float mass) {
         setTotalMass(mass, false);
     }
-    
+
     private native void setTotalMass(long objectId, float mass, boolean fromFaces);
-    
-/* Set total density */
-    public void setTotalDensity(float density){
+
+    /* Set total density */
+    public void setTotalDensity(float density) {
         setTotalDensity(objectId, density);
     }
-    
+
     private native void setTotalDensity(long objectId, float density);
-    
+
     /* Set volume mass (using tetrahedrons) */
-    public void setVolumeMass(float mass){
+    public void setVolumeMass(float mass) {
         setVolumeMass(objectId, mass);
     }
-    
+
     private native void setVolumeMass(long objectId, float mass);
-    
+
     /* Set volume density (using tetrahedrons) */
-    public void setVolumeDensity(float density){
+    public void setVolumeDensity(float density) {
         setVolumeDensity(objectId, density);
     }
-    
+
     private native void setVolumeDensity(long objectId, float density);
 
     /* Transform */
@@ -537,68 +537,266 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     /*====================*
      Config access
      *====================*/
-    /*struct	Config
-{
-eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
-btScalar kVCF; // Velocities correction factor (Baumgarte)
-btScalar kDP; // Damping coefficient [0,1]
-btScalar kDG; // Drag coefficient [0,+inf]
-btScalar kLF; // Lift coefficient [0,+inf]
-btScalar kPR; // Pressure coefficient [-inf,+inf]
-btScalar kVC; // Volume conversation coefficient [0,+inf]
-btScalar kDF; // Dynamic friction coefficient [0,1]
-btScalar kMT; // Pose matching coefficient [0,1]
-btScalar kCHR; // Rigid contacts hardness [0,1]
-btScalar kKHR; // Kinetic contacts hardness [0,1]
-btScalar kSHR; // Soft contacts hardness [0,1]
-btScalar kAHR; // Anchors hardness [0,1]
-btScalar kSRHR_CL; // Soft vs rigid hardness [0,1] (cluster only)
-btScalar kSKHR_CL; // Soft vs kinetic hardness [0,1] (cluster only)
-btScalar kSSHR_CL; // Soft vs soft hardness [0,1] (cluster only)
-btScalar kSR_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
-btScalar kSK_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
-btScalar kSS_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
-btScalar maxvolume; // Maximum volume ratio for pose
-btScalar timescale; // Time scale
-int	viterations; // Velocities solver iterations
-int	piterations; // Positions solver iterations
-int	diterations; // Drift solver iterations
-int	citerations; // Cluster solver iterations
-int	collisions; // Collisions flags
-tVSolverArray m_vsequence; // Velocity solvers sequence
-tPSolverArray m_psequence; // Position solvers sequence
-tPSolverArray m_dsequence; // Drift solvers sequence
-};*/
-    
-    /*btScalar kDF; // Dynamic friction coefficient [0,1]*/
-    public void setDynamicFriction(float coefficient){
-        setDynamicFriction(objectId, coefficient);
+    //struct	Config
+//     eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
+//     btScalar kVCF; // Velocities correction factor (Baumgarte)
+    public void setVelocitiesCorrectionFactor(float factor) {
+        setVelocitiesCorrectionFactor(objectId, factor);
     }
-    
-    private native void setDynamicFriction(long objectId, float coefficient);
 
-    /*btScalar kMT; // Pose matching coefficient [0,1]*/
-    public void setPoseMatching(float coefficient){
-        setPoseMatching(objectId, coefficient);
+    private native void setVelocitiesCorrectionFactor(long bodyId, float factor);
+
+    public float getVelocitiesCorrectionFactor() {
+        return getVelocitiesCorrectionFactor(objectId);
     }
-    
-    private native void setPoseMatching(long objectId, float coefficient);
-    
-    /*int	piterations; // Positions solver iterations*/
-    public void setPositionSolver(int iterations){
-        setPositionSolver(objectId, iterations);
+
+    private native float getVelocitiesCorrectionFactor(long bodyId);
+
+//     btScalar kDP; // Damping coefficient [0,1]
+    public void setDampingCoef(float coefficient) {
+        setDampingCoef(objectId, coefficient);
     }
+
+    private native void setDampingCoef(long bodyId, float coefficient);
+
+    public float getDampingCoef() {
+        return getDampingCoef(objectId);
+    }
+
+    private native float getDampingCoef(long bodyId);
+
+//     btScalar kDG; // Drag coefficient [0,+inf]
+    public void setDragCoef(float coefficient) {
+        setDragCoef(objectId, coefficient);
+    }
+
+    private native void setDragCoef(long bodyId, float coefficient);
+
+    public float getDragCoef() {
+        return getDragCoef(objectId);
+    }
+
+    private native float getDragCoef(long bodyId);
+
+//     btScalar kLF; // Lift coefficient [0,+inf]
+    public void setLiftCoef(float coefficient) {
+        setLiftCoef(objectId, coefficient);
+    }
+
+    private native void setLiftCoef(long bodyId, float coefficient);
+
+    public float getLiftCoef() {
+        return getLiftCoef(objectId);
+    }
+
+    private native float getLiftCoef(long bodyId);
+
+//     btScalar kPR; // Pressure coefficient [-inf,+inf]
+    public void setPressureCoef(float coefficient) {
+        setPressureCoef(objectId, coefficient);
+    }
+
+    private native void setPressureCoef(long bodyId, float coefficient);
+
+    public float getPressureCoef() {
+        return getPressureCoef(objectId);
+    }
+
+    private native float getPressureCoef(long bodyId);
+
+//     btScalar kVC; // Volume conversation coefficient [0,+inf]
+    public void setVolumeConservationCoef(float coefficient) {
+        setVolumeConservationCoef(objectId, coefficient);
+    }
+
+    private native void setVolumeConservationCoef(long bodyId, float coefficient);
+
+    public float getVolumeConservationCoef() {
+        return getVolumeConservationCoef(objectId);
+    }
+
+    private native float getVolumeConservationCoef(long bodyId);
+
+//     -> btScalar kDF; // Dynamic friction coefficient [0,1]
+    /**
+     * set the Bullet kDF (aka Dynamic friction coefficient [0,1])
+     *
+     * @param coefficient
+     */
+    public void setDynamicFrictionCoef(float coefficient) {
+        setDynamicFrictionCoef(objectId, coefficient);
+    }
+
+    private native void setDynamicFrictionCoef(long objectId, float coefficient);
+
+    public float getDynamicFrictionCoef() {
+        return getDynamicFrictionCoef(objectId);
+    }
+
+    private native float getDynamicFrictionCoef(long objectId);
+
+//     -> btScalar kMT; // Pose matching coefficient [0,1]
+    public void setPoseMatchingCoef(float coefficient) {
+        setPoseMatchingCoef(objectId, coefficient);
+    }
+
+    private native void setPoseMatchingCoef(long objectId, float coefficient);
+
+    public float getPoseMatchingCoef() {
+        return getPoseMatchingCoef(objectId);
+    }
+
+    private native float getPoseMatchingCoef(long bodyId);
+
+//     btScalar kCHR; // Rigid contacts hardness [0,1]
+    public void setRigidContactsHardness(float hardness) {
+        setRigidContactsHardness(objectId, hardness);
+    }
+
+    private native void setRigidContactsHardness(long bodyId, float hardness);
+
+    public float getRigidContactsHardness() {
+        return getRigidContactsHardness(objectId);
+    }
+
+    private native float getRigidContactsHardness(long bodyId);
+
+//     btScalar kKHR; // Kinetic contacts hardness [0,1]
+    public void setKineticContactsHardness(float hardness) {
+        setKineticContactsHardness(objectId, hardness);
+    }
+
+    private native void setKineticContactsHardness(long bodyId, float hardness);
+
+    public float getKineticContactsHardness() {
+        return getKineticContactsHardness(objectId);
+    }
+
+    private native float getKineticContactsHardness(long bodyId);
+
+//     btScalar kSHR; // Soft contacts hardness [0,1]
+    public void setSoftContactsHardness(float hardness) {
+        setSoftContactsHardness(objectId, hardness);
+    }
+
+    private native void setSoftContactsHardness(long bodyId, float hardness);
+
+    public float getSoftContactsHardness() {
+        return getSoftContactsHardness(objectId);
+    }
+
+    private native float getSoftContactsHardness(long bodyId);
+
+//     btScalar kAHR; // Anchors hardness [0,1]
+    public void setAnchorsHardness(float hardness) {
+        setAnchorsHardness(objectId, hardness);
+    }
+
+    private native void setAnchorsHardness(long bodyId, float hardness);
+
+    public float getAnchorsHardness() {
+        return getAnchorsHardness(objectId);
+    }
+
+    private native float getAnchorsHardness(long bodyId);
+
+//     btScalar kSRHR_CL; // Soft vs rigid hardness [0,1] (cluster only)
+//     btScalar kSKHR_CL; // Soft vs kinetic hardness [0,1] (cluster only)
+//     btScalar kSSHR_CL; // Soft vs soft hardness [0,1] (cluster only)
+//     btScalar kSR_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+//     btScalar kSK_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+//     btScalar kSS_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+//     btScalar maxvolume; // Maximum volume ratio for pose
+    public void setMaximumVolumeRatio(float ratio) {
+        setMaximumVolumeRatio(objectId, ratio);
+    }
+
+    private native void setMaximumVolumeRatio(long bodyId, float ratio);
+
+    public float getMaximumVolumeRatio() {
+        return getMaximumVolumeRatio(objectId);
+    }
+
+    private native float getMaximumVolumeRatio(long bodyId);
+
+//     btScalar timescale; // Time scale
+    public void setTimeScale(float scale) {
+        setTimeScale(objectId, scale);
+    }
+
+    private native void setTimeScale(long bodyId, float scale);
+
+    public float getTimeScale() {
+        return getTimeScale(objectId);
+    }
+
+    private native float getTimeScale(long bodyId);
+
+//     int	viterations; // Velocities solver iterations
+    public void setVelocitiesIterations(int iterations) {
+        setVelocitiesIterations(objectId, iterations);
+    }
+
+    private native void setVelocitiesIterations(long objectId, int iteration);
+
+    public int getVelocitiesIterations() {
+        return getVelocitiesIterations(objectId);
+    }
+
+    private native int getVelocitiesIterations(long objectId);
+
+//     -> int	piterations; // Positions solver iterations
+    public void setPositionIterations(int iterations) {
+        setPositionIterations(objectId, iterations);
+    }
+
+    private native void setPositionIterations(long objectId, int iteration);
+
+    public int getPositionIterations() {
+        return getPositionIterations(objectId);
+    }
+
+    private native int getPositionIterations(long objectId);
+
+//     int	diterations; // Drift solver iterations
+    public void setDriftIterations(int iterations) {
+        setDriftIterations(objectId, iterations);
+    }
+
+    private native void setDriftIterations(long objectId, int iteration);
+
+    public int getDriftIterations() {
+        return getDriftIterations(objectId);
+    }
+
+    private native int getDriftIterations(long objectId);
+
+//     int	citerations; // Cluster solver iterations
+   /* public void setClusterIterations(int iterations) {
+        setClusterIterations(objectId, iterations);
+    }
+
+    private native void setClusterIterations(long objectId, int iteration);
+
+    public int getClusterIterations() {
+        return getClusterIterations(objectId);
+    }
+
+    private native int getClusterIterations(long objectId);*/
     
-    private native void setPositionSolver(long objectId, int iteration);
-        
+//     int	collisions; // Collisions flags
+//     tVSolverArray m_vsequence; // Velocity solvers sequence
+//     tPSolverArray m_psequence; // Position solvers sequence
+//     tPSolverArray m_dsequence; // Drift solvers sequence
     /*====================*  
-     SoftBody to Mesh
+     SoftBody to Mesh - UTILS 
      *====================*/
     /*
      Since bullet SoftBody don't use btCollisionShape, its not possible to use the DebugShapeFactory.
      The following code is almost the same , but specially for SoftBody. 
      Theses methods are static (same as in DebugShapeFactory) so the code can be easily moved somewhere else.
      */
+
     public static Geometry createDebugShape(PhysicsSoftBody softBody) {
         if (softBody == null) {
             return null;
@@ -648,75 +846,107 @@ tPSolverArray m_dsequence; // Drift solvers sequence
     /*============*
      * data Struct
      *============*/
-    class SoftBodyMaterial {
+    class Material {
 
-        private float linearStiffnessFactor; // Linear stiffness coefficient [0,1]
-        private float angularStiffnessFactor; // Area/Angular stiffness coefficient [0,1]
-        private float volumeStiffnessFactor; // Volume stiffness coefficient [0,1]
-        private int flags; // Flags
+        private long materialId;
 
-        public SoftBodyMaterial(float linearStiffnessFactor, float angularStiffnessFactor, float volumeStiffnessFactor, int flags) {
-            this.linearStiffnessFactor = linearStiffnessFactor;
-            this.angularStiffnessFactor = angularStiffnessFactor;
-            this.volumeStiffnessFactor = volumeStiffnessFactor;
-            this.flags = flags;
+        public Material(float linearStiffnessFactor, float angularStiffnessFactor, float volumeStiffnessFactor, int flags) {
+            this();
+            setLinearStiffnessFactor(materialId, linearStiffnessFactor);
+            setAngularStiffnessFactor(materialId, angularStiffnessFactor);
+            setVolumeStiffnessFactor(materialId, volumeStiffnessFactor);
         }
+
+        private Material() {
+            this.materialId = createMaterial();
+        }
+
+        protected Material(long nativeId) {
+            this.materialId = nativeId;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj.getClass() == Material.class) {
+                return this.materialId == ((Material) obj).materialId;
+            } else {
+                return false;
+            }
+        }
+
+        private native long createMaterial();
 
         /**
          * @return the linearStiffnessFactor
          */
         public float getLinearStiffnessFactor() {
-            return linearStiffnessFactor;
+            return getLinearStiffnessFactor(materialId);
         }
+
+        private native float getLinearStiffnessFactor(long materialId);
 
         /**
          * @param linearStiffnessFactor the linearStiffnessFactor to set
          */
         public void setLinearStiffnessFactor(float linearStiffnessFactor) {
-            this.linearStiffnessFactor = linearStiffnessFactor;
+            setLinearStiffnessFactor(materialId, linearStiffnessFactor);
         }
+
+        private native void setLinearStiffnessFactor(long materialId, float linearStiffnessFactor);
 
         /**
          * @return the angularStiffnessFactor
          */
         public float getAngularStiffnessFactor() {
-            return angularStiffnessFactor;
+            return getAngularStiffnessFactor(materialId);
         }
+
+        private native float getAngularStiffnessFactor(long materialId);
 
         /**
          * @param angularStiffnessFactor the angularStiffnessFactor to set
          */
         public void setAngularStiffnessFactor(float angularStiffnessFactor) {
-            this.angularStiffnessFactor = angularStiffnessFactor;
+            setAngularStiffnessFactor(materialId, angularStiffnessFactor);
         }
+
+        private native void setAngularStiffnessFactor(long materialId, float angularStiffnessFactor);
 
         /**
          * @return the volumeStiffnessFactor
          */
         public float getVolumeStiffnessFactor() {
-            return volumeStiffnessFactor;
+            return getVolumeStiffnessFactor(materialId);
         }
+
+        private native float getVolumeStiffnessFactor(long materialId);
 
         /**
          * @param volumeStiffnessFactor the volumeStiffnessFactor to set
          */
         public void setVolumeStiffnessFactor(float volumeStiffnessFactor) {
-            this.volumeStiffnessFactor = volumeStiffnessFactor;
+            setVolumeStiffnessFactor(materialId, volumeStiffnessFactor);
         }
+
+        private native void setVolumeStiffnessFactor(long materialId, float volumeStiffnessFactor);
 
         /**
          * @return the flags
          */
         public int getFlags() {
-            return flags;
+            return getFlags(materialId);
         }
+
+        private native int getFlags(long materialId);
 
         /**
          * @param flags the flags to set
          */
         public void setFlags(int flags) {
-            this.flags = flags;
+            setFlags(materialId, flags);
         }
+
+        private native void setFlags(long materialId, int flags);
 
     }
 }
