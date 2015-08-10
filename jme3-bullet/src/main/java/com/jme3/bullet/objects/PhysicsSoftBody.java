@@ -58,6 +58,8 @@ import java.util.logging.Logger;
  */
 public class PhysicsSoftBody extends PhysicsCollisionObject {
 
+    private final Config config = new Config();
+    
     @Deprecated
     public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
         objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
@@ -537,168 +539,179 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     /*====================*
      Config access
      *====================*/
-    //struct	Config
+    
+    public Config getConfig(){
+        return this.config;
+    }
+    
+    public final class Config {
+
+    // /!\ the objectId field can be directly used here because it's a protected fields.
+        private Config(){
+            super();
+        }
+        //struct	Config
 //     eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
 //     btScalar kVCF; // Velocities correction factor (Baumgarte)
-    public void setVelocitiesCorrectionFactor(float factor) {
-        setVelocitiesCorrectionFactor(objectId, factor);
-    }
+        public void setVelocitiesCorrectionFactor(float factor) {
+            setVelocitiesCorrectionFactor(objectId, factor);
+        }
 
-    private native void setVelocitiesCorrectionFactor(long bodyId, float factor);
+        private native void setVelocitiesCorrectionFactor(long bodyId, float factor);
 
-    public float getVelocitiesCorrectionFactor() {
-        return getVelocitiesCorrectionFactor(objectId);
-    }
+        public float getVelocitiesCorrectionFactor() {
+            return getVelocitiesCorrectionFactor(objectId);
+        }
 
-    private native float getVelocitiesCorrectionFactor(long bodyId);
+        private native float getVelocitiesCorrectionFactor(long bodyId);
 
 //     btScalar kDP; // Damping coefficient [0,1]
-    public void setDampingCoef(float coefficient) {
-        setDampingCoef(objectId, coefficient);
-    }
+        public void setDampingCoef(float coefficient) {
+            setDampingCoef(objectId, coefficient);
+        }
 
-    private native void setDampingCoef(long bodyId, float coefficient);
+        private native void setDampingCoef(long bodyId, float coefficient);
 
-    public float getDampingCoef() {
-        return getDampingCoef(objectId);
-    }
+        public float getDampingCoef() {
+            return getDampingCoef(objectId);
+        }
 
-    private native float getDampingCoef(long bodyId);
+        private native float getDampingCoef(long bodyId);
 
 //     btScalar kDG; // Drag coefficient [0,+inf]
-    public void setDragCoef(float coefficient) {
-        setDragCoef(objectId, coefficient);
-    }
+        public void setDragCoef(float coefficient) {
+            setDragCoef(objectId, coefficient);
+        }
 
-    private native void setDragCoef(long bodyId, float coefficient);
+        private native void setDragCoef(long bodyId, float coefficient);
 
-    public float getDragCoef() {
-        return getDragCoef(objectId);
-    }
+        public float getDragCoef() {
+            return getDragCoef(objectId);
+        }
 
-    private native float getDragCoef(long bodyId);
+        private native float getDragCoef(long bodyId);
 
 //     btScalar kLF; // Lift coefficient [0,+inf]
-    public void setLiftCoef(float coefficient) {
-        setLiftCoef(objectId, coefficient);
-    }
+        public void setLiftCoef(float coefficient) {
+            setLiftCoef(objectId, coefficient);
+        }
 
-    private native void setLiftCoef(long bodyId, float coefficient);
+        private native void setLiftCoef(long bodyId, float coefficient);
 
-    public float getLiftCoef() {
-        return getLiftCoef(objectId);
-    }
+        public float getLiftCoef() {
+            return getLiftCoef(objectId);
+        }
 
-    private native float getLiftCoef(long bodyId);
+        private native float getLiftCoef(long bodyId);
 
 //     btScalar kPR; // Pressure coefficient [-inf,+inf]
-    public void setPressureCoef(float coefficient) {
-        setPressureCoef(objectId, coefficient);
-    }
+        public void setPressureCoef(float coefficient) {
+            setPressureCoef(objectId, coefficient);
+        }
 
-    private native void setPressureCoef(long bodyId, float coefficient);
+        private native void setPressureCoef(long bodyId, float coefficient);
 
-    public float getPressureCoef() {
-        return getPressureCoef(objectId);
-    }
+        public float getPressureCoef() {
+            return getPressureCoef(objectId);
+        }
 
-    private native float getPressureCoef(long bodyId);
+        private native float getPressureCoef(long bodyId);
 
 //     btScalar kVC; // Volume conversation coefficient [0,+inf]
-    public void setVolumeConservationCoef(float coefficient) {
-        setVolumeConservationCoef(objectId, coefficient);
-    }
+        public void setVolumeConservationCoef(float coefficient) {
+            setVolumeConservationCoef(objectId, coefficient);
+        }
 
-    private native void setVolumeConservationCoef(long bodyId, float coefficient);
+        private native void setVolumeConservationCoef(long bodyId, float coefficient);
 
-    public float getVolumeConservationCoef() {
-        return getVolumeConservationCoef(objectId);
-    }
+        public float getVolumeConservationCoef() {
+            return getVolumeConservationCoef(objectId);
+        }
 
-    private native float getVolumeConservationCoef(long bodyId);
+        private native float getVolumeConservationCoef(long bodyId);
 
 //     -> btScalar kDF; // Dynamic friction coefficient [0,1]
-    /**
-     * set the Bullet kDF (aka Dynamic friction coefficient [0,1])
-     *
-     * @param coefficient
-     */
-    public void setDynamicFrictionCoef(float coefficient) {
-        setDynamicFrictionCoef(objectId, coefficient);
-    }
+        /**
+         * set the Bullet kDF (aka Dynamic friction coefficient [0,1])
+         *
+         * @param coefficient
+         */
+        public void setDynamicFrictionCoef(float coefficient) {
+            setDynamicFrictionCoef(objectId, coefficient);
+        }
 
-    private native void setDynamicFrictionCoef(long objectId, float coefficient);
+        private native void setDynamicFrictionCoef(long objectId, float coefficient);
 
-    public float getDynamicFrictionCoef() {
-        return getDynamicFrictionCoef(objectId);
-    }
+        public float getDynamicFrictionCoef() {
+            return getDynamicFrictionCoef(objectId);
+        }
 
-    private native float getDynamicFrictionCoef(long objectId);
+        private native float getDynamicFrictionCoef(long objectId);
 
 //     -> btScalar kMT; // Pose matching coefficient [0,1]
-    public void setPoseMatchingCoef(float coefficient) {
-        setPoseMatchingCoef(objectId, coefficient);
-    }
+        public void setPoseMatchingCoef(float coefficient) {
+            setPoseMatchingCoef(objectId, coefficient);
+        }
 
-    private native void setPoseMatchingCoef(long objectId, float coefficient);
+        private native void setPoseMatchingCoef(long objectId, float coefficient);
 
-    public float getPoseMatchingCoef() {
-        return getPoseMatchingCoef(objectId);
-    }
+        public float getPoseMatchingCoef() {
+            return getPoseMatchingCoef(objectId);
+        }
 
-    private native float getPoseMatchingCoef(long bodyId);
+        private native float getPoseMatchingCoef(long bodyId);
 
 //     btScalar kCHR; // Rigid contacts hardness [0,1]
-    public void setRigidContactsHardness(float hardness) {
-        setRigidContactsHardness(objectId, hardness);
-    }
+        public void setRigidContactsHardness(float hardness) {
+            setRigidContactsHardness(objectId, hardness);
+        }
 
-    private native void setRigidContactsHardness(long bodyId, float hardness);
+        private native void setRigidContactsHardness(long bodyId, float hardness);
 
-    public float getRigidContactsHardness() {
-        return getRigidContactsHardness(objectId);
-    }
+        public float getRigidContactsHardness() {
+            return getRigidContactsHardness(objectId);
+        }
 
-    private native float getRigidContactsHardness(long bodyId);
+        private native float getRigidContactsHardness(long bodyId);
 
 //     btScalar kKHR; // Kinetic contacts hardness [0,1]
-    public void setKineticContactsHardness(float hardness) {
-        setKineticContactsHardness(objectId, hardness);
-    }
+        public void setKineticContactsHardness(float hardness) {
+            setKineticContactsHardness(objectId, hardness);
+        }
 
-    private native void setKineticContactsHardness(long bodyId, float hardness);
+        private native void setKineticContactsHardness(long bodyId, float hardness);
 
-    public float getKineticContactsHardness() {
-        return getKineticContactsHardness(objectId);
-    }
+        public float getKineticContactsHardness() {
+            return getKineticContactsHardness(objectId);
+        }
 
-    private native float getKineticContactsHardness(long bodyId);
+        private native float getKineticContactsHardness(long bodyId);
 
 //     btScalar kSHR; // Soft contacts hardness [0,1]
-    public void setSoftContactsHardness(float hardness) {
-        setSoftContactsHardness(objectId, hardness);
-    }
+        public void setSoftContactsHardness(float hardness) {
+            setSoftContactsHardness(objectId, hardness);
+        }
 
-    private native void setSoftContactsHardness(long bodyId, float hardness);
+        private native void setSoftContactsHardness(long bodyId, float hardness);
 
-    public float getSoftContactsHardness() {
-        return getSoftContactsHardness(objectId);
-    }
+        public float getSoftContactsHardness() {
+            return getSoftContactsHardness(objectId);
+        }
 
-    private native float getSoftContactsHardness(long bodyId);
+        private native float getSoftContactsHardness(long bodyId);
 
 //     btScalar kAHR; // Anchors hardness [0,1]
-    public void setAnchorsHardness(float hardness) {
-        setAnchorsHardness(objectId, hardness);
-    }
+        public void setAnchorsHardness(float hardness) {
+            setAnchorsHardness(objectId, hardness);
+        }
 
-    private native void setAnchorsHardness(long bodyId, float hardness);
+        private native void setAnchorsHardness(long bodyId, float hardness);
 
-    public float getAnchorsHardness() {
-        return getAnchorsHardness(objectId);
-    }
+        public float getAnchorsHardness() {
+            return getAnchorsHardness(objectId);
+        }
 
-    private native float getAnchorsHardness(long bodyId);
+        private native float getAnchorsHardness(long bodyId);
 
 //     btScalar kSRHR_CL; // Soft vs rigid hardness [0,1] (cluster only)
 //     btScalar kSKHR_CL; // Soft vs kinetic hardness [0,1] (cluster only)
@@ -707,91 +720,91 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 //     btScalar kSK_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
 //     btScalar kSS_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
 //     btScalar maxvolume; // Maximum volume ratio for pose
-    public void setMaximumVolumeRatio(float ratio) {
-        setMaximumVolumeRatio(objectId, ratio);
-    }
+        public void setMaximumVolumeRatio(float ratio) {
+            setMaximumVolumeRatio(objectId, ratio);
+        }
 
-    private native void setMaximumVolumeRatio(long bodyId, float ratio);
+        private native void setMaximumVolumeRatio(long bodyId, float ratio);
 
-    public float getMaximumVolumeRatio() {
-        return getMaximumVolumeRatio(objectId);
-    }
+        public float getMaximumVolumeRatio() {
+            return getMaximumVolumeRatio(objectId);
+        }
 
-    private native float getMaximumVolumeRatio(long bodyId);
+        private native float getMaximumVolumeRatio(long bodyId);
 
 //     btScalar timescale; // Time scale
-    public void setTimeScale(float scale) {
-        setTimeScale(objectId, scale);
-    }
+        public void setTimeScale(float scale) {
+            setTimeScale(objectId, scale);
+        }
 
-    private native void setTimeScale(long bodyId, float scale);
+        private native void setTimeScale(long bodyId, float scale);
 
-    public float getTimeScale() {
-        return getTimeScale(objectId);
-    }
+        public float getTimeScale() {
+            return getTimeScale(objectId);
+        }
 
-    private native float getTimeScale(long bodyId);
+        private native float getTimeScale(long bodyId);
 
 //     int	viterations; // Velocities solver iterations
-    public void setVelocitiesIterations(int iterations) {
-        setVelocitiesIterations(objectId, iterations);
-    }
+        public void setVelocitiesIterations(int iterations) {
+            setVelocitiesIterations(objectId, iterations);
+        }
 
-    private native void setVelocitiesIterations(long objectId, int iteration);
+        private native void setVelocitiesIterations(long objectId, int iteration);
 
-    public int getVelocitiesIterations() {
-        return getVelocitiesIterations(objectId);
-    }
+        public int getVelocitiesIterations() {
+            return getVelocitiesIterations(objectId);
+        }
 
-    private native int getVelocitiesIterations(long objectId);
+        private native int getVelocitiesIterations(long objectId);
 
 //     -> int	piterations; // Positions solver iterations
-    public void setPositionIterations(int iterations) {
-        setPositionIterations(objectId, iterations);
-    }
+        public void setPositionIterations(int iterations) {
+            setPositionIterations(objectId, iterations);
+        }
 
-    private native void setPositionIterations(long objectId, int iteration);
+        private native void setPositionIterations(long objectId, int iteration);
 
-    public int getPositionIterations() {
-        return getPositionIterations(objectId);
-    }
+        public int getPositionIterations() {
+            return getPositionIterations(objectId);
+        }
 
-    private native int getPositionIterations(long objectId);
+        private native int getPositionIterations(long objectId);
 
 //     int	diterations; // Drift solver iterations
-    public void setDriftIterations(int iterations) {
-        setDriftIterations(objectId, iterations);
-    }
+        public void setDriftIterations(int iterations) {
+            setDriftIterations(objectId, iterations);
+        }
 
-    private native void setDriftIterations(long objectId, int iteration);
+        private native void setDriftIterations(long objectId, int iteration);
 
-    public int getDriftIterations() {
-        return getDriftIterations(objectId);
-    }
+        public int getDriftIterations() {
+            return getDriftIterations(objectId);
+        }
 
-    private native int getDriftIterations(long objectId);
+        private native int getDriftIterations(long objectId);
 
 //     int	citerations; // Cluster solver iterations
    /* public void setClusterIterations(int iterations) {
-        setClusterIterations(objectId, iterations);
-    }
+         setClusterIterations(objectId, iterations);
+         }
 
-    private native void setClusterIterations(long objectId, int iteration);
+         private native void setClusterIterations(long objectId, int iteration);
 
-    public int getClusterIterations() {
-        return getClusterIterations(objectId);
-    }
+         public int getClusterIterations() {
+         return getClusterIterations(objectId);
+         }
 
-    private native int getClusterIterations(long objectId);*/
-    
+         private native int getClusterIterations(long objectId);*/
 //     int	collisions; // Collisions flags
 //     tVSolverArray m_vsequence; // Velocity solvers sequence
 //     tPSolverArray m_psequence; // Position solvers sequence
 //     tPSolverArray m_dsequence; // Drift solvers sequence
+    };
+
     /*====================*  
      SoftBody to Mesh - UTILS 
-     *====================*/
-    /*
+     *====================*/ /*
      Since bullet SoftBody don't use btCollisionShape, its not possible to use the DebugShapeFactory.
      The following code is almost the same , but specially for SoftBody. 
      Theses methods are static (same as in DebugShapeFactory) so the code can be easily moved somewhere else.

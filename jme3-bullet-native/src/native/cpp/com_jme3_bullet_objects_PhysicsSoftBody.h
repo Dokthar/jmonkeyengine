@@ -379,30 +379,6 @@ JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_isInWorl
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    setDynamicFriction
- * Signature: (JF)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setDynamicFriction
-  (JNIEnv *, jobject, jlong, jfloat);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    setPoseMatching
- * Signature: (JF)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPoseMatching
-  (JNIEnv *, jobject, jlong, jfloat);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    setPositionSolver
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPositionSolver
-  (JNIEnv *, jobject, jlong, jint);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    getVertices
  * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
  */
