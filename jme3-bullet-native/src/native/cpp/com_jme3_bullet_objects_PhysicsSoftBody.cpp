@@ -156,6 +156,54 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    appendMaterial
+     * Signature: (J)J
+     */
+    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendMaterial
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        btSoftBody::Material* mat = body->appendMaterial();
+        return reinterpret_cast<long> (mat);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getMaterials
+     * Signature: (J)[J
+     */
+    JNIEXPORT jlongArray JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMaterials
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return NULL;
+        }
+        
+        int size = body->m_materials.size();
+        
+        jlongArray result;
+        result = env->NewLongArray(size);
+        if (result == NULL) {
+            return NULL; /* out of memory error thrown */
+        }
+        // fill a temp structure to use to populate the java long array
+        jlong fill[size];
+        for (int i = 0; i < size; i++) {
+            fill[i] = reinterpret_cast<long> (body->m_materials[i]);
+        }
+        // move from the temp structure to the java structure
+        env->SetLongArrayRegion(result, 0, size, fill);
+        return result;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    addForce
      * Signature: (JLcom/jme3/math/Vector3f;)V
      */
@@ -639,61 +687,6 @@ extern "C" {
         }
         //boolean isInWorld = body->getBroadphaseHandle() != 0; // from bullet RigidBody
         return body->getBroadphaseHandle() != 0;
-    }
-
-    /*====================*
-     Config access
-     *====================*/
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    setDynamicFriction
-     * Signature: (JF)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setDynamicFriction
-    (JNIEnv *env, jobject object, jlong bodyId, jfloat coefficient) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-
-        body->m_cfg.kDF = coefficient;
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    setPoseMatching
-     * Signature: (JF)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPoseMatching
-    (JNIEnv *env, jobject object, jlong bodyId, jfloat coefficient) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-
-        body->m_cfg.kMT = coefficient;
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    setPositionSolver
-     * Signature: (JI)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPositionSolver
-    (JNIEnv *env, jobject object, jlong bodyId, jint iterations) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-
-        body->m_cfg.piterations = iterations;
     }
 
     /*====================*  

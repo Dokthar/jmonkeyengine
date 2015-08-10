@@ -58,7 +58,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_getLinearStiffnessFactor
     (JNIEnv *env, jobject object, jlong matId) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -74,7 +74,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_setLinearStiffnessFactor
     (JNIEnv *env, jobject object, jlong matId, jfloat factor) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -90,7 +90,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_getAngularStiffnessFactor
     (JNIEnv *env, jobject object, jlong matId) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -106,7 +106,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_setAngularStiffnessFactor
     (JNIEnv *env, jobject object, jlong matId, jfloat factor) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -122,7 +122,7 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_getVolumeStiffnessFactor
     (JNIEnv *env, jobject object, jlong matId) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -138,7 +138,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_setVolumeStiffnessFactor
     (JNIEnv *env, jobject object, jlong matId, jfloat factor) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -154,7 +154,7 @@ extern "C" {
      */
     JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_getFlags
     (JNIEnv *env, jobject object, jlong matId) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -170,7 +170,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_setFlags
     (JNIEnv *env, jobject object, jlong matId, jint flag) {
-        Material* mat = reinterpret_cast<Material*> (matId);
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
@@ -181,5 +181,4 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif
 #endif

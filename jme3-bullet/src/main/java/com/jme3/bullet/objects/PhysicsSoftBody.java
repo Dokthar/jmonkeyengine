@@ -49,6 +49,7 @@ import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,7 +60,7 @@ import java.util.logging.Logger;
 public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private final Config config = new Config();
-    
+
     @Deprecated
     public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
         objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
@@ -172,11 +173,25 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
      }
      */
-    /* public void appendMaterial(Material material) {
-     appendMaterial(objectId, material);
-     }
+    
+    public Material appendMaterial() {
+        long matId = appendMaterial(objectId);
+        return new Material(matId);
+    }
 
-     private native void appendMaterial(long objectId, Material material);*/
+    private native long appendMaterial(long objectId);
+    
+    public ArrayList<Material> getMaterialList(){
+        long matIds[] = getMaterials(objectId);
+        ArrayList<Material> matList = new ArrayList<Material>(matIds.length);
+        for(int i=0; i< matIds.length; i++){
+            matList.add(new Material(matIds[i]));
+        }
+        return matList;
+    }
+    
+    private native long[] getMaterials(long bodyId);
+    
 
     /* Append anchor */
     /* public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
@@ -539,20 +554,21 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     /*====================*
      Config access
      *====================*/
-    
-    public Config getConfig(){
+    public Config getConfig() {
         return this.config;
     }
-    
+
     public final class Config {
 
-    // /!\ the objectId field can be directly used here because it's a protected fields.
-        private Config(){
+        // /!\ the objectId field can be directly used here because it's a protected fields.
+        private Config() {
             super();
         }
+
         //struct	Config
 //     eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
 //     btScalar kVCF; // Velocities correction factor (Baumgarte)
+
         public void setVelocitiesCorrectionFactor(float factor) {
             setVelocitiesCorrectionFactor(objectId, factor);
         }
