@@ -879,7 +879,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         private long materialId;
 
-        public Material(float linearStiffnessFactor, float angularStiffnessFactor, float volumeStiffnessFactor, int flags) {
+        /*public Material(float linearStiffnessFactor, float angularStiffnessFactor, float volumeStiffnessFactor, int flags) {
             this();
             setLinearStiffnessFactor(materialId, linearStiffnessFactor);
             setAngularStiffnessFactor(materialId, angularStiffnessFactor);
@@ -888,7 +888,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         private Material() {
             this.materialId = createMaterial();
-        }
+        }*/
 
         protected Material(long nativeId) {
             this.materialId = nativeId;
