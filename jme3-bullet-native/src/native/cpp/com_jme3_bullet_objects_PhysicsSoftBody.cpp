@@ -184,9 +184,9 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return NULL;
         }
-        
+
         int size = body->m_materials.size();
-        
+
         jlongArray result;
         result = env->NewLongArray(size);
         if (result == NULL) {
@@ -614,7 +614,15 @@ extern "C" {
      * Signature: (JI)V
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_releaseCluster
-    (JNIEnv *, jobject, jlong, jint);
+    (JNIEnv *env, jobject object, jlong bodyId, jint index) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->releaseCluster(index);
+    }
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
@@ -622,7 +630,15 @@ extern "C" {
      * Signature: (J)V
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_releaseClusters
-    (JNIEnv *, jobject, jlong);
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->releaseClusters();
+    }
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
@@ -630,7 +646,15 @@ extern "C" {
      * Signature: (JII)I
      */
     JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_generateClusters
-    (JNIEnv *, jobject, jlong, jint, jint);
+    (JNIEnv *env, jobject object, jlong bodyId, jint k, jint maxIter) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->generateClusters(k,maxIter);
+    }
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
@@ -650,10 +674,10 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    staticSolce
+     * Method:    staticSolve
      * Signature: (JI)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_staticSolce
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_staticSolve
     (JNIEnv *, jobject, jlong, jint);
 
     /*

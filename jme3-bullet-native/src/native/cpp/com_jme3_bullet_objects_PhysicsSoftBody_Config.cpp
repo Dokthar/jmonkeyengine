@@ -579,7 +579,7 @@ extern "C" {
      * Signature: (J)I
      */
     JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getDriftIterations
-    (JNIEnv *env, jobject object, jlong bodyId){
+    (JNIEnv *env, jobject object, jlong bodyId) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
@@ -589,6 +589,38 @@ extern "C" {
         return body->m_cfg.diterations;
     }
 
+    /*
+     * 
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setCollisionsFlags
+     * Signature: (JI)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setCollisionsFlags
+    (JNIEnv *env, jobject object, jlong bodyId, jint flags) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.collisions = flags;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getCollisionFlags
+     * Signature: (J)I
+     */
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getCollisionFlags
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.collisions;
+    }
 
 #ifdef __cplusplus
 }

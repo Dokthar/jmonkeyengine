@@ -7,6 +7,22 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_RVSmask
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_RVSmask 15L
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_SDF_RS
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_SDF_RS 1L
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_CL_RS
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_CL_RS 2L
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_SVSmask
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_SVSmask 48L
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_VF_SS
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_VF_SS 16L
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_CL_SS
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_CL_SS 32L
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_CL_SELF
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_CL_SELF 64L
+#undef com_jme3_bullet_objects_PhysicsSoftBody_Config_Default
+#define com_jme3_bullet_objects_PhysicsSoftBody_Config_Default 1L
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
  * Method:    setVelocitiesCorrectionFactor
@@ -277,6 +293,22 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getDriftIterations
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+ * Method:    setCollisionsFlags
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setCollisionsFlags
+  (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+ * Method:    getCollisionFlags
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getCollisionFlags
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
