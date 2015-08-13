@@ -430,6 +430,198 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setClusterRigidHardness
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setClusterRigidHardness
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coef) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.kSRHR_CL = coef;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getClusterRigidHardness
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getClusterRigidHardness
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.kSRHR_CL;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setClusterKineticHardness
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setClusterKineticHardness
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coef) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.kSKHR_CL = coef;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getClusterKineticHardness
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getClusterKineticHardness
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.kSKHR_CL;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setClusterSoftHardness
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setClusterSoftHardness
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coef) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.kSSHR_CL = coef;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getClusterSoftHardness
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getClusterSoftHardness
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.kSSHR_CL;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setClusterRigidImpulseSplitCoef
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setClusterRigidImpulseSplitCoef
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coef) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.kSR_SPLT_CL = coef;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getClusterRigidImpulseSplitCoef
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getClusterRigidImpulseSplitCoef
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.kSR_SPLT_CL;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setClusterKineticImpulseSplitCoef
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setClusterKineticImpulseSplitCoef
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coef) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.kSK_SPLT_CL = coef;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getClusterKineticImpulseSplitCoef
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getClusterKineticImpulseSplitCoef
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.kSK_SPLT_CL;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setClusterSoftImpulseSplitCoef
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setClusterSoftImpulseSplitCoef
+    (JNIEnv *env, jobject object, jlong bodyId, jfloat coef) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.kSS_SPLT_CL = coef;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getClusterSoftImpulseSplitCoef
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getClusterSoftImpulseSplitCoef
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.kSS_SPLT_CL;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
      * Method:    setMaximumVolumeRatio
      * Signature: (JF)V
      */
@@ -587,6 +779,38 @@ extern "C" {
             return 0;
         }
         return body->m_cfg.diterations;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    setClusterIterations
+     * Signature: (JI)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_setClusterIterations
+    (JNIEnv *env, jobject object, jlong bodyId, jint iter) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->m_cfg.citerations = iter;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    getClusterIterations
+     * Signature: (J)I
+     */
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getClusterIterations
+    (JNIEnv *env, jobject object, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_cfg.citerations;
     }
 
     /*

@@ -58,21 +58,21 @@ import java.util.logging.Logger;
  * @author dokthar
  */
 public class PhysicsSoftBody extends PhysicsCollisionObject {
-    
+
     private final Config config = new Config();
-    
+
     @Deprecated
     public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
         objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
         postRebuild(false);
     }
-    
+
     public PhysicsSoftBody() {
         objectId = ctr_PhysicsSoftBody();
         initDefault();
         postRebuild(false);
     }
-    
+
     public PhysicsSoftBody(Mesh triMesh) {
 // must check if the mesh have %3 vertices
         createFromTriMesh(triMesh);
@@ -83,7 +83,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     private final long createFromTriMesh(Mesh triMesh) {
         IntBuffer indexBuffer = BufferUtils.createIntBuffer(triMesh.getTriangleCount() * 3);
         FloatBuffer positionBuffer = triMesh.getFloatBuffer(Type.Position);
-        
+
         IndexBuffer indices = triMesh.getIndicesAsList();
         int indicesLength = triMesh.getTriangleCount() * 3;
         for (int i = 0; i < indicesLength; i++) { // done because mesh indexs can use short or i am wrong
@@ -94,13 +94,13 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         postRebuild(false);
         return objectId;
     }
-    
+
     private native long createFromTriMesh(IntBuffer triangles, FloatBuffer vertices, int numTriangles, boolean randomizeConstraints);
-    
+
     private native long ctr_PhysicsSoftBody();
-    
+
     private native long ctr_PhysicsSoftBody(int size, Vector3f[] vertices, float[] mass);
-    
+
     protected void rebuildFromTriMesh(Mesh mesh) {
         // {mesh != null} => {old Native object is removed & destroyed; new Native object is created & added}
         boolean wasInWorld = isInWorld();
@@ -108,7 +108,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         objectId = createFromTriMesh(mesh);
         postRebuild(wasInWorld);
     }
-    
+
     protected final void preRebuild() {
         // {} = > {remove the body from the physics space and detroy the native object}
 
@@ -123,7 +123,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
             finalizeNative(objectId);
         }
     }
-    
+
     protected final void postRebuild(boolean wasInWorld) {
         // {} => {initUserPoint on the native object, if this wasInWorld add this into the physicsSpace}
         initUserPointer();
@@ -131,25 +131,25 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
             PhysicsSoftSpace.getPhysicsSoftSpace().add(this);
         }
     }
-    
+
     private void initDefault() {
         initDefault(objectId);
     }
-    
+
     private native void initDefault(long objectId);
-    
+
     public void setSoftBodyWorldInfo(SoftBodyWorldInfo worldinfo) {
         setSoftBodyWorldInfo(objectId, worldinfo.getWorldInfoId());
     }
-    
+
     private native void setSoftBodyWorldInfo(long objectId, long worldinfoId);
-    
+
     public SoftBodyWorldInfo getSoftBodyWorldInfo() {
         long worldInfoId = getSoftBodyWorldInfo(objectId);
         SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo(worldInfoId); // <-point on the same native object
         return worldInfo;
     }
-    
+
     private native long getSoftBodyWorldInfo(long objectId);
 
     /* API */
@@ -177,9 +177,9 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         long matId = appendMaterial(objectId);
         return new Material(matId);
     }
-    
+
     private native long appendMaterial(long objectId);
-    
+
     public ArrayList<Material> getMaterialList() {
         long matIds[] = getMaterials(objectId);
         ArrayList<Material> matList = new ArrayList<Material>(matIds.length);
@@ -188,7 +188,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         }
         return matList;
     }
-    
+
     private native long[] getMaterials(long bodyId);
 
 
@@ -221,120 +221,120 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public void addForce(Vector3f force) {
         addForce(objectId, force);
     }
-    
+
     private native void addForce(long objectId, Vector3f force);
 
     /* Add force (or gravity) to a node of the body */
     public void addForce(Vector3f force, int node) {
         addForce(objectId, force, node);
     }
-    
+
     private native void addForce(long objectId, Vector3f force, int node);
 
     /* Add aero force to a node of the body */
     public void addAeroForceToNode(Vector3f windVelocity, int nodeIndex) {
         addAeroForceToNode(objectId, windVelocity, nodeIndex);
     }
-    
+
     private native void addAeroForceToNode(long objectId, Vector3f windVelocity, int nodeIndex);
 
     /* Add aero force to a face of the body */
     public void addAeroForceToFace(Vector3f windVelocity, int faceIndex) {
         addAeroForceToFace(objectId, windVelocity, faceIndex);
     }
-    
+
     private native void addAeroForceToFace(long objectId, Vector3f windVelocity, int faceIndex);
 
     /* Add velocity to the entire body */
     public void addVelocity(Vector3f velocity) {
-        
+
     }
 
     /* Set velocity for the entire body */
     public void setVelocity(Vector3f velocity) {
-        
+
     }
 
     /* Add velocity to a node of the body */
     public void addVelocity(Vector3f velocity, int node) {
-        
+
     }
 
     /* Set mass */
     public void setMass(int node, float mass) {
         setMass(objectId, node, mass);
     }
-    
+
     private native void setMass(long objectId, int node, float mass);
 
     /* Get mass */
     public float getMass(int node) {
         return getMass(objectId, node);
     }
-    
+
     private native float getMass(long objectId, int node);
 
     /* Get total mass */
     public float getTotalMass() {
         return getTotalMass(objectId);
     }
-    
+
     private native float getTotalMass(long objectId);
 
     /* Set total mass (weighted by previous masses) */
     public void setTotalMass(float mass, boolean fromfaces) {
         setTotalMass(objectId, mass, fromfaces);
     }
-    
+
     public void setTotalMass(float mass) {
         setTotalMass(mass, false);
     }
-    
+
     private native void setTotalMass(long objectId, float mass, boolean fromFaces);
 
     /* Set total density */
     public void setTotalDensity(float density) {
         setTotalDensity(objectId, density);
     }
-    
+
     private native void setTotalDensity(long objectId, float density);
 
     /* Set volume mass (using tetrahedrons) */
     public void setVolumeMass(float mass) {
         setVolumeMass(objectId, mass);
     }
-    
+
     private native void setVolumeMass(long objectId, float mass);
 
     /* Set volume density (using tetrahedrons) */
     public void setVolumeDensity(float density) {
         setVolumeDensity(objectId, density);
     }
-    
+
     private native void setVolumeDensity(long objectId, float density);
 
     /* Transform */
     public void setPhysicsTransform(Transform trs) {
         setPhysicsTransform(objectId, trs);
     }
-    
+
     private native void setPhysicsTransform(long objectId, Transform trs);
-    
+
     public Transform getPhysicsTransform() {
         Transform trs = new Transform();
         getPhysicsTransform(objectId, trs);
         return trs;
     }
-    
+
     private native void getPhysicsTransform(long objectId, Transform trs);
 
     /* Translate */
     public void setPhysicsLocation(Vector3f vec) {
         setPhysicsLocation(objectId, vec);
     }
-    
+
     private native void setPhysicsLocation(long objectId, Vector3f vec);
-    
+
     public Vector3f getPhysicsLocation(Vector3f store) {
         if (store == null) {
             store = new Vector3f();
@@ -342,20 +342,20 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         getPhysicsLocation(objectId, store);
         return store;
     }
-    
+
     public Vector3f getPhysicsLocation() {
         return getPhysicsLocation(null);
     }
-    
+
     private native void getPhysicsLocation(long objectId, Vector3f vec);
 
     /* Rotate */
     public void setPhysicsRotation(Quaternion rot) {
         setPhysicsRotation(objectId, rot);
     }
-    
+
     private native void setPhysicsRotation(long objectId, Quaternion rot);
-    
+
     public Quaternion getPhysicsRotation(Quaternion store) {
         if (store == null) {
             store = new Quaternion();
@@ -363,28 +363,28 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         getPhysicsRotation(objectId, store);
         return store;
     }
-    
+
     public Quaternion getPhysicsRotation() {
         return getPhysicsRotation(null);
     }
-    
+
     private native void getPhysicsRotation(long objectId, Quaternion rot);
 
     /* Scale */
     public void setPhysicsScale(Vector3f scl) {
         setPhysicsScale(objectId, scl);
     }
-    
+
     private native void setPhysicsScale(long objectId, Vector3f scl);
-    
+
     public Vector3f getPhysicsScale() {
         Vector3f scl = new Vector3f();
         getPhysicsScale(objectId, scl);
         return scl;
     }
-    
+
     private native void getPhysicsScale(long objectId, Vector3f scl);
-    
+
     public float getRestLengthScale() {
         return getRestLenghtScale(objectId);
     }
@@ -396,35 +396,35 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public void setRestLengthScale(float scale) {
         setRestLenghtScale(objectId, scale);
     }
-    
+
     private native void setRestLenghtScale(long objectId, float scale);
 
     /* Set current state as pose */
     public void setPose(boolean bvolume, boolean bframe) {
         setPose(objectId, bvolume, bframe);
     }
-    
+
     private native void setPose(long objectId, boolean bvolume, boolean bframe);
 
     /* Set current link lengths as resting lengths */
     public void resetLinkRestLengths() {
         resetLinkRestLengths(objectId);
     }
-    
+
     private native void resetLinkRestLengths(long objectId);
 
     /* Return the volume */
     public float getVolume() {
         return getVolume(objectId);
     }
-    
+
     private native float getVolume(long objectId);
 
     /* Cluster count */
     public int getClusterCount() {
         return getClusterCount(objectId);
     }
-    
+
     private native int getClusterCount(long objectId);
 
     /* Cluster center of mass */
@@ -434,7 +434,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         getClusterCenterOfMass(objectId, clusterId, vec);
         return vec;
     }
-    
+
     private native void getClusterCenterOfMass(long objectId, int clusterId, Vector3f vec);
 
     /* Cluster velocity at rpos */
@@ -448,27 +448,30 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
      static void	clusterAImpulse(Cluster* cluster,const Impulse& impulse);
      static void	clusterDCImpulse(Cluster* cluster,const btVector3& impulse);*/
     /* Generate bending constraints based on distance in the adjency graph */
-    /*public int generateBendingConstraints( int distance, Material* mat=0){
-        
-     }*/
+    public int generateBendingConstraints(int distance, Material mat) {
+        return generateBendingConstraints(objectId, distance, mat.materialId);
+    }
+
+    private native int generateBendingConstraints(long bodyId, int distance, long matId);
+
     /* Randomize constraints to reduce solver bias */
     public void randomizeConstraints() {
         randomizeConstraints(objectId);
     }
-    
+
     private native void randomizeConstraints(long objectId);
 
     /* Release clusters */
     public void releaseCluster(int index) {
         releaseCluster(objectId, index);
     }
-    
+
     private native void releaseCluster(long objectId, int index);
-    
+
     public void releaseClusters() {
         releaseClusters(objectId);
     }
-    
+
     private native void releaseClusters(long objectId);
 
     /* Generate clusters (K-mean) */
@@ -477,11 +480,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public int generateClusters(int k) {
         return generateClusters(k, 8192);
     }
-    
+
     public int generateClusters(int k, int maxiterations) {
         return generateClusters(objectId, k, maxiterations);
     }
-    
+
     private native int generateClusters(long objectId, int k, int maxiterations);
 
     /* Refine */
@@ -502,21 +505,21 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public void predictMotion(float dt) {
         predictMotion(objectId, dt);
     }
-    
+
     private native void predictMotion(long objectId, float dt);
 
     /* solveConstraints */
     public void solveConstraints() {
         solveConstraints(objectId);
     }
-    
+
     private native void solveConstraints(long objectId);
 
     /* staticSolve */
     public void staticSolve(int iterations) {
         staticSolve(objectId, iterations);
     }
-    
+
     private native void staticSolve(long objectId, int iterations);
 
     /* solveCommonConstraints */
@@ -531,24 +534,32 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public void integrateMotion() {
         integrateMotion(objectId);
     }
-    
+
     private native void integrateMotion(long objectId);
     /* defaultCollisionHandlers */
     /*public void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap){
     
      }*/
-    
+
     public void defaultCollisionHandler(PhysicsSoftBody psb) {
         defaultCollisionHandler(psb.objectId);
     }
-    
+
     private native void defaultCollisionHandler(long objectId);
-    
+
     public boolean isInWorld() {
         return isInWorld(objectId);
     }
-    
+
     private native boolean isInWorld(long objectId);
+
+    public Vector3f getBoundingCenter() {
+        Vector3f result = new Vector3f();
+        getCenter(objectId, result);
+        return result;
+    }
+
+    private native void getCenter(long bodyId, Vector3f store);
 
     /*====================*
      Config access
@@ -556,7 +567,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     public Config getConfig() {
         return this.config;
     }
-    
+
     public final class Config {
 
         // /!\ the objectId field is directly used here because it's a protected fields.
@@ -570,246 +581,318 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public void setVelocitiesCorrectionFactor(float factor) {
             setVelocitiesCorrectionFactor(objectId, factor);
         }
-        
+
         private native void setVelocitiesCorrectionFactor(long bodyId, float factor);
-        
+
         public float getVelocitiesCorrectionFactor() {
             return getVelocitiesCorrectionFactor(objectId);
         }
-        
+
         private native float getVelocitiesCorrectionFactor(long bodyId);
 
 //     btScalar kDP; // Damping coefficient [0,1]
         public void setDampingCoef(float coefficient) {
             setDampingCoef(objectId, coefficient);
         }
-        
+
         private native void setDampingCoef(long bodyId, float coefficient);
-        
+
         public float getDampingCoef() {
             return getDampingCoef(objectId);
         }
-        
+
         private native float getDampingCoef(long bodyId);
 
 //     btScalar kDG; // Drag coefficient [0,+inf]
         public void setDragCoef(float coefficient) {
             setDragCoef(objectId, coefficient);
         }
-        
+
         private native void setDragCoef(long bodyId, float coefficient);
-        
+
         public float getDragCoef() {
             return getDragCoef(objectId);
         }
-        
+
         private native float getDragCoef(long bodyId);
 
 //     btScalar kLF; // Lift coefficient [0,+inf]
         public void setLiftCoef(float coefficient) {
             setLiftCoef(objectId, coefficient);
         }
-        
+
         private native void setLiftCoef(long bodyId, float coefficient);
-        
+
         public float getLiftCoef() {
             return getLiftCoef(objectId);
         }
-        
+
         private native float getLiftCoef(long bodyId);
 
 //     btScalar kPR; // Pressure coefficient [-inf,+inf]
         public void setPressureCoef(float coefficient) {
             setPressureCoef(objectId, coefficient);
         }
-        
+
         private native void setPressureCoef(long bodyId, float coefficient);
-        
+
         public float getPressureCoef() {
             return getPressureCoef(objectId);
         }
-        
+
         private native float getPressureCoef(long bodyId);
 
 //     btScalar kVC; // Volume conversation coefficient [0,+inf]
         public void setVolumeConservationCoef(float coefficient) {
             setVolumeConservationCoef(objectId, coefficient);
         }
-        
+
         private native void setVolumeConservationCoef(long bodyId, float coefficient);
-        
+
         public float getVolumeConservationCoef() {
             return getVolumeConservationCoef(objectId);
         }
-        
+
         private native float getVolumeConservationCoef(long bodyId);
 
 //     -> btScalar kDF; // Dynamic friction coefficient [0,1]
         /**
-         * set the Bullet kDF (aka Dynamic friction coefficient [0,1])
+         * set the Dynamic friction coefficient [0,1] (aka kDF).
          *
          * @param coefficient
          */
         public void setDynamicFrictionCoef(float coefficient) {
             setDynamicFrictionCoef(objectId, coefficient);
         }
-        
+
         private native void setDynamicFrictionCoef(long objectId, float coefficient);
-        
+
         public float getDynamicFrictionCoef() {
             return getDynamicFrictionCoef(objectId);
         }
-        
+
         private native float getDynamicFrictionCoef(long objectId);
 
 //     -> btScalar kMT; // Pose matching coefficient [0,1]
         public void setPoseMatchingCoef(float coefficient) {
             setPoseMatchingCoef(objectId, coefficient);
         }
-        
+
         private native void setPoseMatchingCoef(long objectId, float coefficient);
-        
+
         public float getPoseMatchingCoef() {
             return getPoseMatchingCoef(objectId);
         }
-        
+
         private native float getPoseMatchingCoef(long bodyId);
 
 //     btScalar kCHR; // Rigid contacts hardness [0,1]
         public void setRigidContactsHardness(float hardness) {
             setRigidContactsHardness(objectId, hardness);
         }
-        
+
         private native void setRigidContactsHardness(long bodyId, float hardness);
-        
+
         public float getRigidContactsHardness() {
             return getRigidContactsHardness(objectId);
         }
-        
+
         private native float getRigidContactsHardness(long bodyId);
 
 //     btScalar kKHR; // Kinetic contacts hardness [0,1]
         public void setKineticContactsHardness(float hardness) {
             setKineticContactsHardness(objectId, hardness);
         }
-        
+
         private native void setKineticContactsHardness(long bodyId, float hardness);
-        
+
         public float getKineticContactsHardness() {
             return getKineticContactsHardness(objectId);
         }
-        
+
         private native float getKineticContactsHardness(long bodyId);
 
 //     btScalar kSHR; // Soft contacts hardness [0,1]
         public void setSoftContactsHardness(float hardness) {
             setSoftContactsHardness(objectId, hardness);
         }
-        
+
         private native void setSoftContactsHardness(long bodyId, float hardness);
-        
+
         public float getSoftContactsHardness() {
             return getSoftContactsHardness(objectId);
         }
-        
+
         private native float getSoftContactsHardness(long bodyId);
 
 //     btScalar kAHR; // Anchors hardness [0,1]
         public void setAnchorsHardness(float hardness) {
             setAnchorsHardness(objectId, hardness);
         }
-        
+
         private native void setAnchorsHardness(long bodyId, float hardness);
-        
+
         public float getAnchorsHardness() {
             return getAnchorsHardness(objectId);
         }
-        
+
         private native float getAnchorsHardness(long bodyId);
 
 //     btScalar kSRHR_CL; // Soft vs rigid hardness [0,1] (cluster only)
+        public void setClusterRigidHardness(float hardness) {
+            setClusterRigidHardness(objectId, hardness);
+        }
+
+        private native void setClusterRigidHardness(long bodyId, float hardness);
+
+        public float getClusterRigidHardness() {
+            return getClusterRigidHardness(objectId);
+        }
+
+        private native float getClusterRigidHardness(long bodyId);
+
 //     btScalar kSKHR_CL; // Soft vs kinetic hardness [0,1] (cluster only)
+        public void setClusterKineticHardness(float hardness) {
+            setClusterKineticHardness(objectId, hardness);
+        }
+
+        private native void setClusterKineticHardness(long bodyId, float hardness);
+
+        public float getClusterKineticHardness() {
+            return getClusterKineticHardness(objectId);
+        }
+
+        private native float getClusterKineticHardness(long bodyId);
+
 //     btScalar kSSHR_CL; // Soft vs soft hardness [0,1] (cluster only)
+        public void setClusterSoftHardness(float hardness) {
+            setClusterSoftHardness(objectId, hardness);
+        }
+
+        private native void setClusterSoftHardness(long bodyId, float hardness);
+
+        public float getClusterSoftHardness() {
+            return getClusterSoftHardness(objectId);
+        }
+
+        private native float getClusterSoftHardness(long bodyId);
+
 //     btScalar kSR_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
-//     btScalar kSK_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
-//     btScalar kSS_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+        public void setClusterRigidImpulseSplitCoef(float coef) {
+            setClusterRigidImpulseSplitCoef(objectId, coef);
+        }
+
+        private native void setClusterRigidImpulseSplitCoef(long bodyId, float coef);
+
+        public float getClusterRigidImpulseSplitCoef() {
+            return getClusterRigidImpulseSplitCoef(objectId);
+        }
+
+        private native float getClusterRigidImpulseSplitCoef(long bodyId);
+
+//     btScalar kSK_SPLT_CL; // Soft vs kinetic impulse split [0,1] (cluster only)
+        public void setClusterKineticImpulseSplitCoef(float coef) {
+            setClusterKineticImpulseSplitCoef(objectId, coef);
+        }
+
+        private native void setClusterKineticImpulseSplitCoef(long bodyId, float coef);
+
+        public float getClusterKineticImpulseSplitCoef() {
+            return getClusterKineticImpulseSplitCoef(objectId);
+        }
+
+        private native float getClusterKineticImpulseSplitCoef(long bodyId);
+
+//     btScalar kSS_SPLT_CL; // Soft vs soft impulse split [0,1] (cluster only)
+        public void setClusterSoftImpulseSplitCoef(float coef) {
+            setClusterSoftImpulseSplitCoef(objectId, coef);
+        }
+
+        private native void setClusterSoftImpulseSplitCoef(long bodyId, float coef);
+
+        public float getClusterSoftImpulseSplitCoef() {
+            return getClusterSoftImpulseSplitCoef(objectId);
+        }
+
+        private native float getClusterSoftImpulseSplitCoef(long bodyId);
+
 //     btScalar maxvolume; // Maximum volume ratio for pose
         public void setMaximumVolumeRatio(float ratio) {
             setMaximumVolumeRatio(objectId, ratio);
         }
-        
+
         private native void setMaximumVolumeRatio(long bodyId, float ratio);
-        
+
         public float getMaximumVolumeRatio() {
             return getMaximumVolumeRatio(objectId);
         }
-        
+
         private native float getMaximumVolumeRatio(long bodyId);
 
 //     btScalar timescale; // Time scale
         public void setTimeScale(float scale) {
             setTimeScale(objectId, scale);
         }
-        
+
         private native void setTimeScale(long bodyId, float scale);
-        
+
         public float getTimeScale() {
             return getTimeScale(objectId);
         }
-        
+
         private native float getTimeScale(long bodyId);
 
 //     int	viterations; // Velocities solver iterations
         public void setVelocitiesIterations(int iterations) {
             setVelocitiesIterations(objectId, iterations);
         }
-        
+
         private native void setVelocitiesIterations(long objectId, int iteration);
-        
+
         public int getVelocitiesIterations() {
             return getVelocitiesIterations(objectId);
         }
-        
+
         private native int getVelocitiesIterations(long objectId);
 
 //     -> int	piterations; // Positions solver iterations
         public void setPositionIterations(int iterations) {
             setPositionIterations(objectId, iterations);
         }
-        
+
         private native void setPositionIterations(long objectId, int iteration);
-        
+
         public int getPositionIterations() {
             return getPositionIterations(objectId);
         }
-        
+
         private native int getPositionIterations(long objectId);
 
 //     int	diterations; // Drift solver iterations
         public void setDriftIterations(int iterations) {
             setDriftIterations(objectId, iterations);
         }
-        
+
         private native void setDriftIterations(long objectId, int iteration);
-        
+
         public int getDriftIterations() {
             return getDriftIterations(objectId);
         }
-        
+
         private native int getDriftIterations(long objectId);
 
 //     int	citerations; // Cluster solver iterations
-   /* public void setClusterIterations(int iterations) {
-         setClusterIterations(objectId, iterations);
-         }
+        public void setClusterIterations(int iterations) {
+            setClusterIterations(objectId, iterations);
+        }
 
-         private native void setClusterIterations(long objectId, int iteration);
+        private native void setClusterIterations(long objectId, int iteration);
 
-         public int getClusterIterations() {
-         return getClusterIterations(objectId);
-         }
+        public int getClusterIterations() {
+            return getClusterIterations(objectId);
+        }
 
-         private native int getClusterIterations(long objectId);*/
+        private native int getClusterIterations(long objectId);
 //     int	collisions; // Collisions flags
         //public final class CollisionFlags {
         public final static int RVSmask = 0x000f; ///Rigid versus soft mask
@@ -822,17 +905,17 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         // presets 
         public final static int Default = SDF_RS;
         //};
-        
+
         public void setCollisionsFlags(int flags) {
             setCollisionsFlags(objectId, flags);
         }
-        
+
         private native void setCollisionsFlags(long bodyId, int flags);
-        
+
         public int getCollisionsFlags() {
             return getCollisionFlags(objectId);
         }
-        
+
         private native int getCollisionFlags(long bodyId);
 
 //     tVSolverArray m_vsequence; // Velocity solvers sequence
@@ -847,7 +930,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
      The following code is almost the same , but specially for SoftBody. 
      Theses methods are static (same as in DebugShapeFactory) so the code can be easily moved somewhere else.
      */
-    
+
     public static Geometry createDebugShape(PhysicsSoftBody softBody) {
         if (softBody == null) {
             return null;
@@ -858,7 +941,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         debugShape.updateGeometricState();
         return debugShape;
     }
-    
+
     public static Mesh getDebugMesh(PhysicsSoftBody softBody) {
         Mesh mesh = new Mesh();
         mesh.setBuffer(Type.Position, 3, getVertices(softBody));
@@ -866,39 +949,39 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         mesh.getFloatBuffer(Type.Position).clear();
         return mesh;
     }
-    
+
     private static FloatBuffer getVertices(PhysicsSoftBody softBody) {
         DebugMeshCallback callback = new DebugMeshCallback();
         getVertices(softBody.getObjectId(), callback);
         return callback.getVertices();
     }
-    
+
     private static native void getVertices(long bodyId, DebugMeshCallback buffer);
-    
+
     private static IntBuffer getIndexes(PhysicsSoftBody softBody) {
         IntBuffer indexes = BufferUtils.createIntBuffer(getNumTriangle(softBody.getObjectId()) * 3);
         getIndexes(softBody.getObjectId(), indexes);
         return indexes;
     }
-    
+
     private static native void getIndexes(long bodyId, IntBuffer buffer);
-    
+
     private static native int getNumTriangle(long bodyId);
-    
+
     public static void updateMesh(PhysicsSoftBody softBody, Mesh store, boolean updateNormals) {
         FloatBuffer positionBuffer = store.getFloatBuffer(Type.Position);
         FloatBuffer normalBuffer = store.getFloatBuffer(Type.Normal);
         updateMesh(softBody.getObjectId(), positionBuffer, store.getVertexCount(), updateNormals, normalBuffer);
         store.getBuffer(Type.Position).setUpdateNeeded();
     }
-    
+
     private static native void updateMesh(long bodyId, FloatBuffer vertices, int numVertices, boolean updateNormals, FloatBuffer normals);
 
     /*============*
      * data Struct
      *============*/
-    class Material {
-        
+    public final class Material {
+
         private long materialId;
 
         /*public Material(float linearStiffnessFactor, float angularStiffnessFactor, float volumeStiffnessFactor, int flags) {
@@ -914,7 +997,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         protected Material(long nativeId) {
             this.materialId = nativeId;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj.getClass() == Material.class) {
@@ -923,7 +1006,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
                 return false;
             }
         }
-        
+
         private native long createMaterial();
 
         /**
@@ -932,7 +1015,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public float getLinearStiffnessFactor() {
             return getLinearStiffnessFactor(materialId);
         }
-        
+
         private native float getLinearStiffnessFactor(long materialId);
 
         /**
@@ -941,7 +1024,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public void setLinearStiffnessFactor(float linearStiffnessFactor) {
             setLinearStiffnessFactor(materialId, linearStiffnessFactor);
         }
-        
+
         private native void setLinearStiffnessFactor(long materialId, float linearStiffnessFactor);
 
         /**
@@ -950,7 +1033,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public float getAngularStiffnessFactor() {
             return getAngularStiffnessFactor(materialId);
         }
-        
+
         private native float getAngularStiffnessFactor(long materialId);
 
         /**
@@ -959,7 +1042,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public void setAngularStiffnessFactor(float angularStiffnessFactor) {
             setAngularStiffnessFactor(materialId, angularStiffnessFactor);
         }
-        
+
         private native void setAngularStiffnessFactor(long materialId, float angularStiffnessFactor);
 
         /**
@@ -968,7 +1051,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public float getVolumeStiffnessFactor() {
             return getVolumeStiffnessFactor(materialId);
         }
-        
+
         private native float getVolumeStiffnessFactor(long materialId);
 
         /**
@@ -977,7 +1060,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public void setVolumeStiffnessFactor(float volumeStiffnessFactor) {
             setVolumeStiffnessFactor(materialId, volumeStiffnessFactor);
         }
-        
+
         private native void setVolumeStiffnessFactor(long materialId, float volumeStiffnessFactor);
 
         /**
@@ -986,7 +1069,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public int getFlags() {
             return getFlags(materialId);
         }
-        
+
         private native int getFlags(long materialId);
 
         /**
@@ -995,8 +1078,8 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public void setFlags(int flags) {
             setFlags(materialId, flags);
         }
-        
+
         private native void setFlags(long materialId, int flags);
-        
+
     }
 }

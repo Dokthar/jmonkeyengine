@@ -594,6 +594,30 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    generateBendingConstraints
+     * Signature: (JIJ)I
+     */
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_generateBendingConstraints
+    (JNIEnv *env, jobject object, jlong bodyId, jint dist, jlong matId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+
+        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
+        if (mat == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+
+        return body->generateBendingConstraints(dist, mat);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    randomizeConstraints
      * Signature: (J)V
      */
@@ -653,7 +677,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return body->generateClusters(k,maxIter);
+        return body->generateClusters(k, maxIter);
     }
 
     /*
@@ -712,6 +736,30 @@ extern "C" {
         //boolean isInWorld = body->getBroadphaseHandle() != 0; // from bullet RigidBody
         return body->getBroadphaseHandle() != 0;
     }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getCenter
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getCenter
+    (JNIEnv *env, jobject object, jlong bodyId, jobject vec) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 result;
+        /*for(int i=0; i < body->m_nodes.size(); i++){
+            result += body->m_nodes[i].m_x;
+        }
+        result = result / body->m_nodes.size();*/
+        result = (body->m_bounds[0] + body->m_bounds[1])/2;
+        jmeBulletUtil::convert(env, &result, vec);
+        return;
+    }
+
 
     /*====================*  
      SoftBody to Mesh
