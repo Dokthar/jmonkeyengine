@@ -973,6 +973,9 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         FloatBuffer normalBuffer = store.getFloatBuffer(Type.Normal);
         updateMesh(softBody.getObjectId(), positionBuffer, store.getVertexCount(), updateNormals, normalBuffer);
         store.getBuffer(Type.Position).setUpdateNeeded();
+        if (updateNormals) {
+            store.getBuffer(Type.Normal).setUpdateNeeded();
+        }
     }
 
     private static native void updateMesh(long bodyId, FloatBuffer vertices, int numVertices, boolean updateNormals, FloatBuffer normals);

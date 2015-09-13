@@ -34,21 +34,16 @@ package com.jme3.bullet.control;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.objects.PhysicsSoftBody;
-import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
-import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
 import java.io.IOException;
 
 /**
@@ -73,6 +68,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         this.doNormalUpdate = doNormalUpdate;
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
 //@TODO
         return null;
@@ -84,26 +80,29 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         if (this.spatial != spatial) {
             this.spatial = spatial;
             this.mesh = getFirstGeometry(spatial).getMesh();
+            this.meshHaveNormal = doHaveNormalBuffer(this.mesh);
             rebuildFromTriMesh(mesh);
         }
     }
 
+    private static boolean doHaveNormalBuffer(Mesh mesh){
+        return mesh.getBuffer(VertexBuffer.Type.Normal) != null;
+    }
+    
     private static Geometry getFirstGeometry(Spatial spatial) {
-        if (spatial instanceof Node) {
+        if (spatial instanceof Geometry) {
+            return (Geometry) spatial;
+        }
+        else if (spatial instanceof Node) {
             Node n = (Node) spatial;
             for (Spatial s : n.getChildren()) {
-                if (s instanceof Geometry) {
-                    return (Geometry) s;
-                } else if (s instanceof Node) {
-                    return getFirstGeometry(s);
-                }
+                return getFirstGeometry(s);
             }
-        } else if (spatial instanceof Geometry) {
-            return (Geometry) spatial;
         }
         return null;
     }
 
+    @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (space != null) {
@@ -126,6 +125,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         return enabled;
     }
 
+    @Override
     public void update(float tpf) {
         if (enabled && spatial != null && mesh != null) {
             /*if (isKinematic() && kinematicSpatial) {
@@ -138,6 +138,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         }
     }
 
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
