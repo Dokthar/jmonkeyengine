@@ -25,6 +25,14 @@ extern "C" {
 #define com_jme3_bullet_objects_PhysicsSoftBody_Config_Default 1L
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+ * Method:    copyValues
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_copyValues
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
  * Method:    setVelocitiesCorrectionFactor
  * Signature: (JF)V
  */
@@ -417,10 +425,10 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
- * Method:    getCollisionFlags
+ * Method:    getCollisionsFlags
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getCollisionFlags
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getCollisionsFlags
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus

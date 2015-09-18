@@ -70,8 +70,12 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-//@TODO
-        return null;
+        SoftBodyControl control = new SoftBodyControl(this.doNormalUpdate);
+        control.getConfig().copyValues(this.getConfig());
+        
+        //TODO more : physicsSoftBody values
+        
+        return control;
     }
 
     @Override

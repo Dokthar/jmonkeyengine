@@ -35,18 +35,14 @@ import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.bullet.util.DebugMeshCallback;
-import com.jme3.bullet.util.NativeMeshUtil;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -59,7 +55,7 @@ import java.util.logging.Logger;
  */
 public class PhysicsSoftBody extends PhysicsCollisionObject {
 
-    private final Config config = new Config();
+    private final Config config = new Config(this);
 
     @Deprecated
     public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
@@ -570,13 +566,23 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     public final class Config {
 
-        // /!\ the objectId field is directly used here because it's a protected fields.
-        private Config() {
+        private final PhysicsSoftBody body;
+
+        // /!\ the objectId field from softbody is directly used here because it's a protected fields.
+
+        private Config(PhysicsSoftBody body) {
             super();
+            this.body = body;
         }
 
+        public void copyValues(Config conf) {
+            copyValues(objectId, conf.body.objectId);
+        }
+
+        private native void copyValues(long thisId, long bodyId);
+
         //struct	Config
-//     eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
+
 //     btScalar kVCF; // Velocities correction factor (Baumgarte)
         public void setVelocitiesCorrectionFactor(float factor) {
             setVelocitiesCorrectionFactor(objectId, factor);
@@ -913,14 +919,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         private native void setCollisionsFlags(long bodyId, int flags);
 
         public int getCollisionsFlags() {
-            return getCollisionFlags(objectId);
+            return getCollisionsFlags(objectId);
         }
 
-        private native int getCollisionFlags(long bodyId);
+        private native int getCollisionsFlags(long bodyId);
 
-//     tVSolverArray m_vsequence; // Velocity solvers sequence
-//     tPSolverArray m_psequence; // Position solvers sequence
-//     tPSolverArray m_dsequence; // Drift solvers sequence
     };
 
     /*====================*  

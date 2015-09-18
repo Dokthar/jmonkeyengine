@@ -44,6 +44,60 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
+     * Method:    copyValues
+     * Signature: (JJ)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_copyValues
+    (JNIEnv *env, jobject object, jlong thisId, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (thisId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btSoftBody* other = reinterpret_cast<btSoftBody*> (bodyId);
+        if (other == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
+
+        body->m_cfg.kVCF = other->m_cfg.kVCF; // Velocities correction factor (Baumgarte)
+        body->m_cfg.kDP = other->m_cfg.kDP; // Damping coefficient [0,1]
+        body->m_cfg.kDG = other->m_cfg.kDG; // Drag coefficient [0,+inf]
+        body->m_cfg.kLF = other->m_cfg.kLF; // Lift coefficient [0,+inf]
+        body->m_cfg.kPR = other->m_cfg.kPR; // Pressure coefficient [-inf,+inf]
+        body->m_cfg.kVC = other->m_cfg.kVC; // Volume conversation coefficient [0,+inf]
+        body->m_cfg.kDF = other->m_cfg.kDF; // Dynamic friction coefficient [0,1]
+        body->m_cfg.kMT = other->m_cfg.kMT; // Pose matching coefficient [0,1]
+
+        body->m_cfg.kCHR = other->m_cfg.kCHR; // Rigid contacts hardness [0,1]
+        body->m_cfg.kKHR = other->m_cfg.kKHR; // Kinetic contacts hardness [0,1]
+        body->m_cfg.kSHR = other->m_cfg.kSHR; // Soft contacts hardness [0,1]
+        body->m_cfg.kAHR = other->m_cfg.kAHR; // Anchors hardness [0,1]
+
+        body->m_cfg.kSRHR_CL = other->m_cfg.kSRHR_CL; // Soft vs rigid hardness [0,1] (cluster only)
+        body->m_cfg.kSKHR_CL = other->m_cfg.kSKHR_CL; // Soft vs kinetic hardness [0,1] (cluster only)
+        body->m_cfg.kSSHR_CL = other->m_cfg.kSSHR_CL; // Soft vs soft hardness [0,1] (cluster only)
+        body->m_cfg.kSR_SPLT_CL = other->m_cfg.kSR_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+        body->m_cfg.kSK_SPLT_CL = other->m_cfg.kSK_SPLT_CL; // Soft vs kinetic impulse split [0,1] (cluster only)
+        body->m_cfg.kSS_SPLT_CL = other->m_cfg.kSS_SPLT_CL; // Soft vs soft impulse split [0,1] (cluster only)
+
+        body->m_cfg.maxvolume = other->m_cfg.maxvolume; // Maximum volume ratio for pose
+        body->m_cfg.timescale = other->m_cfg.timescale; // Time scale
+
+        body->m_cfg.viterations = other->m_cfg.viterations; // Velocities solver iterations
+        body->m_cfg.piterations = other->m_cfg.piterations; // Positions solver iterations
+        body->m_cfg.diterations = other->m_cfg.diterations; // Drift solver iterations
+        body->m_cfg.citerations = other->m_cfg.citerations; // Cluster solver iterations
+
+        body->m_cfg.collisions = other->m_cfg.collisions; // Collisions flags
+
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
      * Method:    setVelocitiesCorrectionFactor
      * Signature: (JF)V
      */
@@ -832,10 +886,10 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Config
-     * Method:    getCollisionFlags
+     * Method:    getCollisionsFlags
      * Signature: (J)I
      */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getCollisionFlags
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Config_getCollisionsFlags
     (JNIEnv *env, jobject object, jlong bodyId) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
