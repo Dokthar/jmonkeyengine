@@ -34,48 +34,51 @@ package com.jme3.bullet.objects.infos;
 import com.jme3.math.Vector3f;
 
 /**
+ * The SoftBodyWorldInfo class store information of the world into each
+ * softBody. By default all softBody used the same softBodyWorldInfo, which is
+ * not by default on the native side.
  *
  * @author dokthar
  */
 public class SoftBodyWorldInfo {
 
-    private long worldInfoId;
-    /*
-     private float airDensity;
-     private float waterDensity;
-     private float waterOffset;
-     private float maxDisplacement; //avoid soft body from 'exploding' so use some upper threshold of maximum motion that a node can travel per frame
-     private Vector3f waterNormal;
-     //private btBroadphaseInterface broadphase;
-     //private btDispatcher dispatcher;
-     private Vector3f gravity;
-     //private btSparseSdf<3> sparseSdf; // <- SparseSdf can be avoided or at least just store the Cellsize (3) : private int sparseSdfSize;
-     //SparseSdf is used by bullet but never modifyed
-     */
+    private final long worldInfoId;
 
-    public SoftBodyWorldInfo() {  //create with default values
-      /*  airDensity = 1.2f;
-         waterDensity = 0;
-         waterOffset = 0;
-         maxDisplacement = 1000.f;
-         waterNormal = Vector3f.ZERO;
-         //broadphase(0);
-         //dispatcher(0);
-         gravity = Vector3f.UNIT_Y.mult(-10);*/
+    /**
+     * Create a SofBodyWorldInfo with default (natives) values. airDensity =
+     * 1.2; waterDensity = 0; waterOffset = 0; maxDisplacement = 1000.f;
+     * waterNormal = Vector3f.ZERO; gravity = Vector3f.UNIT_Y(-10);
+     */
+    public SoftBodyWorldInfo() {
         worldInfoId = createSoftBodyWorldInfo();
     }
-        
-    public SoftBodyWorldInfo(long worldId){
+
+    /**
+     * <!> Used internally !
+     *
+     * @param worldId
+     */
+    public SoftBodyWorldInfo(long worldId) {
         worldInfoId = worldId;
     }
- 
+
     private native long createSoftBodyWorldInfo();
 
+    /**
+     * Create a SoftBodyWorldInfo and copy the value of the param.
+     *
+     * @param worldInfo , the values used from.
+     */
     public SoftBodyWorldInfo(SoftBodyWorldInfo worldInfo) {
         worldInfoId = createSoftBodyWorldInfo();
         setSoftBodyWorldInfo(worldInfo);
     }
 
+    /**
+     * Copy the values of the worldInfo into this.
+     *
+     * @param worldInfo
+     */
     public final void setSoftBodyWorldInfo(SoftBodyWorldInfo worldInfo) {
         setSoftBodyWorldInfo(worldInfoId, worldInfo.getWorldInfoId());
     }
@@ -83,6 +86,8 @@ public class SoftBodyWorldInfo {
     private native long setSoftBodyWorldInfo(long worldInfoId, long copy);
 
     /**
+     * Get the air density.
+     *
      * @return the airDensity
      */
     public float getAirDensity() {
@@ -92,6 +97,8 @@ public class SoftBodyWorldInfo {
     private native float getAirDensity(long worldInfoId);
 
     /**
+     * Set the air density.
+     *
      * @param airDensity the airDensity to set
      */
     public void setAirDensity(float airDensity) {
@@ -101,6 +108,8 @@ public class SoftBodyWorldInfo {
     private native void setAirDensity(long worldInfoId, float airDensity);
 
     /**
+     * Get the water density.
+     *
      * @return the waterDensity
      */
     public float getWaterDensity() {
@@ -110,6 +119,8 @@ public class SoftBodyWorldInfo {
     private native float getWaterDensity(long worldInfoId);
 
     /**
+     * Set the water density.
+     *
      * @param waterDensity the waterDensity to set
      */
     public void setWaterDensity(float waterDensity) {
@@ -119,6 +130,8 @@ public class SoftBodyWorldInfo {
     private native void setWaterDensity(long worldInfoId, float waterDensity);
 
     /**
+     * Get the water offset.
+     *
      * @return the waterOffset
      */
     public float getWaterOffset() {
@@ -128,6 +141,8 @@ public class SoftBodyWorldInfo {
     private native float getWaterOffset(long worldInfoId);
 
     /**
+     * Set the water offset.
+     *
      * @param waterOffset the waterOffset to set
      */
     public void setWaterOffset(float waterOffset) {
@@ -137,6 +152,8 @@ public class SoftBodyWorldInfo {
     private native void setWaterOffset(long worldInfoId, float waterOffset);
 
     /**
+     * Get the max displacement value.
+     *
      * @return the maxDisplacement
      */
     public float getMaxDisplacement() {
@@ -146,6 +163,8 @@ public class SoftBodyWorldInfo {
     private native float getMaxDisplacement(long worldInfoId);
 
     /**
+     * Set the max displacement value.
+     *
      * @param maxDisplacement the maxDisplacement to set
      */
     public void setMaxDisplacement(float maxDisplacement) {
@@ -155,7 +174,9 @@ public class SoftBodyWorldInfo {
     public native void setMaxDisplacement(long worldInfoId, float maxDisplacement);
 
     /**
-     * @return the waterNormal
+     * Get the water normal.
+     *
+     * @return a Vector3f, the waterNormal
      */
     public Vector3f getWaterNormal() {
         Vector3f vec = new Vector3f();
@@ -166,6 +187,8 @@ public class SoftBodyWorldInfo {
     private native void getWaterNormal(long worldInfoId, Vector3f vec);
 
     /**
+     * Set the water normal.
+     *
      * @param waterNormal the waterNormal to set
      */
     public void setWaterNormal(Vector3f waterNormal) {
@@ -175,7 +198,9 @@ public class SoftBodyWorldInfo {
     private native void setWaterNormal(long worldInfoId, Vector3f vec);
 
     /**
-     * @return the gravity
+     * Get the gravity vector3f.
+     *
+     * @return a Vector3f, the gravity
      */
     public Vector3f getGravity() {
         Vector3f vec = new Vector3f();
@@ -186,6 +211,8 @@ public class SoftBodyWorldInfo {
     private native void getGravity(long worldInfoId, Vector3f vec);
 
     /**
+     * Set the gravity Vector3f.
+     *
      * @param gravity the gravity to set
      */
     public void setGravity(Vector3f gravity) {
@@ -195,7 +222,8 @@ public class SoftBodyWorldInfo {
     private native void setGravity(long worldInfoId, Vector3f vec);
 
     /**
-     *  <!> used internal !
+     * <!> used internally !
+     *
      * @return the native Id of the SoftBodyWorldInfo
      */
     public long getWorldInfoId() {

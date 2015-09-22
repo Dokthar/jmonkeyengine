@@ -72,7 +72,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     public Control cloneForSpatial(Spatial spatial) {
         SoftBodyControl control = new SoftBodyControl(this.doNormalUpdate);
         control.getConfig().copyValues(this.getConfig());
-        
+
         //TODO more : physicsSoftBody values
         
         return control;

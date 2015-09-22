@@ -134,12 +134,24 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void initDefault(long objectId);
 
+    /**
+     * Set the SoftBodyWorldInfo of this physics softbody. This is automatically
+     * called when the softbody is added into a SoftPhysicsSpace.
+     *
+     * @param worldinfo , the world info to set.
+     */
     public void setSoftBodyWorldInfo(SoftBodyWorldInfo worldinfo) {
         setSoftBodyWorldInfo(objectId, worldinfo.getWorldInfoId());
     }
 
     private native void setSoftBodyWorldInfo(long objectId, long worldinfoId);
 
+    /**
+     * Return the SoftBodyWorldInfo used by this softbody. By default this
+     * SoftBodyWorld info is shared by all softBodies into the SoftPhysicsSpace.
+     *
+     * @return the used SoftBodyWorldInfo
+     */
     public SoftBodyWorldInfo getSoftBodyWorldInfo() {
         long worldInfoId = getSoftBodyWorldInfo(objectId);
         SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo(worldInfoId); // <-point on the same native object
@@ -564,108 +576,166 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         return this.config;
     }
 
+    /**
+     *
+     */
     public final class Config {
 
         private final PhysicsSoftBody body;
 
-        // /!\ the objectId field from softbody is directly used here because it's a protected fields.
-
+        // /!\ the objectId field from softbody is directly used here because it's a protected field.
         private Config(PhysicsSoftBody body) {
             super();
             this.body = body;
         }
 
+        /**
+         * Copy the values of the Config conf, into this Config.
+         *
+         * @param conf the Config with the used values.
+         */
         public void copyValues(Config conf) {
             copyValues(objectId, conf.body.objectId);
         }
 
         private native void copyValues(long thisId, long bodyId);
 
-        //struct	Config
-
-//     btScalar kVCF; // Velocities correction factor (Baumgarte)
+        /**
+         * Set the velocities correction factor (Baumgarte), (aka kVCF).
+         *
+         * @param factor the value to set.
+         */
         public void setVelocitiesCorrectionFactor(float factor) {
             setVelocitiesCorrectionFactor(objectId, factor);
         }
 
         private native void setVelocitiesCorrectionFactor(long bodyId, float factor);
 
+        /**
+         * Get the velocities correction factor (Baumgarte), (aka kVCF).
+         *
+         * @return the factor value.
+         */
         public float getVelocitiesCorrectionFactor() {
             return getVelocitiesCorrectionFactor(objectId);
         }
 
         private native float getVelocitiesCorrectionFactor(long bodyId);
 
-//     btScalar kDP; // Damping coefficient [0,1]
+        /**
+         * Set the damping coefficient (aka kDP).
+         *
+         * @param coefficient the value to set, between [0,1].
+         */
         public void setDampingCoef(float coefficient) {
             setDampingCoef(objectId, coefficient);
         }
 
         private native void setDampingCoef(long bodyId, float coefficient);
 
+        /**
+         * Get the damping coefficient (aka kDP).
+         *
+         * @return the coefficient value.
+         */
         public float getDampingCoef() {
             return getDampingCoef(objectId);
         }
 
         private native float getDampingCoef(long bodyId);
 
-//     btScalar kDG; // Drag coefficient [0,+inf]
+        /**
+         * Set the drag coefficient (aka kDG).
+         *
+         * @param coefficient the value to set, between [0,+inf].
+         */
         public void setDragCoef(float coefficient) {
             setDragCoef(objectId, coefficient);
         }
 
         private native void setDragCoef(long bodyId, float coefficient);
 
+        /**
+         * Get the drag coefficient.
+         *
+         * @return the coefficient value.
+         */
         public float getDragCoef() {
             return getDragCoef(objectId);
         }
 
         private native float getDragCoef(long bodyId);
 
-//     btScalar kLF; // Lift coefficient [0,+inf]
+        /**
+         * Set the lift coefficient (aka kLF).
+         *
+         * @param coefficient the value to set, between [O,+inf].
+         */
         public void setLiftCoef(float coefficient) {
             setLiftCoef(objectId, coefficient);
         }
 
         private native void setLiftCoef(long bodyId, float coefficient);
 
+        /**
+         * Get the lift coefficient (aka kLF).
+         *
+         * @return the coefficient value.
+         */
         public float getLiftCoef() {
             return getLiftCoef(objectId);
         }
 
         private native float getLiftCoef(long bodyId);
 
-//     btScalar kPR; // Pressure coefficient [-inf,+inf]
+        /**
+         * Set the pressure coefficient (aka kPR).
+         *
+         * @param coefficient the value to set, between [-inf,+inf].
+         */
         public void setPressureCoef(float coefficient) {
             setPressureCoef(objectId, coefficient);
         }
 
         private native void setPressureCoef(long bodyId, float coefficient);
 
+        /**
+         * Get the pressure coefficient (aka kPR).
+         *
+         * @return the coefficient value.
+         */
         public float getPressureCoef() {
             return getPressureCoef(objectId);
         }
 
         private native float getPressureCoef(long bodyId);
 
-//     btScalar kVC; // Volume conversation coefficient [0,+inf]
+        /**
+         * Set the volume conservation coefficient (aka kVC).
+         *
+         * @param coefficient the value to set, between [0,+inf].
+         */
         public void setVolumeConservationCoef(float coefficient) {
             setVolumeConservationCoef(objectId, coefficient);
         }
 
         private native void setVolumeConservationCoef(long bodyId, float coefficient);
 
+        /**
+         * Get the volume conservation coefficient.
+         *
+         * @return the coefficient value.
+         */
         public float getVolumeConservationCoef() {
             return getVolumeConservationCoef(objectId);
         }
 
         private native float getVolumeConservationCoef(long bodyId);
 
-//     -> btScalar kDF; // Dynamic friction coefficient [0,1]
         /**
-         * set the Dynamic friction coefficient [0,1] (aka kDF).
+         * Set the dynamic friction coefficient (aka kDF).
          *
-         * @param coefficient
+         * @param coefficient the value to set, between [0,1].
          */
         public void setDynamicFrictionCoef(float coefficient) {
             setDynamicFrictionCoef(objectId, coefficient);
@@ -673,251 +743,463 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         private native void setDynamicFrictionCoef(long objectId, float coefficient);
 
+        /**
+         * Get the dynamic friction coefficient (aka kDF).
+         *
+         * @return the coefficient value.
+         */
         public float getDynamicFrictionCoef() {
             return getDynamicFrictionCoef(objectId);
         }
 
         private native float getDynamicFrictionCoef(long objectId);
 
-//     -> btScalar kMT; // Pose matching coefficient [0,1]
+        /**
+         * Set the pose matching coefficient (aka kMT). This coefficient
+         * correspond how much the softbody will try to match his "pose".
+         *
+         * @param coefficient the value to set, between [0,1].
+         */
         public void setPoseMatchingCoef(float coefficient) {
             setPoseMatchingCoef(objectId, coefficient);
         }
 
         private native void setPoseMatchingCoef(long objectId, float coefficient);
 
+        /**
+         * Get the pose matching coefficient (aka kMT).
+         *
+         * @return the value of the coefficient.
+         */
         public float getPoseMatchingCoef() {
             return getPoseMatchingCoef(objectId);
         }
 
         private native float getPoseMatchingCoef(long bodyId);
 
-//     btScalar kCHR; // Rigid contacts hardness [0,1]
+        /**
+         * Set the rigid contacts hardness coefficient (aka kCHR).
+         *
+         * @param hardness the value to set, between [0,1].
+         */
         public void setRigidContactsHardness(float hardness) {
             setRigidContactsHardness(objectId, hardness);
         }
 
         private native void setRigidContactsHardness(long bodyId, float hardness);
 
+        /**
+         * Get the rigid contacts hardness coefficient (aka kCHR).
+         *
+         * @return the hardness coefficient value.
+         */
         public float getRigidContactsHardness() {
             return getRigidContactsHardness(objectId);
         }
 
         private native float getRigidContactsHardness(long bodyId);
 
-//     btScalar kKHR; // Kinetic contacts hardness [0,1]
+        /**
+         * Set the kinectic contacts hardness coefficient (aka kKHR).
+         *
+         * @param hardness the value to set, between [0,1].
+         */
         public void setKineticContactsHardness(float hardness) {
             setKineticContactsHardness(objectId, hardness);
         }
 
         private native void setKineticContactsHardness(long bodyId, float hardness);
 
+        /**
+         * Get the kinetic contacts hardness coefficient (aka kKHR).
+         *
+         * @return the hardness coefficient value.
+         */
         public float getKineticContactsHardness() {
             return getKineticContactsHardness(objectId);
         }
 
         private native float getKineticContactsHardness(long bodyId);
 
-//     btScalar kSHR; // Soft contacts hardness [0,1]
+        /**
+         * Set the soft contacts hardness coefficient (aka kSHR).
+         *
+         * @param hardness the value to set, between [0,1].
+         */
         public void setSoftContactsHardness(float hardness) {
             setSoftContactsHardness(objectId, hardness);
         }
 
         private native void setSoftContactsHardness(long bodyId, float hardness);
 
+        /**
+         * Get the soft contact hardness coefficient (aka kSHR).
+         *
+         * @return the hardness coefficient value.
+         */
         public float getSoftContactsHardness() {
             return getSoftContactsHardness(objectId);
         }
 
         private native float getSoftContactsHardness(long bodyId);
 
-//     btScalar kAHR; // Anchors hardness [0,1]
+        /**
+         * Set the anchors hardness coefficient (aka kAHR).
+         *
+         * @param hardness the value to set, between [0,1].
+         */
         public void setAnchorsHardness(float hardness) {
             setAnchorsHardness(objectId, hardness);
         }
 
         private native void setAnchorsHardness(long bodyId, float hardness);
 
+        /**
+         * Get the anchors hardness coefficient (aka kAHR).
+         *
+         * @return the hardness coefficient value.
+         */
         public float getAnchorsHardness() {
             return getAnchorsHardness(objectId);
         }
 
         private native float getAnchorsHardness(long bodyId);
 
-//     btScalar kSRHR_CL; // Soft vs rigid hardness [0,1] (cluster only)
+        /**
+         * Set the soft cluster versus rigid hardness coefficient(aka kSRHR_CL).
+         *
+         * @param hardness the value to set, between [0,1].
+         */
         public void setClusterRigidHardness(float hardness) {
             setClusterRigidHardness(objectId, hardness);
         }
 
         private native void setClusterRigidHardness(long bodyId, float hardness);
 
+        /**
+         * Get the soft cluster versus rigid hardness coefficient(aka kSRHR_CL).
+         *
+         * @return the hardness coefficient value.
+         */
         public float getClusterRigidHardness() {
             return getClusterRigidHardness(objectId);
         }
 
         private native float getClusterRigidHardness(long bodyId);
 
-//     btScalar kSKHR_CL; // Soft vs kinetic hardness [0,1] (cluster only)
+        /**
+         * Set the soft cluster versus kinetic hardness coefficient (aka
+         * kSKHR_CL).
+         *
+         * @param hardness the value to set, between [0,1].
+         */
         public void setClusterKineticHardness(float hardness) {
             setClusterKineticHardness(objectId, hardness);
         }
 
         private native void setClusterKineticHardness(long bodyId, float hardness);
 
+        /**
+         * Get the cluster versus kinetic hardness coefficient (aka kSKHR_CL).
+         *
+         * @return the hardness coefficient value.
+         */
         public float getClusterKineticHardness() {
             return getClusterKineticHardness(objectId);
         }
 
         private native float getClusterKineticHardness(long bodyId);
 
-//     btScalar kSSHR_CL; // Soft vs soft hardness [0,1] (cluster only)
+        /**
+         * Set the soft cluster versus soft hardness coefficient (aka kSSHR_CL).
+         *
+         * @param hardness the value to set, between [0,1]
+         */
         public void setClusterSoftHardness(float hardness) {
             setClusterSoftHardness(objectId, hardness);
         }
 
         private native void setClusterSoftHardness(long bodyId, float hardness);
 
+        /**
+         * Get the soft cluster versus soft hardness coefficient (aka kSSHR_CL).
+         *
+         * @return the hardness coefficient value.
+         */
         public float getClusterSoftHardness() {
             return getClusterSoftHardness(objectId);
         }
 
         private native float getClusterSoftHardness(long bodyId);
 
-//     btScalar kSR_SPLT_CL; // Soft vs rigid impulse split [0,1] (cluster only)
+        /**
+         * Set the soft cluster versus rigid, impulse split coefficient (aka
+         * kSR_SPLT_CL).
+         *
+         * @param coef the value to set, between [0,1].
+         */
         public void setClusterRigidImpulseSplitCoef(float coef) {
             setClusterRigidImpulseSplitCoef(objectId, coef);
         }
 
         private native void setClusterRigidImpulseSplitCoef(long bodyId, float coef);
 
+        /**
+         * Get the soft cluster versus rigid, impulse split coefficient (aka
+         * kSR_SPLT_CL).
+         *
+         * @return the impulse split coefficient value.
+         */
         public float getClusterRigidImpulseSplitCoef() {
             return getClusterRigidImpulseSplitCoef(objectId);
         }
 
         private native float getClusterRigidImpulseSplitCoef(long bodyId);
 
-//     btScalar kSK_SPLT_CL; // Soft vs kinetic impulse split [0,1] (cluster only)
+        /**
+         * Set the soft cluster versus kinetic, impulse split coefficient (aka
+         * kSK_SPLT_CL).
+         *
+         * @param coef the value to set, between [0,1].
+         */
         public void setClusterKineticImpulseSplitCoef(float coef) {
             setClusterKineticImpulseSplitCoef(objectId, coef);
         }
 
         private native void setClusterKineticImpulseSplitCoef(long bodyId, float coef);
 
+        /**
+         * Get the soft cluster versus kinetic, impulse split coefficient (aka
+         * kSK_SPLT_CL).
+         *
+         * @return the impulse split coefficient value.
+         */
         public float getClusterKineticImpulseSplitCoef() {
             return getClusterKineticImpulseSplitCoef(objectId);
         }
 
         private native float getClusterKineticImpulseSplitCoef(long bodyId);
 
-//     btScalar kSS_SPLT_CL; // Soft vs soft impulse split [0,1] (cluster only)
+        /**
+         * Set the soft cluster versus soft, impulse split coefficient (aka
+         * kSS_SPLT_CL).
+         *
+         * @param coef the value to set, between [0,1].
+         */
         public void setClusterSoftImpulseSplitCoef(float coef) {
             setClusterSoftImpulseSplitCoef(objectId, coef);
         }
 
         private native void setClusterSoftImpulseSplitCoef(long bodyId, float coef);
 
+        /**
+         * Get the soft cluster versus soft, impulse split coefficient (aka
+         * kSS_SPLT_CL).
+         *
+         * @return the impulse split coefficient value.
+         */
         public float getClusterSoftImpulseSplitCoef() {
             return getClusterSoftImpulseSplitCoef(objectId);
         }
 
         private native float getClusterSoftImpulseSplitCoef(long bodyId);
 
-//     btScalar maxvolume; // Maximum volume ratio for pose
+        /**
+         * Set the maximum volume ratio for pose.
+         *
+         * @param ratio the value to set.
+         */
         public void setMaximumVolumeRatio(float ratio) {
             setMaximumVolumeRatio(objectId, ratio);
         }
 
         private native void setMaximumVolumeRatio(long bodyId, float ratio);
 
+        /**
+         * Get the maximum volume ratio for pose.
+         *
+         * @return the maximum volume ratio value.
+         */
         public float getMaximumVolumeRatio() {
             return getMaximumVolumeRatio(objectId);
         }
 
         private native float getMaximumVolumeRatio(long bodyId);
 
-//     btScalar timescale; // Time scale
+        /**
+         * Set the time scale.
+         *
+         * @param scale the value to set.
+         */
         public void setTimeScale(float scale) {
             setTimeScale(objectId, scale);
         }
 
         private native void setTimeScale(long bodyId, float scale);
 
+        /**
+         * Get the time scale.
+         * 
+         * @return the value of the time scale.
+         */
         public float getTimeScale() {
             return getTimeScale(objectId);
         }
 
         private native float getTimeScale(long bodyId);
 
-//     int	viterations; // Velocities solver iterations
+        /**
+         * Set the velocities solver iterations (aka viterations).
+         * 
+         * @param iterations the value to set.
+         */
         public void setVelocitiesIterations(int iterations) {
             setVelocitiesIterations(objectId, iterations);
         }
 
         private native void setVelocitiesIterations(long objectId, int iteration);
 
+        /**
+         * Get the velocities solver iterations (aka viterations).
+         * 
+         * @return the velocities solver iterations value.
+         */
         public int getVelocitiesIterations() {
             return getVelocitiesIterations(objectId);
         }
 
         private native int getVelocitiesIterations(long objectId);
 
-//     -> int	piterations; // Positions solver iterations
+        /**
+         * Set the positions solver iterations (aka piterations).
+         * 
+         * @param iterations the value to set.
+         */
         public void setPositionIterations(int iterations) {
             setPositionIterations(objectId, iterations);
         }
 
         private native void setPositionIterations(long objectId, int iteration);
 
+        /**
+         * Get the positions solver iterations (aka piterations).
+         * 
+         * @return the positions solver iterations value.
+         */
         public int getPositionIterations() {
             return getPositionIterations(objectId);
         }
 
         private native int getPositionIterations(long objectId);
 
-//     int	diterations; // Drift solver iterations
+        /**
+         * Set the drift solver iterations (aka diterations).
+         * 
+         * @param iterations the value to set.
+         */
         public void setDriftIterations(int iterations) {
             setDriftIterations(objectId, iterations);
         }
 
         private native void setDriftIterations(long objectId, int iteration);
 
+        /**
+         * Get the drift solver iterations (aka diterations).
+         * 
+         * @return the drift solver iterations value.
+         */
         public int getDriftIterations() {
             return getDriftIterations(objectId);
         }
 
         private native int getDriftIterations(long objectId);
 
-//     int	citerations; // Cluster solver iterations
+        /**
+         * Set the cluster solver iterations (aka citerations).
+         * 
+         * @param iterations the value to set.
+         */
         public void setClusterIterations(int iterations) {
             setClusterIterations(objectId, iterations);
         }
 
         private native void setClusterIterations(long objectId, int iteration);
 
+        /**
+         * Get the cluster solver iterations (aka citerations).
+         * 
+         * @return the cluster solver iterations value.
+         */
         public int getClusterIterations() {
             return getClusterIterations(objectId);
         }
 
         private native int getClusterIterations(long objectId);
-//     int	collisions; // Collisions flags
-        //public final class CollisionFlags {
-        public final static int RVSmask = 0x000f; ///Rigid versus soft mask
-        public final static int SDF_RS = 0x0001; ///SDF based rigid vs soft
-        public final static int CL_RS = 0x0002; ///Cluster vs convex rigid vs soft
-        public final static int SVSmask = 0x0030; ///Rigid versus soft mask
-        public final static int VF_SS = 0x0010; ///Vertex vs face soft vs soft handling
-        public final static int CL_SS = 0x0020; ///Cluster vs cluster soft vs soft handling
-        public final static int CL_SELF = 0x0040; ///Cluster soft body self collision
-        // presets 
-        public final static int Default = SDF_RS;
-        //};
 
-        public void setCollisionsFlags(int flags) {
-            setCollisionsFlags(objectId, flags);
+        /**
+         * Config collision flag : Rigid versus soft mask.
+         */
+        public final static int RVSmask = 0x000f;
+
+        /**
+         * Config collision flag : SDF based rigi vs soft.
+         */
+        public final static int SDF_RS = 0x0001;
+
+        /**
+         * Config collision flag : Cluster vs convex rigid vs soft.
+         */
+        public final static int CL_RS = 0x0002;
+
+        /**
+         * Config collision flag : Soft versus soft mask.
+         */
+        public final static int SVSmask = 0x0030;
+
+        /**
+         * Config collision flag : Vertex vs face soft cluster vs soft handling.
+         */
+        public final static int VF_SS = 0x0010;
+
+        /**
+         * Config collision flag : Cluster vs cluster soft cluster vs soft
+         * handling.
+         */
+        public final static int CL_SS = 0x0020;
+
+        /**
+         * Config collision flag : Cluster soft body set collision.
+         */
+        public final static int CL_SELF = 0x0040;
+
+        /**
+         * Config collision flag : Default value : SDF_RS. (SDF_RS : SDF based
+         * rigi vs soft)
+         */
+        public final static int Default = SDF_RS;
+
+        /**
+         * Set the collision flag as the value of flags.
+         *
+         * @param flag the flag value to set.
+         * @param flags ... optional values of flags, if there are values they
+         * will be added to the flag value by a bitwise inclusive OR.
+         */
+        public void setCollisionsFlags(int flag, int... flags) {
+            int allFlags = flag;
+            for (int i = 0; i < flags.length; i++) {
+                allFlags |= flags[i];
+            }
+            setCollisionsFlags(objectId, allFlags);
         }
 
         private native void setCollisionsFlags(long bodyId, int flags);
 
+        /**
+         * Get the collisions flags value.
+         *
+         * @return the value of the collisions flags.
+         */
         public int getCollisionsFlags() {
             return getCollisionsFlags(objectId);
         }
