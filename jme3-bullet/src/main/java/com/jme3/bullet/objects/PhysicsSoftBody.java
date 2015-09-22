@@ -569,15 +569,21 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void getCenter(long bodyId, Vector3f store);
 
-    /*====================*
-     Config access
-     *====================*/
+    /**
+     * Get the config object which hold methods to access to the native config
+     * fields.
+     *
+     * @return the config object of this softbody.
+     */
     public Config getConfig() {
         return this.config;
     }
 
     /**
-     *
+     * This class hold methods to access (get and set) natives fields of the
+     * Config struct (of btSoftBody). This class is final. And the constructor
+     * is private, in order to only have the access through a PhysicsSoftBody,
+     * each hysicsSoftBody have only one Config object associated with.
      */
     public final class Config {
 
@@ -1039,7 +1045,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Get the time scale.
-         * 
+         *
          * @return the value of the time scale.
          */
         public float getTimeScale() {
@@ -1050,7 +1056,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Set the velocities solver iterations (aka viterations).
-         * 
+         *
          * @param iterations the value to set.
          */
         public void setVelocitiesIterations(int iterations) {
@@ -1061,7 +1067,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Get the velocities solver iterations (aka viterations).
-         * 
+         *
          * @return the velocities solver iterations value.
          */
         public int getVelocitiesIterations() {
@@ -1072,7 +1078,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Set the positions solver iterations (aka piterations).
-         * 
+         *
          * @param iterations the value to set.
          */
         public void setPositionIterations(int iterations) {
@@ -1083,7 +1089,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Get the positions solver iterations (aka piterations).
-         * 
+         *
          * @return the positions solver iterations value.
          */
         public int getPositionIterations() {
@@ -1094,7 +1100,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Set the drift solver iterations (aka diterations).
-         * 
+         *
          * @param iterations the value to set.
          */
         public void setDriftIterations(int iterations) {
@@ -1105,7 +1111,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Get the drift solver iterations (aka diterations).
-         * 
+         *
          * @return the drift solver iterations value.
          */
         public int getDriftIterations() {
@@ -1116,7 +1122,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Set the cluster solver iterations (aka citerations).
-         * 
+         *
          * @param iterations the value to set.
          */
         public void setClusterIterations(int iterations) {
@@ -1127,7 +1133,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
         /**
          * Get the cluster solver iterations (aka citerations).
-         * 
+         *
          * @return the cluster solver iterations value.
          */
         public int getClusterIterations() {
@@ -1142,7 +1148,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public final static int RVSmask = 0x000f;
 
         /**
-         * Config collision flag : SDF based rigi vs soft.
+         * Config collision flag : SDF based rigid vs soft.
          */
         public final static int SDF_RS = 0x0001;
 
@@ -1162,24 +1168,24 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         public final static int VF_SS = 0x0010;
 
         /**
-         * Config collision flag : Cluster vs cluster soft cluster vs soft
-         * handling.
+         * Config collision flag : Cluster vs cluster soft vs soft handling.
          */
         public final static int CL_SS = 0x0020;
 
         /**
-         * Config collision flag : Cluster soft body set collision.
+         * Config collision flag : Cluster soft body self collision.
          */
         public final static int CL_SELF = 0x0040;
 
         /**
-         * Config collision flag : Default value : SDF_RS. (SDF_RS : SDF based
-         * rigi vs soft)
+         * Config collision flag : Default value = SDF_RS. (SDF based rigid vs
+         * soft)
          */
         public final static int Default = SDF_RS;
 
         /**
-         * Set the collision flag as the value of flags.
+         * Set the collision flag as the value of flags. Avaliable flags values
+         * are defined into the Config class.
          *
          * @param flag the flag value to set.
          * @param flags ... optional values of flags, if there are values they
