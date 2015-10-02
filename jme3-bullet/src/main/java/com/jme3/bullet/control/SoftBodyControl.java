@@ -144,7 +144,9 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
              getMotionState().applyTransform(spatial);
              }*/
             PhysicsSoftBody.updateMesh(this, mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
-            this.spatial.setLocalTranslation(this.getBoundingCenter());
+            if(meshInLocalOrigin){
+                this.spatial.setLocalTranslation(this.getBoundingCenter());
+            }
         }
     }
 
