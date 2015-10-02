@@ -61,7 +61,6 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        eAeroModel::_ aeromodel; // Aerodynamic model (default: V_Point)
 
         body->m_cfg.kVCF = other->m_cfg.kVCF; // Velocities correction factor (Baumgarte)
         body->m_cfg.kDP = other->m_cfg.kDP; // Damping coefficient [0,1]

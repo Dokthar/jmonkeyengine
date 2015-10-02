@@ -282,7 +282,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native float getMass(long objectId, int node);
 
-    /* Get total mass */
+    /**
+     * Get the total mass of this softbody.
+     *
+     * @return the total mass.
+     */
     public float getTotalMass() {
         return getTotalMass(objectId);
     }
@@ -321,6 +325,36 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void setVolumeDensity(long objectId, float density);
 
+    /* Native transform / rotation / translation / scale*/
+    public void applyPhysicsTransform(Transform trs) {
+        applyPhysicsTransform(objectId, trs);
+    }
+
+    private native void applyPhysicsTransform(long objectId, Transform trs);
+
+    public void applyPhysicsTranslate(Vector3f vec) {
+        applyPhysicsTranslate(objectId, vec);
+    }
+
+    private native void applyPhysicsTranslate(long objectId, Vector3f vec);
+
+    public void applyPhysicsRotation(Quaternion rot) {
+        applyPhysicsRotation(objectId, rot);
+    }
+
+    private native void applyPhysicsRotation(long objectId, Quaternion rot);
+
+    public void applyPhysicsScaling(Vector3f vec) {
+        applyPhysicsScaling(objectId, vec);
+    }
+
+    private native void applyPhysicsScaling(long objectId, Vector3f vec);
+
+    /* =======================
+     * These methods are not native. ( set-getPhysicsTransform/Location)
+     * and will only work if a center can be determinated
+     * ======================= */
+        
     /* Transform */
     public void setPhysicsTransform(Transform trs) {
         setPhysicsTransform(objectId, trs);
@@ -393,28 +427,44 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void getPhysicsScale(long objectId, Vector3f scl);
 
+    /**
+     * Get link resting lengths scale.
+     *
+     * @return the resting lengths scale.
+     */
     public float getRestLengthScale() {
         return getRestLenghtScale(objectId);
     }
 
-    /* Get link resting lengths scale */
     private native float getRestLenghtScale(long objectId);
 
-    /* Scale resting length of all springs */
+    /**
+     * Scale resting length of all springs
+     *
+     * @param scale
+     */
     public void setRestLengthScale(float scale) {
         setRestLenghtScale(objectId, scale);
     }
 
     private native void setRestLenghtScale(long objectId, float scale);
 
-    /* Set current state as pose */
+    /**
+     * Set current state of the softbody as "default pose" or "lowest energy
+     * state".
+     *
+     * @param bvolume, boolean volume pose
+     * @param bframe, boolean frame pose
+     */
     public void setPose(boolean bvolume, boolean bframe) {
         setPose(objectId, bvolume, bframe);
     }
 
     private native void setPose(long objectId, boolean bvolume, boolean bframe);
 
-    /* Set current link lengths as resting lengths */
+    /**
+     * Set current link lengths as resting lengths.
+     */
     public void resetLinkRestLengths() {
         resetLinkRestLengths(objectId);
     }
@@ -462,7 +512,9 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native int generateBendingConstraints(long bodyId, int distance, long matId);
 
-    /* Randomize constraints to reduce solver bias */
+    /**
+     * Randomize constraints to reduce solver bias.
+     */
     public void randomizeConstraints() {
         randomizeConstraints(objectId);
     }
@@ -482,9 +534,14 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void releaseClusters(long objectId);
 
-    /* Generate clusters (K-mean) */
-///generateClusters with k=0 will create a convex cluster for each tetrahedron or triangle
-///otherwise an approximation will be used (better performance)
+    /**
+     * Generate clusters (K-mean) : generateClusters with k=0 will create a
+     * convex cluster for each tetrahedron or triangle, otherwise an
+     * approximation will be used (better performance).
+     *
+     * @param k
+     * @return
+     */
     public int generateClusters(int k) {
         return generateClusters(k, 8192);
     }
@@ -509,52 +566,55 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     /* Solver presets */
     /*public void setSolver(eSolverPresets::_ preset);*/
 
-    /* predictMotion */
-    public void predictMotion(float dt) {
-        predictMotion(objectId, dt);
-    }
-
-    private native void predictMotion(long objectId, float dt);
-
-    /* solveConstraints */
-    public void solveConstraints() {
-        solveConstraints(objectId);
-    }
-
-    private native void solveConstraints(long objectId);
-
-    /* staticSolve */
-    public void staticSolve(int iterations) {
-        staticSolve(objectId, iterations);
-    }
-
-    private native void staticSolve(long objectId, int iterations);
-
-    /* solveCommonConstraints */
-    /*public static void solveCommonConstraints(btSoftBody** bodies,int count,int iterations){
-    
-     }*/
-    /* solveClusters */
-    /*public static void solveClusters(const btAlignedObjectArray<btSoftBody*>& bodies){
-    
-     }*/
-    /* integrateMotion */
-    public void integrateMotion() {
-        integrateMotion(objectId);
-    }
-
-    private native void integrateMotion(long objectId);
-    /* defaultCollisionHandlers */
-    /*public void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap){
-    
-     }*/
-
-    public void defaultCollisionHandler(PhysicsSoftBody psb) {
-        defaultCollisionHandler(psb.objectId);
-    }
-
-    private native void defaultCollisionHandler(long objectId);
-
+//    /* predictMotion */
+//    public void predictMotion(float dt) {
+//        predictMotion(objectId, dt);
+//    }
+//
+//    private native void predictMotion(long objectId, float dt);
+//
+//    /* solveConstraints */
+//    public void solveConstraints() {
+//        solveConstraints(objectId);
+//    }
+//
+//    private native void solveConstraints(long objectId);
+//
+//    /* staticSolve */
+//    public void staticSolve(int iterations) {
+//        staticSolve(objectId, iterations);
+//    }
+//
+//    private native void staticSolve(long objectId, int iterations);
+//
+//    /* solveCommonConstraints */
+//    /*public static void solveCommonConstraints(btSoftBody** bodies,int count,int iterations){
+//    
+//     }*/
+//    /* solveClusters */
+//    /*public static void solveClusters(const btAlignedObjectArray<btSoftBody*>& bodies){
+//    
+//     }*/
+//    /* integrateMotion */
+//    public void integrateMotion() {
+//        integrateMotion(objectId);
+//    }
+//
+//    private native void integrateMotion(long objectId);
+//    /* defaultCollisionHandlers */
+//    /*public void defaultCollisionHandler(const btCollisionObjectWrapper* pcoWrap){
+//    
+//     }*/
+//
+//    public void defaultCollisionHandler(PhysicsSoftBody psb) {
+//        defaultCollisionHandler(psb.objectId);
+//    }
+//
+//    private native void defaultCollisionHandler(long objectId);
+    /**
+     *
+     * @return true if the softBody is in a physicsSpace.
+     */
     public boolean isInWorld() {
         return isInWorld(objectId);
     }
@@ -1259,17 +1319,17 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private static native int getNumTriangle(long bodyId);
 
-    public static void updateMesh(PhysicsSoftBody softBody, Mesh store, boolean updateNormals) {
+    public static void updateMesh(PhysicsSoftBody softBody, Mesh store, boolean meshInLocalOrigin, boolean updateNormals) {
         FloatBuffer positionBuffer = store.getFloatBuffer(Type.Position);
         FloatBuffer normalBuffer = store.getFloatBuffer(Type.Normal);
-        updateMesh(softBody.getObjectId(), positionBuffer, store.getVertexCount(), updateNormals, normalBuffer);
+        updateMesh(softBody.getObjectId(), positionBuffer, meshInLocalOrigin, updateNormals, normalBuffer);
         store.getBuffer(Type.Position).setUpdateNeeded();
         if (updateNormals) {
             store.getBuffer(Type.Normal).setUpdateNeeded();
         }
     }
 
-    private static native void updateMesh(long bodyId, FloatBuffer vertices, int numVertices, boolean updateNormals, FloatBuffer normals);
+    private static native void updateMesh(long bodyId, FloatBuffer vertices, boolean meshInLocalOrigin, boolean updateNormals, FloatBuffer normals);
 
     /*============*
      * data Struct

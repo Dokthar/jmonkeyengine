@@ -59,6 +59,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     protected PhysicsSoftSpace space = null;
     //protected boolean kinematicSpatial = true;
     protected boolean doNormalUpdate = true;
+    private boolean meshInLocalOrigin = true;
     private boolean meshHaveNormal = false;
 
     public SoftBodyControl() {
@@ -68,13 +69,18 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         this.doNormalUpdate = doNormalUpdate;
     }
 
+    public SoftBodyControl(boolean meshInLocalOrigin, boolean doNormalUpdate) {
+        this.meshInLocalOrigin = meshInLocalOrigin;
+        this.doNormalUpdate = doNormalUpdate;
+
+    }
+
     @Override
     public Control cloneForSpatial(Spatial spatial) {
         SoftBodyControl control = new SoftBodyControl(this.doNormalUpdate);
         control.getConfig().copyValues(this.getConfig());
 
         //TODO more : physicsSoftBody values
-        
         return control;
     }
 
@@ -89,15 +95,14 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         }
     }
 
-    private static boolean doHaveNormalBuffer(Mesh mesh){
+    private static boolean doHaveNormalBuffer(Mesh mesh) {
         return mesh.getBuffer(VertexBuffer.Type.Normal) != null;
     }
-    
+
     private static Geometry getFirstGeometry(Spatial spatial) {
         if (spatial instanceof Geometry) {
             return (Geometry) spatial;
-        }
-        else if (spatial instanceof Node) {
+        } else if (spatial instanceof Node) {
             Node n = (Node) spatial;
             for (Spatial s : n.getChildren()) {
                 return getFirstGeometry(s);
@@ -138,7 +143,8 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
              } else {
              getMotionState().applyTransform(spatial);
              }*/
-            PhysicsSoftBody.updateMesh(this, mesh, doNormalUpdate && meshHaveNormal);
+            PhysicsSoftBody.updateMesh(this, mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
+            this.spatial.setLocalTranslation(this.getBoundingCenter());
         }
     }
 
