@@ -319,7 +319,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return body->getMass(nodeId, mass);
+        return body->getMass(nodeId);
     }
 
     /*
