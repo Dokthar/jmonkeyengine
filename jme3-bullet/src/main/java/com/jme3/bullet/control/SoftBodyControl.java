@@ -57,8 +57,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     protected boolean enabled = true;
     protected boolean added = false;
     protected PhysicsSoftSpace space = null;
-    //protected boolean kinematicSpatial = true;
-    protected boolean doNormalUpdate = true;
+    protected boolean doNormalUpdate = false;
     private boolean meshInLocalOrigin = true;
     private boolean meshHaveNormal = false;
 
@@ -77,8 +76,8 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        SoftBodyControl control = new SoftBodyControl(this.doNormalUpdate);
-        control.getConfig().copyValues(this.getConfig());
+        SoftBodyControl control = new SoftBodyControl(this.meshInLocalOrigin, this.doNormalUpdate);
+        control.config().copyValues(this.config());
 
         //TODO more : physicsSoftBody values
         return control;
@@ -137,14 +136,8 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     @Override
     public void update(float tpf) {
         if (enabled && spatial != null && mesh != null) {
-            /*if (isKinematic() && kinematicSpatial) {
-             super.setPhysicsLocation(getSpatialTranslation());
-             super.setPhysicsRotation(getSpatialRotation());
-             } else {
-             getMotionState().applyTransform(spatial);
-             }*/
             PhysicsSoftBody.updateMesh(this, mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
-            if(meshInLocalOrigin){
+            if (meshInLocalOrigin) {
                 this.spatial.setLocalTranslation(this.getBoundingCenter());
             }
         }
@@ -175,12 +168,18 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         return space;
     }
 
+    /**
+     * Only used internally, do not call.
+     *
+     * @param space, a PhysicsSpace that extends PhysicsSoftSpace.
+     * @throws IllegalArgumentException, if the space isn't a PhysicsSoftSpace.
+     */
     @Override
     public void setPhysicsSpace(PhysicsSpace space) {
         if (space instanceof PhysicsSoftSpace) {
             setPhysicsSpace((PhysicsSoftSpace) space);
         } else {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates
+            throw new IllegalArgumentException("Setting a PhysicsSpace to a SoftBodyControl must be a PhysicsSoftSpace");
         }
     }
 

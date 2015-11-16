@@ -43,16 +43,6 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
-     * Method:    createMaterial
-     * Signature: ()J
-     */
-    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_createMaterial
-    (JNIEnv *env, jobject object) {
-
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
      * Method:    getLinearStiffnessFactor
      * Signature: (J)F
      */
@@ -145,38 +135,6 @@ extern "C" {
             return;
         }
         mat->m_kVST = factor;
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
-     * Method:    getFlags
-     * Signature: (J)I
-     */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_getFlags
-    (JNIEnv *env, jobject object, jlong matId) {
-        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
-        if (mat == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
-        }
-        return mat->m_flags;
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
-     * Method:    setFlags
-     * Signature: (JI)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_setFlags
-    (JNIEnv *env, jobject object, jlong matId, jint flag) {
-        btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
-        if (mat == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-        mat->m_flags = flag;
     }
 
 #ifdef __cplusplus

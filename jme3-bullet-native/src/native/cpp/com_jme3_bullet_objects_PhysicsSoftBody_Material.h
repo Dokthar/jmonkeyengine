@@ -9,14 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
- * Method:    createMaterial
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_createMaterial
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
  * Method:    getLinearStiffnessFactor
  * Signature: (J)F
  */
@@ -62,22 +54,6 @@ JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Mater
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_setVolumeStiffnessFactor
   (JNIEnv *, jobject, jlong, jfloat);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
- * Method:    getFlags
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_getFlags
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody_Material
- * Method:    setFlags
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_00024Material_setFlags
-  (JNIEnv *, jobject, jlong, jint);
 
 #ifdef __cplusplus
 }

@@ -42,6 +42,10 @@
 extern "C" {
 #endif
 
+    static inline btVector3 getBoundingCenter(btSoftBody* body) {
+        return (body->m_bounds[0] + body->m_bounds[1]) / 2;
+    }
+
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    createFromTriMesh
@@ -58,6 +62,10 @@ extern "C" {
         btSoftBody* body = btSoftBodyHelpers::CreateFromTriMesh(*worldInfo, vertices, triangles, nbTriangles, &random);
 
         body->setUserPointer(NULL);
+
+        // The only available flag for Materials is DebugDraw (by Default)
+        // we don't want to use Bullet's debug draw, (we use JME instead).
+        body->m_materials[0]->m_flags = 0x0000;
         return reinterpret_cast<jlong> (body);
     }
 
@@ -93,7 +101,12 @@ extern "C" {
         jfloat *masses = env->GetFloatArrayElements(massArray, NULL);
 
         btSoftBody* body = new btSoftBody(wordInfo, nodeCount, positions, masses);
+
         body->setUserPointer(NULL);
+
+        // The only available flag for Materials is DebugDraw (by Default)
+        // we don't want to use Bullet's debug draw, (we use JME instead).
+        body->m_materials[0]->m_flags = 0x0000;
         return reinterpret_cast<jlong> (body);
     }
 
@@ -168,6 +181,9 @@ extern "C" {
             return 0;
         }
         btSoftBody::Material* mat = body->appendMaterial();
+        // The only available flag for Materials is DebugDraw (by Default)
+        // we don't want to use Bullet's debug draw, (we use JME instead).
+        mat->m_flags = 0x0000;
         return reinterpret_cast<long> (mat);
     }
 
@@ -227,7 +243,15 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addForce__JLcom_jme3_math_Vector3f_2I
     (JNIEnv *env, jobject object, jlong bodyId, jobject force, jint nodeId) {
-        //@TODO
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, force, &vec);
+        body->addForce(vec, nodeId);
     }
 
     /*
@@ -237,7 +261,15 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToNode
     (JNIEnv *env, jobject object, jlong bodyId, jobject force, jint nodeId) {
-        //@TODO
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, force, &vec);
+        body->addAeroForceToNode(vec, nodeId);
     }
 
     /*
@@ -247,7 +279,15 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToFace
     (JNIEnv *env, jobject object, jlong bodyId, jobject force, jint faceId) {
-        //@TODO
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, force, &vec);
+        body->addAeroForceToFace(vec, faceId);
     }
 
     /*
@@ -257,7 +297,13 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMass
     (JNIEnv *env, jobject object, jlong bodyId, jint nodeId, jfloat mass) {
-        //@TODO
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        body->setMass(nodeId, mass);
     }
 
     /*
@@ -267,8 +313,13 @@ extern "C" {
      */
     JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMass
     (JNIEnv *env, jobject object, jlong bodyId, jint nodeId) {
-        //@TODO
-        return 0;
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->getMass(nodeId, mass);
     }
 
     /*
@@ -415,10 +466,10 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    applyPhysicsScaling
+     * Method:    applyPhysicsScale
      * Signature: (JLcom/jme3/math/Vector3f;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_applyPhysicsScaling
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_applyPhysicsScale
     (JNIEnv *env, jobject object, jlong bodyId, jobject scl) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -445,11 +496,9 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        // rotation still unavailable with btTransform
+        // scale unavailable with btTransform
         btTransform trs = btTransform();
         jmeBulletUtil::convert(env, transform, &trs);
-        // body->transform(body->m_initialWorldTransform.inverse());
-        // body->transform(trs);
         body->transform(body->m_initialWorldTransform.inverse() * trs);
     }
 
@@ -466,7 +515,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        // rotation still unavailable with btTransform
+        // scale unavailable with btTransform
         jmeBulletUtil::convert(env, &body->m_initialWorldTransform, transform);
     }
 
@@ -485,9 +534,8 @@ extern "C" {
         }
         btVector3 vec = btVector3();
         jmeBulletUtil::convert(env, location, &vec);
-        // body->translate(body->m_initialWorldTransform.inverse().getOrigin());
-        // body->translate(vec);
-        body->translate(body->m_initialWorldTransform.inverse().getOrigin() * vec);
+        vec -= getBoundingCenter(body);
+        body->translate(vec);
     }
 
     /*
@@ -503,7 +551,8 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        jmeBulletUtil::convert(env, &body->getWorldTransform().getOrigin(), location);
+        btVector3 vec = getBoundingCenter(body);
+        jmeBulletUtil::convert(env, &vec, location);
     }
 
     /*
@@ -542,26 +591,6 @@ extern "C" {
             return;
         }
         jmeBulletUtil::convertQuat(env, &body->getWorldTransform().getBasis(), rotation);
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    setPhysicsScale
-     * Signature: (JLcom/jme3/math/Vector3f;)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setPhysicsScale
-    (JNIEnv *env, jobject object, jlong bodyId, jobject scale) {
-        // not straightforward with softBody
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    getPhysicsScale
-     * Signature: (JLcom/jme3/math/Vector3f;)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getPhysicsScale
-    (JNIEnv *env, jobject object, jlong bodyId, jobject scale) {
-        // not straightforward with softBody
     }
 
     /*
@@ -662,34 +691,26 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    getClusterCenterOfMass
-     * Signature: (JILcom/jme3/math/Vector3f;)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getClusterCenterOfMass
-    (JNIEnv *, jobject, jlong, jint, jobject);
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    generateBendingConstraints
-     * Signature: (JIJ)I
+     * Signature: (JIJ)V
      */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_generateBendingConstraints
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_generateBendingConstraints
     (JNIEnv *env, jobject object, jlong bodyId, jint dist, jlong matId) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
+            return;
         }
 
         btSoftBody::Material* mat = reinterpret_cast<btSoftBody::Material*> (matId);
         if (mat == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
+            return;
         }
 
-        return body->generateBendingConstraints(dist, mat);
+        body->generateBendingConstraints(dist, mat);
     }
 
     /*
@@ -743,17 +764,17 @@ extern "C" {
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    generateClusters
-     * Signature: (JII)I
+     * Signature: (JII)V
      */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_generateClusters
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_generateClusters
     (JNIEnv *env, jobject object, jlong bodyId, jint k, jint maxIter) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
+            return;
         }
-        return body->generateClusters(k, maxIter);
+        body->generateClusters(k, maxIter);
     }
 
     /*
@@ -775,10 +796,10 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    getCenter
+     * Method:    getBoundingCenter
      * Signature: (JLcom/jme3/math/Vector3f;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getCenter
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getBoundingCenter
     (JNIEnv *env, jobject object, jlong bodyId, jobject vec) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -787,7 +808,7 @@ extern "C" {
             return;
         }
         btVector3 result;
-        result = (body->m_bounds[0] + body->m_bounds[1]) / 2;
+        result = getBoundingCenter(body);
         jmeBulletUtil::convert(env, &result, vec);
         return;
     }
@@ -901,7 +922,7 @@ extern "C" {
 
         btVector3 center = btVector3(0, 0, 0);
         if (meshInLocalOrigin) {
-            center = (body->m_bounds[0] + body->m_bounds[1]) / 2;
+            center = getBoundingCenter(body);
         }
 
         if (doNormalUpdate) {
