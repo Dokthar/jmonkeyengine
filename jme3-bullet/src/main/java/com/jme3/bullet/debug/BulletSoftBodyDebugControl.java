@@ -32,6 +32,7 @@
 package com.jme3.bullet.debug;
 
 import com.jme3.bullet.objects.PhysicsSoftBody;
+import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -56,7 +57,7 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
         super(debugAppState);
         this.body = body;
 
-        geom = PhysicsSoftBody.createDebugShape(body);
+        geom = NativeSoftBodyUtil.createDebugShape(body);
         geom.setName(body.toString());
         geom.setMaterial(debugAppState.DEBUG_BLUE);
         geom.getMesh().setStreamed();
@@ -77,7 +78,7 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
     @Override
     protected void controlUpdate(float tpf) {
         //     if (body.isActive()) {
-        PhysicsSoftBody.updateMesh(body, geom.getMesh(), false, false);
+        NativeSoftBodyUtil.updateMesh(body, geom.getMesh(), false, false);
         geom.setMaterial(debugAppState.DEBUG_RED);
         /*       } else {
          geom.setMaterial(debugAppState.DEBUG_BLUE);

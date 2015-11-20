@@ -401,38 +401,6 @@ JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_isInWorl
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getBoundingCenter
   (JNIEnv *, jobject, jlong, jobject);
 
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    getVertices
- * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getVertices
-  (JNIEnv *, jclass, jlong, jobject);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    getIndexes
- * Signature: (JLjava/nio/IntBuffer;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getIndexes
-  (JNIEnv *, jclass, jlong, jobject);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    getNumTriangle
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNumTriangle
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    updateMesh
- * Signature: (JLjava/nio/FloatBuffer;ZZLjava/nio/FloatBuffer;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateMesh
-  (JNIEnv *, jclass, jlong, jobject, jboolean, jboolean, jobject);
-
 #ifdef __cplusplus
 }
 #endif

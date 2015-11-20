@@ -34,6 +34,7 @@ package com.jme3.bullet.control;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.objects.PhysicsSoftBody;
+import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.renderer.RenderManager;
@@ -136,7 +137,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     @Override
     public void update(float tpf) {
         if (enabled && spatial != null && mesh != null) {
-            PhysicsSoftBody.updateMesh(this, mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
+            NativeSoftBodyUtil.updateMesh(this, mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
             if (meshInLocalOrigin) {
                 this.spatial.setLocalTranslation(this.getBoundingCenter());
             }

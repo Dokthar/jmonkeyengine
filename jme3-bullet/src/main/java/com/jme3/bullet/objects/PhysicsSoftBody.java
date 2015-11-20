@@ -34,11 +34,9 @@ package com.jme3.bullet.objects;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
-import com.jme3.bullet.util.DebugMeshCallback;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
@@ -1293,63 +1291,6 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         private native int getCollisionsFlags(long bodyId);
 
     };
-
-    /*====================*  
-     SoftBody to Mesh - UTILS 
-     *====================*/ /*
-     Since bullet SoftBody don't use btCollisionShape, its not possible to use the DebugShapeFactory.
-     The following code is almost the same , but specially for SoftBody. 
-     Theses methods are static (same as in DebugShapeFactory) so the code can be easily moved somewhere else.
-     */
-
-    public static Geometry createDebugShape(PhysicsSoftBody softBody) {
-        if (softBody == null) {
-            return null;
-        }
-        Geometry debugShape = new Geometry();
-        debugShape.setMesh(getDebugMesh(softBody));
-        debugShape.updateModelBound();
-        debugShape.updateGeometricState();
-        return debugShape;
-    }
-
-    public static Mesh getDebugMesh(PhysicsSoftBody softBody) {
-        Mesh mesh = new Mesh();
-        mesh.setBuffer(Type.Position, 3, getVertices(softBody));
-        mesh.setBuffer(Type.Index, 3, getIndexes(softBody));
-        mesh.getFloatBuffer(Type.Position).clear();
-        return mesh;
-    }
-
-    private static FloatBuffer getVertices(PhysicsSoftBody softBody) {
-        DebugMeshCallback callback = new DebugMeshCallback();
-        getVertices(softBody.getObjectId(), callback);
-        return callback.getVertices();
-    }
-
-    private static native void getVertices(long bodyId, DebugMeshCallback buffer);
-
-    private static IntBuffer getIndexes(PhysicsSoftBody softBody) {
-        IntBuffer indexes = BufferUtils.createIntBuffer(getNumTriangle(softBody.getObjectId()) * 3);
-        getIndexes(softBody.getObjectId(), indexes);
-        return indexes;
-    }
-
-    private static native void getIndexes(long bodyId, IntBuffer buffer);
-
-    private static native int getNumTriangle(long bodyId);
-
-    public static void updateMesh(PhysicsSoftBody softBody, Mesh store, boolean meshInLocalOrigin, boolean updateNormals) {
-        FloatBuffer positionBuffer = store.getFloatBuffer(Type.Position);
-        FloatBuffer normalBuffer = store.getFloatBuffer(Type.Normal);
-        updateMesh(softBody.getObjectId(), positionBuffer, meshInLocalOrigin, updateNormals, normalBuffer);
-        store.getBuffer(Type.Position).setUpdateNeeded();
-        if (updateNormals) {
-            store.getBuffer(Type.Normal).setUpdateNeeded();
-        }
-    }
-
-    private static native void updateMesh(long bodyId, FloatBuffer vertices, boolean meshInLocalOrigin, boolean updateNormals, FloatBuffer normals);
 
     /**
      * The Material class hold methods to access (get and set) natives fields of
