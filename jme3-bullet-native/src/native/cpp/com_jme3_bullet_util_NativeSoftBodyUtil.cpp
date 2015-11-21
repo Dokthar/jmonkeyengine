@@ -46,7 +46,7 @@ extern "C" {
      * Method:    getVertices
      * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getVertices
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getVertices
     (JNIEnv *env, jclass clazz, jlong bodyId, jobject callback) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -90,7 +90,7 @@ extern "C" {
      * Method:    getIndexes
      * Signature: (JLjava/nio/IntBuffer;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getIndexes
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getIndexes
     (JNIEnv *env, jclass clazz, jlong bodyId, jobject indexBuffer) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -116,7 +116,7 @@ extern "C" {
      * Method:    getNumTriangle
      * Signature: (J)I
      */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNumTriangle
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNumTriangle
     (JNIEnv *env, jclass clazz, jlong bodyId) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -132,7 +132,7 @@ extern "C" {
      * Method:    updateMesh
      * Signature: (JLjava/nio/FloatBuffer;ZZLjava/nio/FloatBuffer;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateMesh
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateMesh
     (JNIEnv *env, jclass clazz, jlong bodyId, jobject verticesBuffer, jboolean meshInLocalOrigin, jboolean doNormalUpdate, jobject normalsBuffer) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
