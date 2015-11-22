@@ -42,10 +42,13 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
+import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -99,16 +102,23 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         return mesh.getBuffer(VertexBuffer.Type.Normal) != null;
     }
 
-    private static Geometry getFirstGeometry(Spatial spatial) {
+    private Geometry getFirstGeometry(Spatial spatial) {
         if (spatial instanceof Geometry) {
             return (Geometry) spatial;
-        } else if (spatial instanceof Node) {
-            Node n = (Node) spatial;
-            for (Spatial s : n.getChildren()) {
-                return getFirstGeometry(s);
-            }
+        } else if (!(spatial instanceof Node)) {
+            return null;
         }
-        return null;
+        final List<Geometry> geoms = new LinkedList<Geometry>();
+        Node node = (Node) spatial;
+        node.depthFirstTraversal(new SceneGraphVisitorAdapter() {
+            @Override
+            public void visit(Geometry geom) {
+                if (geoms.isEmpty()) {
+                    geoms.add(geom);
+                }
+            }
+        });
+        return (geoms.isEmpty()) ? null : (Geometry) geoms.remove(0);
     }
 
     @Override
