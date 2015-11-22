@@ -54,7 +54,7 @@ public class BulletSoftBodyAppState extends BulletAppState {
         Callable<Boolean> call = new Callable<Boolean>() {
             public Boolean call() throws Exception {
                 detachedPhysicsLastUpdate = System.currentTimeMillis();
-                pSpace = new PhysicsSpace(worldMin, worldMax, broadphaseType);
+                pSpace = new PhysicsSoftSpace(worldMin, worldMax, broadphaseType);
                 pSpace.addTickListener(app);
                 return true;
             }
