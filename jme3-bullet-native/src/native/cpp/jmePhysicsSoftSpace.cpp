@@ -124,6 +124,9 @@ void jmePhysicsSoftSpace::createPhysicsSoftSpace(jobject min_vec, jobject max_ve
     // do SoftBodyWorldInfo modifications
     btSoftBodyWorldInfo softBodyWorldInfo = world->getWorldInfo();
     softBodyWorldInfo.m_gravity.setValue(0, -9.81f, 0);
+    softBodyWorldInfo.m_sparsesdf.Initialize();
+    softBodyWorldInfo.m_broadphase = broadphase;
+    softBodyWorldInfo.m_dispatcher = dispatcher;
 
     struct jmeFilterCallback : public btOverlapFilterCallback {
         // return true when pairs need collision
