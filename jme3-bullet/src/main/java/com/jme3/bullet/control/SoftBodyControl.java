@@ -34,7 +34,6 @@ package com.jme3.bullet.control;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.objects.PhysicsSoftBody;
-import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.renderer.RenderManager;
@@ -126,18 +125,18 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         this.enabled = enabled;
         if (space != null) {
             /*if (enabled && !added) {
-             if (spatial != null) {
+                if (spatial != null) {
              setPhysicsLocation(getSpatialTranslation());
              setPhysicsRotation(getSpatialRotation());
-             }
-             space.addCollisionObject(this);
-             added = true;
-             } else if (!enabled && added) {
-             space.removeCollisionObject(this);
-             added = false;
+                }
+                space.addCollisionObject(this);
+                added = true;
+            } else if (!enabled && added) {
+                space.removeCollisionObject(this);
+                added = false;
              }*/
+            }
         }
-    }
 
     @Override
     public boolean isEnabled() {
@@ -147,15 +146,15 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     @Override
     public void update(float tpf) {
         if (enabled && spatial != null && mesh != null) {
-            NativeSoftBodyUtil.updateMesh(this, mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
-            if (meshInLocalOrigin) {
-                this.spatial.setLocalTranslation(this.getBoundingCenter());
-            }
+            this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
+        if (meshInLocalOrigin) {
+            this.spatial.setLocalTranslation(this.getBoundingCenter());
         }
     }
+}
 
-    @Override
-    public void render(RenderManager rm, ViewPort vp) {
+@Override
+        public void render(RenderManager rm, ViewPort vp) {
     }
 
     public void setPhysicsSpace(PhysicsSoftSpace space) {
@@ -175,7 +174,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     }
 
     @Override
-    public PhysicsSoftSpace getPhysicsSpace() {
+        public PhysicsSoftSpace getPhysicsSpace() {
         return space;
     }
 
@@ -186,7 +185,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
      * @throws IllegalArgumentException, if the space isn't a PhysicsSoftSpace.
      */
     @Override
-    public void setPhysicsSpace(PhysicsSpace space) {
+        public void setPhysicsSpace(PhysicsSpace space) {
         if (space instanceof PhysicsSoftSpace) {
             setPhysicsSpace((PhysicsSoftSpace) space);
         } else {
@@ -195,11 +194,11 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     }
 
     @Override
-    public void write(JmeExporter ex) throws IOException {
+        public void write(JmeExporter ex) throws IOException {
     }
 
     @Override
-    public void read(JmeImporter im) throws IOException {
+        public void read(JmeImporter im) throws IOException {
     }
 
 }

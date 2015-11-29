@@ -813,6 +813,52 @@ extern "C" {
         return;
     }
 
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    updateTriMesh
+     * Signature: (JILjava/nio/IntBuffer;Ljava/nio/FloatBuffer;Ljava/nio/FloatBuffer;ZZ)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateTriMesh
+    (JNIEnv *env, jobject object, jlong bodyId, jint indexSize, jobject indexMap, jobject positionsBuffer, jobject normalsBuffer, jboolean meshInLocalSpace, jboolean doNormalUpdate) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        jint* map = (jint*) env->GetDirectBufferAddress(indexMap);
+
+        jfloat* positions = (jfloat*) env->GetDirectBufferAddress(positionsBuffer);
+
+        btVector3 center = btVector3(0, 0, 0);
+        if (meshInLocalSpace) {
+            center = (body->m_bounds[0] + body->m_bounds[1]) / 2;
+        }
+
+        if (doNormalUpdate) {
+            jfloat* normals = (jfloat*) env->GetDirectBufferAddress(normalsBuffer);
+
+            for (int i = 0; i < indexSize; ++i) {
+                const btSoftBody::Node& n = body->m_nodes[map[i]];
+                positions[i * 3 + 0] = n.m_x.getX() - center.getX();
+                positions[i * 3 + 1] = n.m_x.getY() - center.getY();
+                positions[i * 3 + 2] = n.m_x.getZ() - center.getZ();
+                //--- normals
+                normals[i * 3 + 0] = n.m_n.getX();
+                normals[i * 3 + 1] = n.m_n.getY();
+                normals[i * 3 + 2] = n.m_n.getZ();
+            }
+        } else {
+            for (int i = 0; i < indexSize; ++i) {
+                const btSoftBody::Node& n = body->m_nodes[map[i]];
+                positions[i * 3 + 0] = n.m_x.getX() - center.getX();
+                positions[i * 3 + 1] = n.m_x.getY() - center.getY();
+                positions[i * 3 + 2] = n.m_x.getZ() - center.getZ();
+            }
+        }
+    }
+
 #ifdef __cplusplus
 }
 #endif

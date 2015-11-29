@@ -38,12 +38,15 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
+import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,6 +57,7 @@ import java.util.logging.Logger;
 public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private final Config config = new Config(this);
+    private IntBuffer jmeToBulletMap;
 
     @Deprecated
     public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
@@ -74,17 +78,70 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     // SoftBodies need to have a direct access to JME's Mesh buffer in order a have a more
     // efficient way when updating the Mesh each frame
+    // Must remove "duplicated" vertex (vertex with same position, hapen with uv mapping) to prevent the mesh from tearing apart.
     private long createFromTriMesh(Mesh triMesh) {
-        IntBuffer indexBuffer = BufferUtils.createIntBuffer(triMesh.getTriangleCount() * 3);
-        FloatBuffer positionBuffer = triMesh.getFloatBuffer(Type.Position);
+        /*
+         * Exemple :
+         * mesh :   P1\P3----P4
+         *            ¦¯\_   ¦
+         *            ¦   ¯\_¦
+         *           P2----P6\P5
+         *
+         * with P1==P3 and P6==P5
+         * Buffers indexes        :  | 0| 1| 2| 3| 4| 5|
+         * >-  JME PositionBuffer :  [P1,P2,P3,P4,P5,P6] 
+         * >-  JME IndexBuffer    :  [ 0, 1, 5, 2, 4, 3]
+         * <-> JME -> Bullet map  :  [ 0, 1, 0, 2, 3, 3]
+         *  -> Bullet Positions   :  [P3,P2,P4,P6]       == [P1,P2,P4,P5]
+         *  -> Bullet Index       :  [ 0, 1, 3, 0, 3, 2]
+         */
+        FloatBuffer jmePositions = triMesh.getFloatBuffer(Type.Position);
+        IndexBuffer jmeIndex = triMesh.getIndexBuffer();
 
-        IndexBuffer indices = triMesh.getIndicesAsList();
-        int indicesLength = triMesh.getTriangleCount() * 3;
-        for (int i = 0; i < indicesLength; i++) { // done because mesh indexs can use short or i am wrong
-            indexBuffer.put(indices.get(i));
+        // Generation of jmeToBulletMap, mapping JME index to Bullet index.
+        int jmePositionSize = jmePositions.capacity();
+        jmeToBulletMap = BufferUtils.createIntBuffer(jmePositionSize / 3);
+        HashMap<Vector3f, Integer> uniquePositions = new HashMap<Vector3f, Integer>();
+        for (int i = 0, indice = 0; i < jmePositionSize; i += 3) {
+            float x = jmePositions.get(i + 0);
+            float y = jmePositions.get(i + 1);
+            float z = jmePositions.get(i + 2);
+            Vector3f p = new Vector3f(x, y, z);
+            if (!uniquePositions.containsKey(p)) {
+                uniquePositions.put(p, indice);
+                jmeToBulletMap.put(indice);
+                indice++;
+            } else {
+                jmeToBulletMap.put(uniquePositions.get(p));
+            }
         }
-        //Add
-        objectId = createFromTriMesh(indexBuffer, positionBuffer, triMesh.getTriangleCount(), false);
+        jmeToBulletMap.rewind();
+        jmePositions.rewind();
+
+        // Generation of bullet indexes with the help of jmeToBulletMap
+        int jmeIndexSize = jmeIndex.size();
+        IntBuffer bulletIndexBuffer = BufferUtils.createIntBuffer(jmeIndexSize);
+        for (int i = 0; i < jmeIndexSize; i += 3) {
+            // create the bullet index to recreate each face with bullet position
+            bulletIndexBuffer.put(jmeToBulletMap.get(jmeIndex.get(i + 0)));
+            bulletIndexBuffer.put(jmeToBulletMap.get(jmeIndex.get(i + 1)));
+            bulletIndexBuffer.put(jmeToBulletMap.get(jmeIndex.get(i + 2)));
+        }
+
+        bulletIndexBuffer.rewind();
+
+        // Generation of bullet position with the help of jmeToBulletMap
+        int bulletNbPosition = uniquePositions.size() * 3;
+        FloatBuffer bulletPositions = BufferUtils.createFloatBuffer(bulletNbPosition);
+        for (int i = 0; i < jmePositionSize / 3; i++) {
+            // create the bullet positions, do the conversion from JME -> Bullet (not 1:1, with some overwrite)
+            int iBullet = jmeToBulletMap.get(i);
+            bulletPositions.put(iBullet * 3 + 0, jmePositions.get(i * 3 + 0));
+            bulletPositions.put(iBullet * 3 + 1, jmePositions.get(i * 3 + 1));
+            bulletPositions.put(iBullet * 3 + 2, jmePositions.get(i * 3 + 2));
+        }
+
+        objectId = createFromTriMesh(bulletIndexBuffer, bulletPositions, jmeIndexSize / 3, false);
         postRebuild(false);
         return objectId;
     }
@@ -646,6 +703,19 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
     }
 
     private native void getBoundingCenter(long bodyId, Vector3f store);
+
+    public final void updateTriMesh(Mesh store, boolean meshInLocalSpace, boolean updateNormals) {
+        FloatBuffer positionBuffer = store.getFloatBuffer(VertexBuffer.Type.Position);
+        FloatBuffer normalBuffer = store.getFloatBuffer(VertexBuffer.Type.Normal);
+        updateTriMesh(this.getObjectId(), this.jmeToBulletMap.capacity(), this.jmeToBulletMap, positionBuffer, normalBuffer, meshInLocalSpace, updateNormals);
+
+        store.getBuffer(VertexBuffer.Type.Position).setUpdateNeeded();
+        if (updateNormals) {
+            store.getBuffer(VertexBuffer.Type.Normal).setUpdateNeeded();
+        }
+    }
+
+    private native void updateTriMesh(long bodyId, int bufferSize, IntBuffer positionMapping, FloatBuffer positionBuffer, FloatBuffer normalBuffer, boolean meshInLocalSpace, boolean updateNormals);
 
     /**
      * Get the config object which hold methods to access to the native config

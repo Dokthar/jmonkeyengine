@@ -401,6 +401,14 @@ JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_isInWorl
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getBoundingCenter
   (JNIEnv *, jobject, jlong, jobject);
 
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    updateTriMesh
+ * Signature: (JILjava/nio/IntBuffer;Ljava/nio/FloatBuffer;Ljava/nio/FloatBuffer;ZZ)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateTriMesh
+  (JNIEnv *, jobject, jlong, jint, jobject, jobject, jobject, jboolean, jboolean);
+
 #ifdef __cplusplus
 }
 #endif
