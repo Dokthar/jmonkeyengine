@@ -33,11 +33,11 @@ JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNumTriang
 
 /*
  * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    updateMesh
- * Signature: (JLjava/nio/FloatBuffer;ZZLjava/nio/FloatBuffer;)V
+ * Method:    updateDebugMesh
+ * Signature: (JLjava/nio/FloatBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateMesh
-  (JNIEnv *, jclass, jlong, jobject, jboolean, jboolean, jobject);
+JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateDebugMesh
+  (JNIEnv *, jclass, jlong, jobject);
 
 #ifdef __cplusplus
 }

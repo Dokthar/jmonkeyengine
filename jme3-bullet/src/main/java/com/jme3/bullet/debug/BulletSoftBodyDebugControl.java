@@ -78,7 +78,7 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
     @Override
     protected void controlUpdate(float tpf) {
         //     if (body.isActive()) {
-        NativeSoftBodyUtil.updateMesh(body, geom.getMesh(), false, false);
+        NativeSoftBodyUtil.updateDebugMesh(body,geom.getMesh());
         geom.setMaterial(debugAppState.DEBUG_RED);
         /*       } else {
          geom.setMaterial(debugAppState.DEBUG_BLUE);

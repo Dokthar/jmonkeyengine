@@ -32,6 +32,7 @@
 package com.jme3.bullet.util;
 
 import com.jme3.bullet.objects.PhysicsSoftBody;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
@@ -40,17 +41,13 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 /**
+ * Bullet SoftBody don't use btCollisionShape, its not possible to use the
+ * DebugShapeFactory. The following code is almost the same , but specially for
+ * SoftBody.
  *
  * @author dokthar
  */
 public class NativeSoftBodyUtil {
-      /*====================*  
-     SoftBody to Mesh - UTILS 
-     *====================*/ /*
-     Since bullet SoftBody don't use btCollisionShape, its not possible to use the DebugShapeFactory.
-     The following code is almost the same , but specially for SoftBody. 
-     Theses methods are static (same as in DebugShapeFactory) so the code can be easily moved somewhere else.
-     */
 
     public static Geometry createDebugShape(PhysicsSoftBody softBody) {
         if (softBody == null) {
@@ -89,16 +86,12 @@ public class NativeSoftBodyUtil {
 
     private static native int getNumTriangle(long bodyId);
 
-    public static void updateMesh(PhysicsSoftBody softBody, Mesh store, boolean meshInLocalOrigin, boolean updateNormals) {
+    public static void updateDebugMesh(PhysicsSoftBody softBody, Mesh store) {
         FloatBuffer positionBuffer = store.getFloatBuffer(VertexBuffer.Type.Position);
-        FloatBuffer normalBuffer = store.getFloatBuffer(VertexBuffer.Type.Normal);
-        updateMesh(softBody.getObjectId(), positionBuffer, meshInLocalOrigin, updateNormals, normalBuffer);
+        updateDebugMesh(softBody.getObjectId(), positionBuffer);
         store.getBuffer(VertexBuffer.Type.Position).setUpdateNeeded();
-        if (updateNormals) {
-            store.getBuffer(VertexBuffer.Type.Normal).setUpdateNeeded();
-        }
     }
 
-    private static native void updateMesh(long bodyId, FloatBuffer vertices, boolean meshInLocalOrigin, boolean updateNormals, FloatBuffer normals);
+    private static native void updateDebugMesh(long bodyId, FloatBuffer vertices);
 
 }

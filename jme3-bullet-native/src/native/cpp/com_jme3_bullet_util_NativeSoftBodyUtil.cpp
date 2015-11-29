@@ -129,11 +129,11 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    updateMesh
-     * Signature: (JLjava/nio/FloatBuffer;ZZLjava/nio/FloatBuffer;)V
+     * Method:    updateDebugMesh
+     * Signature: (JLjava/nio/FloatBuffer;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateMesh
-    (JNIEnv *env, jclass clazz, jlong bodyId, jobject verticesBuffer, jboolean meshInLocalOrigin, jboolean doNormalUpdate, jobject normalsBuffer) {
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateDebugMesh
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject verticesBuffer) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
@@ -143,31 +143,11 @@ extern "C" {
 
         jfloat* vertices = (jfloat*) env->GetDirectBufferAddress(verticesBuffer);
 
-        btVector3 center = btVector3(0, 0, 0);
-        if (meshInLocalOrigin) {
-            center = (body->m_bounds[0] + body->m_bounds[1]) / 2;
-        }
-
-        if (doNormalUpdate) {
-            jfloat* normals = (jfloat*) env->GetDirectBufferAddress(normalsBuffer);
-
-            for (int i = 0; i < body->m_nodes.size(); ++i) {
-                const btSoftBody::Node& n = body->m_nodes[i];
-                vertices[i * 3 + 0] = n.m_x.getX() - center.getX();
-                vertices[i * 3 + 1] = n.m_x.getY() - center.getY();
-                vertices[i * 3 + 2] = n.m_x.getZ() - center.getZ();
-                //--- normals
-                normals[i * 3 + 0] = n.m_n.getX();
-                normals[i * 3 + 1] = n.m_n.getY();
-                normals[i * 3 + 2] = n.m_n.getZ();
-            }
-        } else {
-            for (int i = 0; i < body->m_nodes.size(); ++i) {
-                const btSoftBody::Node& n = body->m_nodes[i];
-                vertices[i * 3 + 0] = n.m_x.getX() - center.getX();
-                vertices[i * 3 + 1] = n.m_x.getY() - center.getY();
-                vertices[i * 3 + 2] = n.m_x.getZ() - center.getZ();
-            }
+        for (int i = 0; i < body->m_nodes.size(); ++i) {
+            const btSoftBody::Node& n = body->m_nodes[i];
+            vertices[i * 3 + 0] = n.m_x.getX();
+            vertices[i * 3 + 1] = n.m_x.getY();
+            vertices[i * 3 + 2] = n.m_x.getZ();
         }
     }
 
