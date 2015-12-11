@@ -59,7 +59,7 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
 
         geom = NativeSoftBodyUtil.createDebugShape(body);
         geom.setName(body.toString());
-        geom.setMaterial(debugAppState.DEBUG_BLUE);
+        geom.setMaterial(debugAppState.DEBUG_RED);
         geom.getMesh().setStreamed();
     }
 
@@ -77,15 +77,7 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
 
     @Override
     protected void controlUpdate(float tpf) {
-        //     if (body.isActive()) {
         NativeSoftBodyUtil.updateDebugMesh(body,geom.getMesh());
-        geom.setMaterial(debugAppState.DEBUG_RED);
-        /*       } else {
-         geom.setMaterial(debugAppState.DEBUG_BLUE);
-         }*/
-        //applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
-        // scale not fully supported yet
-        //geom.setLocalScale(body.getCollisionShape().getScale()); 
     }
 
     @Override
