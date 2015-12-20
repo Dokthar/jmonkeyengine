@@ -86,6 +86,8 @@ public class NativeSoftBodyUtil {
 
     private static native int getNumTriangle(long bodyId);
 
+    public static native int getNbVertices(long bodyId);
+    
     public static void updateDebugMesh(PhysicsSoftBody softBody, Mesh store) {
         FloatBuffer positionBuffer = store.getFloatBuffer(VertexBuffer.Type.Position);
         updateDebugMesh(softBody.getObjectId(), positionBuffer);

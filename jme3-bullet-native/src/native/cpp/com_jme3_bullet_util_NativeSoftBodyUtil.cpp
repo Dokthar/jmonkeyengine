@@ -129,6 +129,23 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
+     * Method:    getNbVertices
+     * Signature: (J)I
+     */
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbVertices
+    (JNIEnv *env, jclass clazz, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        
+        return body->m_nodes.size();
+    }
+
+    /*
+     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
      * Method:    updateDebugMesh
      * Signature: (JLjava/nio/FloatBuffer;)V
      */

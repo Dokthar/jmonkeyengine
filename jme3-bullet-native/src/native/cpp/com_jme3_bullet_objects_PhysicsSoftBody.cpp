@@ -409,6 +409,46 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setMasses
+     * Signature: (JLjava/nio/FloatBuffer;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMasses
+    (JNIEnv *env, jobject object, jlong bodyId, jobject massBuffer) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jfloat* masses = (jfloat*) env->GetDirectBufferAddress(massBuffer);
+        int length = env->GetDirectBufferCapacity(massBuffer);
+        for (int i = 0; i < length; ++i) {
+            body->setMass(i, masses[i]);
+        }
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getMasses
+     * Signature: (JLjava/nio/FloatBuffer;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMasses
+    (JNIEnv *env, jobject object, jlong bodyId, jobject massBuffer) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jfloat* masses = (jfloat*) env->GetDirectBufferAddress(massBuffer);
+        int length = env->GetDirectBufferCapacity(massBuffer);
+        for (int i = 0; i < length; ++i) {
+            masses[i] = body->getMass(i);
+        }
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    applyPhysicsTransform
      * Signature: (JLcom/jme3/math/Transform;)V
      */

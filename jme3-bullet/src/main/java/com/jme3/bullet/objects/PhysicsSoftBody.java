@@ -34,6 +34,7 @@ package com.jme3.bullet.objects;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
+import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -60,7 +61,7 @@ import java.util.logging.Logger;
  *
  * @author dokthar
  */
-public class PhysicsSoftBody extends PhysicsCollisionObject {
+public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private final Config config = new Config(this);
     private IntBuffer jmeToBulletMap;
@@ -77,9 +78,17 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         postRebuild(false);
     }
 
-    public PhysicsSoftBody(Mesh triMesh) {
-// must check if the mesh have %3 vertices
-        createFromTriMesh(triMesh);
+    public PhysicsSoftBody(Mesh mesh) {
+        createFromMesh(mesh);
+    }
+
+    protected final void createFromMesh(Mesh mesh) {
+        if (mesh.getMode() == Mesh.Mode.Triangles) {
+            createFromTriMesh(mesh);
+        } else if (mesh.getMode() == Mesh.Mode.Lines) {
+            //todo create Rope
+        }
+        postRebuild(false);
     }
 
     // SoftBodies need to have a direct access to JME's Mesh buffer in order a have a more
@@ -148,7 +157,6 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         }
 
         objectId = createFromTriMesh(bulletIndexBuffer, bulletPositions, jmeIndexSize / 3, false);
-        postRebuild(false);
         return objectId;
     }
 
@@ -441,7 +449,27 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
 
     private native void setVolumeDensity(long objectId, float density);
 
-    /* Native transform / rotation / translation / scale*/
+    public void setMasses(FloatBuffer masses) {
+        setMasses(objectId, masses);
+    }
+
+    private native void setMasses(long objectId, FloatBuffer masses);
+
+    public FloatBuffer getMasses(){
+        return getMasses(null);
+    }
+    
+    public FloatBuffer getMasses(FloatBuffer store) {
+        if(store == null){
+            int nbVertex = NativeSoftBodyUtil.getNbVertices(objectId);
+            store = BufferUtils.createFloatBuffer(nbVertex);
+        }
+        getMasses(objectId, store);
+        return store;
+    }
+
+    private native void getMasses(long objectId, FloatBuffer masses);
+
     /**
      * Transform the body.
      *
@@ -731,6 +759,14 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
      */
     public Config config() {
         return this.config;
+    }
+
+    @Override
+    public void write(JmeExporter e) throws IOException {
+    }
+
+    @Override
+    public void read(JmeImporter e) throws IOException {
     }
 
     /**
@@ -1369,7 +1405,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
         @Override
         public void write(JmeExporter ex) throws IOException {
             OutputCapsule capsule = ex.getCapsule(this);
-            
+
             capsule.write(getVelocitiesCorrectionFactor(), "VelocitiesCorrectionFactor", 1f);
             capsule.write(getDampingCoef(), "DampingCoef", 0);
             capsule.write(getDragCoef(), "DragCoef", 0);
@@ -1378,34 +1414,34 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
             capsule.write(getVolumeConservationCoef(), "VolumeConservationCoef", 0);
             capsule.write(getDynamicFrictionCoef(), "DynamicFrictionCoef", 0.2f);
             capsule.write(getPoseMatchingCoef(), "PoseMatchingCoef", 0);
-            
+
             capsule.write(getRigidContactsHardness(), "RigidContactsHardness", 1.0f);
             capsule.write(getKineticContactsHardness(), "KineticContactsHardness", 0.1f);
             capsule.write(getSoftContactsHardness(), "SoftContactsHardness", 1.0f);
             capsule.write(getAnchorsHardness(), "AnchorsHardness", 0.7f);
-            
+
             capsule.write(getClusterRigidHardness(), "ClusterRigidHardness", 0.1f);
             capsule.write(getClusterKineticHardness(), "ClusterKineticHardness", 1f);
             capsule.write(getClusterSoftHardness(), "ClusterSoftHardness", 0.5f);
             capsule.write(getClusterRigidImpulseSplitCoef(), "ClusterRigidImpulseSplitCoef", 0.5f);
             capsule.write(getClusterKineticImpulseSplitCoef(), "ClusterKineticImpulseSplitCoef", 0.5f);
             capsule.write(getClusterSoftImpulseSplitCoef(), "ClusterSoftImpulseSplitCoef", 0.5f);
-            
+
             capsule.write(getMaximumVolumeRatio(), "MaximumVolumeRatio", 1f);
             capsule.write(getTimeScale(), "TimeScale", 1f);
-            
+
             capsule.write(getVelocitiesIterations(), "VelocitiesIterations", 0);
             capsule.write(getPositionIterations(), "PositionIterations", 1);
             capsule.write(getDriftIterations(), "DriftIterations", 0);
             capsule.write(getClusterIterations(), "ClusterIterations", 4);
-            
+
             capsule.write(getCollisionsFlags(), "CollisionsFlags", Default);
         }
 
         @Override
         public void read(JmeImporter im) throws IOException {
             InputCapsule capsule = im.getCapsule(this);
-            
+
             setVelocitiesCorrectionFactor(capsule.readFloat("VelocitiesCorrectionFactor", 1f));
             setDampingCoef(capsule.readFloat("DampingCoef", 0));
             setDragCoef(capsule.readFloat("DragCoef", 0));
@@ -1414,27 +1450,27 @@ public class PhysicsSoftBody extends PhysicsCollisionObject {
             setVolumeConservationCoef(capsule.readFloat("VolumeConservationCoef", 0));
             setDynamicFrictionCoef(capsule.readFloat("DynamicFrictionCoef", 0.2f));
             setPoseMatchingCoef(capsule.readFloat("PoseMatchingCoef", 0));
-            
+
             setRigidContactsHardness(capsule.readFloat("RigidContactsHardness", 1.0f));
             setKineticContactsHardness(capsule.readFloat("KineticContactsHardness", 0.1f));
             setSoftContactsHardness(capsule.readFloat("SoftContactsHardness", 1.0f));
             setAnchorsHardness(capsule.readFloat("AnchorsHardness", 0.7f));
-            
+
             setClusterRigidHardness(capsule.readFloat("ClusterRigidHardness", 0.1f));
             setClusterKineticHardness(capsule.readFloat("ClusterKineticHardness", 1f));
             setClusterSoftHardness(capsule.readFloat("ClusterSoftHardness", 0.5f));
             setClusterRigidImpulseSplitCoef(capsule.readFloat("ClusterRigidImpulseSplitCoef", 0.5f));
             setClusterKineticImpulseSplitCoef(capsule.readFloat("ClusterKineticImpulseSplitCoef", 0.5f));
             setClusterSoftImpulseSplitCoef(capsule.readFloat("ClusterSoftImpulseSplitCoef", 0.5f));
-            
+
             setMaximumVolumeRatio(capsule.readFloat("MaximumVolumeRatio", 1f));
             setTimeScale(capsule.readFloat("TimeScale", 1f));
-            
+
             setVelocitiesIterations(capsule.readInt("VelocitiesIterations", 0));
             setPositionIterations(capsule.readInt("PositionIterations", 1));
             setDriftIterations(capsule.readInt("DriftIterations", 0));
             setClusterIterations(capsule.readInt("ClusterIterations", 4));
-            
+
             setCollisionsFlags(capsule.readInt("CollisionsFlags", Default));
         }
 

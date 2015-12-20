@@ -33,6 +33,14 @@ JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNumTriang
 
 /*
  * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
+ * Method:    getNbVertices
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbVertices
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
  * Method:    updateDebugMesh
  * Signature: (JLjava/nio/FloatBuffer;)V
  */
