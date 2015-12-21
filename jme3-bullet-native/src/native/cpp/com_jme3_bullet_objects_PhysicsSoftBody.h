@@ -51,22 +51,6 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createFromT
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    ctr_PhysicsSoftBody
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_ctr_1PhysicsSoftBody__
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    ctr_PhysicsSoftBody
- * Signature: (I[Lcom/jme3/math/Vector3f;[F)J
- */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_ctr_1PhysicsSoftBody__I_3Lcom_jme3_math_Vector3f_2_3F
-  (JNIEnv *, jobject, jint, jobjectArray, jfloatArray);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    initDefault
  * Signature: (J)V
  */
@@ -91,18 +75,10 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getSoftBody
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    appendMaterial
+ * Method:    getMaterial
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendMaterial
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    getMaterials
- * Signature: (J)[J
- */
-JNIEXPORT jlongArray JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMaterials
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMaterial
   (JNIEnv *, jobject, jlong);
 
 /*

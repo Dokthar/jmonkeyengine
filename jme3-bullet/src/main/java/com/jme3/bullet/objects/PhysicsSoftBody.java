@@ -64,18 +64,10 @@ import java.util.logging.Logger;
 public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private final Config config = new Config(this);
+    private Material material = null;
     private IntBuffer jmeToBulletMap;
 
-    @Deprecated
-    public PhysicsSoftBody(Vector3f[] vertices, float[] masses) {
-        objectId = ctr_PhysicsSoftBody(vertices.length, vertices, masses);
-        postRebuild(false);
-    }
-
     public PhysicsSoftBody() {
-        objectId = ctr_PhysicsSoftBody();
-        initDefault();
-        postRebuild(false);
     }
 
     public PhysicsSoftBody(Mesh mesh) {
@@ -162,16 +154,18 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native long createFromTriMesh(IntBuffer triangles, FloatBuffer vertices, int numTriangles, boolean randomizeConstraints);
 
-    private native long ctr_PhysicsSoftBody();
-
-    private native long ctr_PhysicsSoftBody(int size, Vector3f[] vertices, float[] mass);
-
-    protected void rebuildFromTriMesh(Mesh mesh) {
-        // {mesh != null} => {old Native object is removed & destroyed; new Native object is created & added}
-        boolean wasInWorld = isInWorld();
-        preRebuild();
-        objectId = createFromTriMesh(mesh);
-        postRebuild(wasInWorld);
+    public void rebuildFromMesh(Mesh mesh) {
+        // {} => {old Native object is removed & destroyed; new Native object is created & added}
+        if (mesh != null) {
+            if (objectId != 0) {
+                boolean wasInWorld = isInWorld();
+                preRebuild();
+                createFromMesh(mesh);
+                postRebuild(wasInWorld);
+            } else {
+                createFromMesh(mesh);
+            }
+        }
     }
 
     protected final void preRebuild() {
@@ -230,32 +224,18 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private native long getSoftBodyWorldInfo(long objectId);
 
     /**
-     * Create a new material for this softbody (natively).
+     * Get the material of this softbody.
      *
-     * @return the created material.
+     * @return the body Material
      */
-    public Material appendMaterial() {
-        long matId = appendMaterial(objectId);
-        return new Material(matId);
-    }
-
-    private native long appendMaterial(long objectId);
-
-    /**
-     * Get the list of all materials on this softbody.
-     *
-     * @return a ArrayList of Material
-     */
-    public ArrayList<Material> getMaterialList() {
-        long matIds[] = getMaterials(objectId);
-        ArrayList<Material> matList = new ArrayList<Material>(matIds.length);
-        for (int i = 0; i < matIds.length; i++) {
-            matList.add(new Material(matIds[i]));
+    public Material material() {
+        if(material == null){
+            material = new Material(this);
         }
-        return matList;
+        return material;
     }
 
-    private native long[] getMaterials(long bodyId);
+    private native long getMaterial(long bodyId);
 
 
     /* Append anchor */
@@ -455,12 +435,12 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void setMasses(long objectId, FloatBuffer masses);
 
-    public FloatBuffer getMasses(){
+    public FloatBuffer getMasses() {
         return getMasses(null);
     }
-    
+
     public FloatBuffer getMasses(FloatBuffer store) {
-        if(store == null){
+        if (store == null) {
             int nbVertex = NativeSoftBodyUtil.getNbVertices(objectId);
             store = BufferUtils.createFloatBuffer(nbVertex);
         }
@@ -763,10 +743,37 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     @Override
     public void write(JmeExporter e) throws IOException {
+        super.write(e);
+        OutputCapsule capsule = e.getCapsule(this);
+
+        capsule.write(NativeSoftBodyUtil.getDebugMesh(this), "nativeBulletMesh", null);
+        capsule.write(jmeToBulletMap, "jmeToBulletMap", null);
+        capsule.write(getMasses(), "masses", null);
+
+        capsule.write(getRestLengthScale(), "RestLengthScale", 0);
+        capsule.write(getClusterCount(), "ClusterCount", 0);
+
+        config().write(capsule);
+        material().write(capsule);
     }
 
     @Override
     public void read(JmeImporter e) throws IOException {
+        super.read(e);
+        InputCapsule capsule = e.getCapsule(this);
+
+        createFromMesh((Mesh) capsule.readSavable("nativeBulletMesh", null));
+        jmeToBulletMap = (IntBuffer) capsule.readSavable("jmeToBulletMap", null);
+        setMasses(capsule.readFloatBuffer("masses", null));
+
+        setRestLengthScale(capsule.readFloat("RestLengthScale", 0));
+        int clusterCount = capsule.readInt("ClusterCount", 0);
+        if (clusterCount > 0) {
+            generateClusters(clusterCount);
+        }
+
+        config().read(capsule);
+        material().read(capsule);
     }
 
     /**
@@ -775,20 +782,19 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
      * is private, in order to only have the access through a PhysicsSoftBody,
      * each hysicsSoftBody have only one Config object associated with.
      */
-    public final class Config implements Savable {
+    public final class Config {
 
         private final PhysicsSoftBody body;
 
         // /!\ the objectId field from softbody is directly used here because it's a protected field.
         private Config(PhysicsSoftBody body) {
-            super();
             this.body = body;
         }
 
         /**
          * Copy the values of the Config conf, into this Config.
          *
-         * @param conf the Config with the used values.
+         * @param conf the Config with values to set.
          */
         public void copyValues(Config conf) {
             copyValues(objectId, conf.body.objectId);
@@ -1402,9 +1408,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
         private native int getCollisionsFlags(long bodyId);
 
-        @Override
-        public void write(JmeExporter ex) throws IOException {
-            OutputCapsule capsule = ex.getCapsule(this);
+        protected void write(OutputCapsule capsule) throws IOException {
 
             capsule.write(getVelocitiesCorrectionFactor(), "VelocitiesCorrectionFactor", 1f);
             capsule.write(getDampingCoef(), "DampingCoef", 0);
@@ -1438,9 +1442,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
             capsule.write(getCollisionsFlags(), "CollisionsFlags", Default);
         }
 
-        @Override
-        public void read(JmeImporter im) throws IOException {
-            InputCapsule capsule = im.getCapsule(this);
+        protected void read(InputCapsule capsule) throws IOException {
 
             setVelocitiesCorrectionFactor(capsule.readFloat("VelocitiesCorrectionFactor", 1f));
             setDampingCoef(capsule.readFloat("DampingCoef", 0));
@@ -1493,9 +1495,9 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     public final class Material {
 
         private long materialId;
-
-        protected Material(long nativeId) {
-            this.materialId = nativeId;
+        
+        private Material(PhysicsSoftBody body) {
+            this.materialId = body.getMaterial(body.objectId);
         }
 
         @Override
@@ -1572,6 +1574,21 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         }
 
         private native void setVolumeStiffnessFactor(long materialId, float volumeStiffnessFactor);
+
+        public void write(OutputCapsule capsule) throws IOException {
+
+            capsule.write(getAngularStiffnessFactor(), "AngularStiffnessFactor", 1f);
+            capsule.write(getLinearStiffnessFactor(), "LinearStiffnessFactor", 1f);
+            capsule.write(getVolumeStiffnessFactor(), "VolumeStiffnessFactor", 1f);
+
+        }
+
+        public void read(InputCapsule capsule) throws IOException {
+
+            setAngularStiffnessFactor(capsule.readFloat("AngularStiffnessFactor", 1f));
+            setLinearStiffnessFactor(capsule.readFloat("LinearStiffnessFactor", 1f));
+            setVolumeStiffnessFactor(capsule.readFloat("VolumeStiffnessFactor", 1f));
+        }
 
     }
 }

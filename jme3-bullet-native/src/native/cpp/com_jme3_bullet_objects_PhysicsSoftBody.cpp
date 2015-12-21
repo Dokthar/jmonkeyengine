@@ -62,48 +62,7 @@ extern "C" {
         btSoftBody* body = btSoftBodyHelpers::CreateFromTriMesh(*worldInfo, vertices, triangles, nbTriangles, &random);
 
         body->setUserPointer(NULL);
-
-        // The only available flag for Materials is DebugDraw (by Default)
-        // we don't want to use Bullet's debug draw, (we use JME instead).
-        body->m_materials[0]->m_flags = 0x0000;
-        return reinterpret_cast<jlong> (body);
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    ctr_PhysicsSoftBody
-     * Signature: ()J
-     */
-    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_ctr_1PhysicsSoftBody__
-    (JNIEnv *env, jobject object) {
-        jmeClasses::initJavaClasses(env);
-        btSoftBodyWorldInfo* wordInfo = new btSoftBodyWorldInfo();
-        btSoftBody* body = new btSoftBody(wordInfo);
-        body->setUserPointer(NULL);
-        return reinterpret_cast<jlong> (body);
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    ctr_PhysicsSoftBody
-     * Signature: (I[Lcom/jme3/math/Vector3f;[F)J
-     */
-    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_ctr_1PhysicsSoftBody__I_3Lcom_jme3_math_Vector3f_2_3F
-    (JNIEnv *env, jobject object, jint nodeCount, jobjectArray vec, jfloatArray massArray) {
-        jmeClasses::initJavaClasses(env);
-        btSoftBodyWorldInfo* wordInfo = new btSoftBodyWorldInfo();
-
-        //converting arrays
-        btVector3 positions[nodeCount];
-        for (int i = 0; i < nodeCount; i++) {
-            jmeBulletUtil::convert(env, vec + i, positions + i);
-        }
-        jfloat *masses = env->GetFloatArrayElements(massArray, NULL);
-
-        btSoftBody* body = new btSoftBody(wordInfo, nodeCount, positions, masses);
-
-        body->setUserPointer(NULL);
-
+        body->getCollisionShape()->setMargin(0);
         // The only available flag for Materials is DebugDraw (by Default)
         // we don't want to use Bullet's debug draw, (we use JME instead).
         body->m_materials[0]->m_flags = 0x0000;
@@ -169,10 +128,10 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    appendMaterial
+     * Method:    getMaterial
      * Signature: (J)J
      */
-    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendMaterial
+    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMaterial
     (JNIEnv *env, jobject object, jlong bodyId) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -180,42 +139,8 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        btSoftBody::Material* mat = body->appendMaterial();
-        // The only available flag for Materials is DebugDraw (by Default)
-        // we don't want to use Bullet's debug draw, (we use JME instead).
-        mat->m_flags = 0x0000;
-        return reinterpret_cast<long> (mat);
-    }
 
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    getMaterials
-     * Signature: (J)[J
-     */
-    JNIEXPORT jlongArray JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMaterials
-    (JNIEnv *env, jobject object, jlong bodyId) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return NULL;
-        }
-
-        int size = body->m_materials.size();
-
-        jlongArray result;
-        result = env->NewLongArray(size);
-        if (result == NULL) {
-            return NULL; /* out of memory error thrown */
-        }
-        // fill a temp structure to use to populate the java long array
-        jlong fill[size];
-        for (int i = 0; i < size; i++) {
-            fill[i] = reinterpret_cast<long> (body->m_materials[i]);
-        }
-        // move from the temp structure to the java structure
-        env->SetLongArrayRegion(result, 0, size, fill);
-        return result;
+        return reinterpret_cast<long> (body->m_materials[0]);
     }
 
     /*
