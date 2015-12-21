@@ -34,8 +34,10 @@ package com.jme3.bullet.control;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.objects.PhysicsSoftBody;
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
@@ -57,10 +59,10 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
 
     protected Spatial spatial;
     private Mesh mesh;
-    protected boolean enabled = true;
-    protected boolean added = false;
-    protected PhysicsSoftSpace space = null;
-    protected boolean doNormalUpdate = false;
+    private boolean enabled = true;
+    private boolean added = false;
+    private PhysicsSoftSpace space = null;
+    private boolean doNormalUpdate = false;
     private boolean meshInLocalOrigin = true;
     private boolean meshHaveNormal = false;
 
@@ -74,13 +76,25 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     public SoftBodyControl(boolean meshInLocalOrigin, boolean doNormalUpdate) {
         this.meshInLocalOrigin = meshInLocalOrigin;
         this.doNormalUpdate = doNormalUpdate;
-
     }
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        SoftBodyControl control = new SoftBodyControl(this.meshInLocalOrigin, this.doNormalUpdate);
-        control.config().copyValues(this.config());
+        SoftBodyControl control = new SoftBodyControl(meshInLocalOrigin, doNormalUpdate);
+        control.rebuildFromMesh(mesh);
+        
+        control.setMasses(getMasses());
+        control.setRestLengthScale(getRestLengthScale());
+        int nbCluster = getClusterCount();
+        if (nbCluster > 0) {
+            control.generateClusters(getClusterCount());
+        }
+
+        control.config().copyValues(config());
+
+        control.material().setAngularStiffnessFactor(material().getAngularStiffnessFactor());
+        control.material().setLinearStiffnessFactor(material().getLinearStiffnessFactor());
+        control.material().setVolumeStiffnessFactor(material().getVolumeStiffnessFactor());
 
         //TODO more : physicsSoftBody values
         return control;
@@ -89,16 +103,18 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     @Override
     public void setSpatial(Spatial spatial) {
         //must get a mesh and create a softbody with it
-        if (this.spatial != spatial) {
+        if (spatial != null && this.spatial != spatial) {
             this.spatial = spatial;
-            this.mesh = getFirstGeometry(spatial).getMesh();
-            this.meshHaveNormal = doHaveNormalBuffer(this.mesh);
-            rebuildFromTriMesh(mesh);
+            if (mesh == null) {
+                this.mesh = getFirstGeometry(spatial).getMesh();
+                this.meshHaveNormal = doHaveNormalBuffer(this.mesh);
+                createFromMesh(mesh);
+            }
         }
     }
 
     private static boolean doHaveNormalBuffer(Mesh mesh) {
-        return mesh.getBuffer(VertexBuffer.Type.Normal) != null;
+        return mesh != null && mesh.getBuffer(VertexBuffer.Type.Normal) != null;
     }
 
     private Geometry getFirstGeometry(Spatial spatial) {
@@ -197,10 +213,30 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
 
     @Override
     public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule capsule = ex.getCapsule(this);
+
+        capsule.write(enabled, "enabled", true);
+        capsule.write(spatial, "spatial", null);
+        capsule.write(mesh, "mesh", null);
+
+        capsule.write(meshInLocalOrigin, "meshInLocalOrigin", true);
+        capsule.write(doNormalUpdate, "doNormalUpdate", false);
+
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule capsule = im.getCapsule(this);
+
+        enabled = capsule.readBoolean("enabled", true);
+        spatial = (Spatial) capsule.readSavable("spatial", null);
+        mesh = (Mesh) capsule.readSavable("mesh", null);
+
+        meshInLocalOrigin = capsule.readBoolean("meshInLocalorigin", true);
+        doNormalUpdate = capsule.readBoolean("doNormalUpdate", false);
+        meshHaveNormal = doHaveNormalBuffer(mesh);
     }
 
 }
