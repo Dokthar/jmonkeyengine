@@ -51,6 +51,14 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createFromT
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    createRope
+ * Signature: (Ljava/nio/IntBuffer;Ljava/nio/FloatBuffer;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createRope
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    initDefault
  * Signature: (J)V
  */

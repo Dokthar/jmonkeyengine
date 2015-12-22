@@ -34,6 +34,7 @@ package com.jme3.bullet.control;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.objects.PhysicsSoftBody;
+import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -82,7 +83,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     public Control cloneForSpatial(Spatial spatial) {
         SoftBodyControl control = new SoftBodyControl(meshInLocalOrigin, doNormalUpdate);
         control.rebuildFromMesh(mesh);
-        
+
         control.setMasses(getMasses());
         control.setRestLengthScale(getRestLengthScale());
         int nbCluster = getClusterCount();
@@ -171,7 +172,14 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     @Override
     public void render(RenderManager rm, ViewPort vp) {
         if (enabled && spatial != null && mesh != null) {
-            this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
+            switch (mesh.getMode()) {
+                case Triangles:
+                    this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
+                    break;
+                case Lines:
+                    NativeSoftBodyUtil.updateDebugMesh(this, mesh);
+                    break;
+            }
         }
     }
 

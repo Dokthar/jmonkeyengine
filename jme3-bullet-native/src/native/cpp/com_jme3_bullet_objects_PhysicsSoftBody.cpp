@@ -71,6 +71,51 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    createRope
+     * Signature: (Ljava/nio/IntBuffer;Ljava/nio/FloatBuffer;)J
+     */
+    JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createRope
+    (JNIEnv *env, jobject object, jobject linesIndexBuffer, jobject vertexBuffer) {
+        jmeClasses::initJavaClasses(env);
+        btSoftBodyWorldInfo* worldInfo = new btSoftBodyWorldInfo();
+
+        int* lines = (int*) env->GetDirectBufferAddress(linesIndexBuffer);
+        float* vertices = (float*) env->GetDirectBufferAddress(vertexBuffer);
+
+
+        /* Create nodes	*/
+
+        const int nbNodes = env->GetDirectBufferCapacity(vertexBuffer) / 3;
+
+        btVector3* nodes = new btVector3[nbNodes];
+        btScalar* masses = new btScalar[nbNodes];
+
+        for (int i = 0; i < nbNodes; ++i) {
+            nodes[i] = btVector3(vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+            masses[i] = 1;
+        }
+
+        btSoftBody* body = new btSoftBody(worldInfo, nbNodes, nodes, masses);
+
+        /* Create links	*/
+        const int nbLinks = env->GetDirectBufferCapacity(linesIndexBuffer) / 2;
+        for (int i = 0; i < nbLinks; ++i) {
+            body->appendLink(lines[i * 2], lines[i * 2 + 1]);
+        }
+
+        delete[] masses;
+        delete[] nodes;
+
+        body->setUserPointer(NULL);
+        body->getCollisionShape()->setMargin(0);
+        // The only available flag for Materials is DebugDraw (by Default)
+        // we don't want to use Bullet's debug draw, (we use JME instead).
+        body->m_materials[0]->m_flags = 0x0000;
+        return reinterpret_cast<jlong> (body);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    initDefault
      * Signature: (J)V
      */

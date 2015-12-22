@@ -78,7 +78,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         if (mesh.getMode() == Mesh.Mode.Triangles) {
             createFromTriMesh(mesh);
         } else if (mesh.getMode() == Mesh.Mode.Lines) {
-            //todo create Rope
+            createRope(mesh);
         }
         postRebuild(false);
     }
@@ -153,6 +153,30 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     }
 
     private native long createFromTriMesh(IntBuffer triangles, FloatBuffer vertices, int numTriangles, boolean randomizeConstraints);
+
+    private long createRope(Mesh mesh) {
+        FloatBuffer jmePositions = mesh.getFloatBuffer(Type.Position);
+        IndexBuffer jmeIndex = mesh.getIndexBuffer();
+
+        int jmePositionSize = jmePositions.capacity();
+        
+        //set a 1:1 map
+        jmeToBulletMap = BufferUtils.createIntBuffer(jmePositionSize / 3);
+        for (int i = 0; i < (jmePositionSize / 3); i++) {
+            jmeToBulletMap.put(i);
+        }
+        jmeToBulletMap.rewind();
+        
+        int indexSize = jmeIndex.size();
+        IntBuffer bulletIndex = BufferUtils.createIntBuffer(indexSize);
+        for(int i = 0; i< indexSize; i++){
+            bulletIndex.put(jmeIndex.get(i));
+        }
+        objectId = createRope(bulletIndex, jmePositions);
+        return objectId;
+    }
+
+    private native long createRope(IntBuffer lines, FloatBuffer vertices);
 
     public void rebuildFromMesh(Mesh mesh) {
         // {} => {old Native object is removed & destroyed; new Native object is created & added}
@@ -229,7 +253,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
      * @return the body Material
      */
     public Material material() {
-        if(material == null){
+        if (material == null) {
             material = new Material(this);
         }
         return material;
@@ -1495,7 +1519,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     public final class Material {
 
         private long materialId;
-        
+
         private Material(PhysicsSoftBody body) {
             this.materialId = body.getMaterial(body.objectId);
         }
