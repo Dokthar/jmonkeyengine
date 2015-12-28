@@ -49,6 +49,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -83,6 +84,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     public Control cloneForSpatial(Spatial spatial) {
         SoftBodyControl control = new SoftBodyControl(meshInLocalOrigin, doNormalUpdate);
         control.rebuildFromMesh(mesh);
+        control.mesh = mesh;
 
         control.setMasses(getMasses());
         control.setRestLengthScale(getRestLengthScale());
@@ -97,7 +99,6 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         control.material().setLinearStiffnessFactor(material().getLinearStiffnessFactor());
         control.material().setVolumeStiffnessFactor(material().getVolumeStiffnessFactor());
 
-        //TODO more : physicsSoftBody values
         return control;
     }
 
