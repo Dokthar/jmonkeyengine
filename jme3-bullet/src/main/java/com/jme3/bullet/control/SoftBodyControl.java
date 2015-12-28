@@ -93,6 +93,8 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
             control.generateClusters(getClusterCount());
         }
 
+        control.setPhysicsLocation(getPhysicsLocation());
+        
         control.config().copyValues(config());
 
         control.material().setAngularStiffnessFactor(material().getAngularStiffnessFactor());

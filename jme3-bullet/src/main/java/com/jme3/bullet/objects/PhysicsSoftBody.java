@@ -67,7 +67,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private Material material = null;
     private IntBuffer jmeToBulletMap;
     private boolean ropeMesh = false;
-    
+
     public PhysicsSoftBody() {
     }
 
@@ -160,32 +160,31 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         IndexBuffer jmeIndex = mesh.getIndexBuffer();
 
         int jmePositionSize = jmePositions.capacity();
-        
+
         //set a 1:1 map
         jmeToBulletMap = BufferUtils.createIntBuffer(jmePositionSize / 3);
         for (int i = 0; i < (jmePositionSize / 3); i++) {
             jmeToBulletMap.put(i);
         }
         jmeToBulletMap.rewind();
-        
+
         int indexSize = jmeIndex.size();
         IntBuffer bulletIndex = BufferUtils.createIntBuffer(indexSize);
-        for(int i = 0; i< indexSize; i++){
+        for (int i = 0; i < indexSize; i++) {
             bulletIndex.put(jmeIndex.get(i));
         }
         objectId = createRope(bulletIndex, jmePositions);
         ropeMesh = true;
-        
+
         return objectId;
     }
 
     private native long createRope(IntBuffer lines, FloatBuffer vertices);
 
-    
     public boolean isRope() {
         return ropeMesh;
     }
-    
+
     public void rebuildFromMesh(Mesh mesh) {
         // {} => {old Native object is removed & destroyed; new Native object is created & added}
         if (mesh != null) {
@@ -784,6 +783,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
         capsule.write(getRestLengthScale(), "RestLengthScale", 0);
         capsule.write(getClusterCount(), "ClusterCount", 0);
+        capsule.write(getPhysicsLocation(), "PhysicsLocation", Vector3f.ZERO);
 
         config().write(capsule);
         material().write(capsule);
@@ -803,6 +803,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         if (clusterCount > 0) {
             generateClusters(clusterCount);
         }
+        setPhysicsLocation((Vector3f) capsule.readSavable("PhysicsLocation", Vector3f.ZERO));
 
         config().read(capsule);
         material().read(capsule);
