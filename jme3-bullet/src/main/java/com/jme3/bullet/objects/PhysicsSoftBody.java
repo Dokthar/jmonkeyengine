@@ -66,7 +66,8 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private final Config config = new Config(this);
     private Material material = null;
     private IntBuffer jmeToBulletMap;
-
+    private boolean ropeMesh = false;
+    
     public PhysicsSoftBody() {
     }
 
@@ -173,11 +174,18 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
             bulletIndex.put(jmeIndex.get(i));
         }
         objectId = createRope(bulletIndex, jmePositions);
+        ropeMesh = true;
+        
         return objectId;
     }
 
     private native long createRope(IntBuffer lines, FloatBuffer vertices);
 
+    
+    public boolean isRope() {
+        return ropeMesh;
+    }
+    
     public void rebuildFromMesh(Mesh mesh) {
         // {} => {old Native object is removed & destroyed; new Native object is created & added}
         if (mesh != null) {

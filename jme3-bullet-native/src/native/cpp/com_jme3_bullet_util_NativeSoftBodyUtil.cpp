@@ -55,29 +55,16 @@ extern "C" {
             return;
         }
 
-        btVector3 vertexA, vertexB, vertexC;
+        btVector3 vertex;
 
-        for (int i = 0; i < body->m_faces.size(); i++) {
-            const btSoftBody::Face& f = body->m_faces[i];
+        for (int i = 0; i < body->m_nodes.size(); i++) {
+            const btSoftBody::Node& n = body->m_nodes[i];
 
-            // Grab the data for this triangle from the hull
-            vertexA = f.m_n[0]->m_x;
-            vertexB = f.m_n[1]->m_x;
-            vertexC = f.m_n[2]->m_x;
+            // Grab the data
+            vertex = n.m_x;
 
-
-            // Put the vertices into the vertex buffer
-            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertexA.getX(), vertexA.getY(), vertexA.getZ());
-            if (env->ExceptionCheck()) {
-                env->Throw(env->ExceptionOccurred());
-                return;
-            }
-            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertexB.getX(), vertexB.getY(), vertexB.getZ());
-            if (env->ExceptionCheck()) {
-                env->Throw(env->ExceptionOccurred());
-                return;
-            }
-            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertexC.getX(), vertexC.getY(), vertexC.getZ());
+            // Put the vertex into the vertex buffer
+            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertex.getX(), vertex.getY(), vertex.getZ());
             if (env->ExceptionCheck()) {
                 env->Throw(env->ExceptionOccurred());
                 return;
@@ -87,10 +74,10 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getIndexes
+     * Method:    getFacesIndexes
      * Signature: (JLjava/nio/IntBuffer;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getIndexes
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getFacesIndexes
     (JNIEnv *env, jclass clazz, jlong bodyId, jobject indexBuffer) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -113,10 +100,10 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getNumTriangle
+     * Method:    getNbFaces
      * Signature: (J)I
      */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNumTriangle
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbFaces
     (JNIEnv *env, jclass clazz, jlong bodyId) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
@@ -125,6 +112,46 @@ extern "C" {
             return 0;
         }
         return body->m_faces.size();
+    }
+
+    /*
+     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
+     * Method:    getNbLinks
+     * Signature: (J)I
+     */
+    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbLinks
+    (JNIEnv *env, jclass clazz, jlong bodyId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return body->m_links.size();
+    }
+
+    /*
+     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
+     * Method:    getLinksIndexes
+     * Signature: (JLjava/nio/IntBuffer;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getLinksIndexes
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject indexBuffer) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jint* indexes = (jint*) env->GetDirectBufferAddress(indexBuffer);
+
+        btSoftBody::Node* firstNode = &body->m_nodes[0];
+
+        for (int i = 0; i < body->m_links.size(); i++) {
+            const btSoftBody::Link& l = body->m_links[i];
+            indexes[i * 2 + 0] = int(l.m_n[0] - firstNode);
+            indexes[i * 2 + 1] = int(l.m_n[1] - firstNode);
+        }
     }
 
     /*
@@ -140,7 +167,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        
+
         return body->m_nodes.size();
     }
 

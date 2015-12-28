@@ -61,14 +61,55 @@ public class NativeSoftBodyUtil {
     }
 
     public static Mesh getDebugMesh(PhysicsSoftBody softBody) {
-        Mesh mesh = new Mesh();
-        mesh.setBuffer(VertexBuffer.Type.Position, 3, getVertices(softBody));
-        mesh.setBuffer(VertexBuffer.Type.Index, 3, getIndexes(softBody));
-        mesh.getFloatBuffer(VertexBuffer.Type.Position).clear();
+        Mesh mesh;
+        if (softBody.isRope()) {
+            mesh = getLinksMesh(softBody);
+        } else {
+            mesh = getFacesMesh(softBody);
+        }
         return mesh;
     }
 
-    private static FloatBuffer getVertices(PhysicsSoftBody softBody) {
+    public static Mesh getLinksMesh(PhysicsSoftBody softBody) {
+        if (getNbLinks(softBody.getObjectId()) > 0) {
+
+            Mesh mesh = new Mesh();
+            mesh.setBuffer(VertexBuffer.Type.Position, 3, getVertices(softBody));
+            mesh.setBuffer(VertexBuffer.Type.Index, 2, getLinksIndexes(softBody));
+            mesh.setMode(Mesh.Mode.Lines);
+
+            mesh.getFloatBuffer(VertexBuffer.Type.Position).clear();
+            mesh.getIndexBuffer().getBuffer().clear();
+            mesh.updateCounts();
+            mesh.updateBound();
+
+            return mesh;
+
+        } else {
+            return null;
+        }
+    }
+
+    public static Mesh getFacesMesh(PhysicsSoftBody softBody) {
+        if (getNbFaces(softBody.getObjectId()) > 0) {
+
+            Mesh mesh = new Mesh();
+            mesh.setBuffer(VertexBuffer.Type.Position, 3, getVertices(softBody));
+            mesh.setBuffer(VertexBuffer.Type.Index, 3, getFacesIndexes(softBody));
+            mesh.setMode(Mesh.Mode.Triangles);
+
+            mesh.getFloatBuffer(VertexBuffer.Type.Position).clear();
+            mesh.getIndexBuffer().getBuffer().clear();
+            mesh.updateCounts();
+            mesh.updateBound();
+
+            return mesh;
+        } else {
+            return null;
+        }
+    }
+
+    public static FloatBuffer getVertices(PhysicsSoftBody softBody) {
         DebugMeshCallback callback = new DebugMeshCallback();
         getVertices(softBody.getObjectId(), callback);
         return callback.getVertices();
@@ -76,18 +117,28 @@ public class NativeSoftBodyUtil {
 
     private static native void getVertices(long bodyId, DebugMeshCallback buffer);
 
-    private static IntBuffer getIndexes(PhysicsSoftBody softBody) {
-        IntBuffer indexes = BufferUtils.createIntBuffer(getNumTriangle(softBody.getObjectId()) * 3);
-        getIndexes(softBody.getObjectId(), indexes);
+    public static IntBuffer getLinksIndexes(PhysicsSoftBody softBody) {
+        IntBuffer indexes = BufferUtils.createIntBuffer(getNbLinks(softBody.getObjectId()) * 2);
+        getLinksIndexes(softBody.getObjectId(), indexes);
         return indexes;
     }
 
-    private static native void getIndexes(long bodyId, IntBuffer buffer);
+    public static IntBuffer getFacesIndexes(PhysicsSoftBody softBody) {
+        IntBuffer indexes = BufferUtils.createIntBuffer(getNbFaces(softBody.getObjectId()) * 3);
+        getFacesIndexes(softBody.getObjectId(), indexes);
+        return indexes;
+    }
 
-    private static native int getNumTriangle(long bodyId);
+    public static native int getNbFaces(long bodyId);
+
+    public static native void getFacesIndexes(long bodyId, IntBuffer buffer);
+
+    public static native int getNbLinks(long bodyId);
+
+    public static native void getLinksIndexes(long bodyId, IntBuffer buffer);
 
     public static native int getNbVertices(long bodyId);
-    
+
     public static void updateDebugMesh(PhysicsSoftBody softBody, Mesh store) {
         FloatBuffer positionBuffer = store.getFloatBuffer(VertexBuffer.Type.Position);
         updateDebugMesh(softBody.getObjectId(), positionBuffer);

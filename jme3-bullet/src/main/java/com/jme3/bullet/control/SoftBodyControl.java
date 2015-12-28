@@ -166,6 +166,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
             if (meshInLocalOrigin) {
                 this.spatial.setLocalTranslation(this.getBoundingCenter());
             }
+            spatial.updateModelBound();
         }
     }
 
@@ -177,7 +178,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                     this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
                     break;
                 case Lines:
-                    NativeSoftBodyUtil.updateDebugMesh(this, mesh);
+                    this.updateTriMesh(mesh, meshInLocalOrigin, false);
                     break;
             }
         }

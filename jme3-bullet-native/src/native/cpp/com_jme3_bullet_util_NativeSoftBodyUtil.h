@@ -17,19 +17,35 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getVertices
 
 /*
  * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getIndexes
+ * Method:    getNbFaces
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbFaces
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
+ * Method:    getFacesIndexes
  * Signature: (JLjava/nio/IntBuffer;)V
  */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getIndexes
+JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getFacesIndexes
   (JNIEnv *, jclass, jlong, jobject);
 
 /*
  * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getNumTriangle
+ * Method:    getNbLinks
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNumTriangle
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbLinks
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
+ * Method:    getLinksIndexes
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getLinksIndexes
+  (JNIEnv *, jclass, jlong, jobject);
 
 /*
  * Class:     com_jme3_bullet_util_NativeSoftBodyUtil

@@ -78,6 +78,7 @@ public class BulletSoftBodyDebugControl extends AbstractPhysicsDebugControl {
     @Override
     protected void controlUpdate(float tpf) {
         NativeSoftBodyUtil.updateDebugMesh(body,geom.getMesh());
+        geom.updateModelBound();
     }
 
     @Override
