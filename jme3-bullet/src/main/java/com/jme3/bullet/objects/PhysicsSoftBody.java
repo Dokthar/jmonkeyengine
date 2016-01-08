@@ -272,7 +272,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     /* Append anchor */
     public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
-        appendAnchor(objectId, node, objectId, null, collisionBetweenLinkedBodies, influence);
+        appendAnchor(objectId, node, rigidBody.getObjectId(), null, collisionBetweenLinkedBodies, influence);
     }
 
     public void appendAnchor(int node, PhysicsRigidBody rigidBody, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence) {
