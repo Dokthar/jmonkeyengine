@@ -91,6 +91,14 @@ JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMaterial
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendAnchor
+ * Signature: (JIJLcom/jme3/math/Vector3f;ZF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendAnchor
+  (JNIEnv *, jobject, jlong, jint, jlong, jobject, jboolean, jfloat);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    addForce
  * Signature: (JLcom/jme3/math/Vector3f;)V
  */

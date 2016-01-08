@@ -190,6 +190,37 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    appendAnchor
+     * Signature: (JIJLcom/jme3/math/Vector3f;ZF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendAnchor
+    (JNIEnv *env, jobject object, jlong bodyId, jint nodeId, jlong rigidId, jobject localPivot, jboolean collisionBetweenLinkedBodies, jfloat influence) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        btRigidBody* rigid = reinterpret_cast<btRigidBody*> (rigidId);
+        if (rigid == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        if (localPivot != NULL) {
+            btVector3 vec = btVector3();
+            jmeBulletUtil::convert(env, localPivot, &vec);
+            
+            body->appendAnchor(nodeId, rigid, vec, !collisionBetweenLinkedBodies, influence);
+        } else {
+            body->appendAnchor(nodeId, rigid, !collisionBetweenLinkedBodies, influence);
+        }
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    addForce
      * Signature: (JLcom/jme3/math/Vector3f;)V
      */

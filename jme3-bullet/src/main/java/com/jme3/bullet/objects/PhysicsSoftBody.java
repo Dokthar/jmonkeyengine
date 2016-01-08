@@ -33,6 +33,7 @@ package com.jme3.bullet.objects;
 
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
+import com.jme3.bullet.joints.PhysicsJoint;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.InputCapsule;
@@ -270,23 +271,28 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
 
     /* Append anchor */
- /* public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
+    public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
+        appendAnchor(objectId, node, objectId, null, collisionBetweenLinkedBodies, influence);
+    }
 
-     }
+    public void appendAnchor(int node, PhysicsRigidBody rigidBody, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence) {
+        appendAnchor(objectId, node, rigidBody.getObjectId(), localPivot, collisionBetweenLinkedBodies, influence);
+    }
 
-     public void appendAnchor(int node, PhysicsRigidBody rigidBody, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence) {
+    public void appendAnchor(int node, PhysicsRigidBody rigidBody) {
+        appendAnchor(node, rigidBody, true, 1);
+    }
 
-     }*/
+    private native void appendAnchor(long bodyId, int node, long rigidId, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence);
 
- /* Append linear joint	*/
+    /* Append linear joint	*/
  /*public void appendLinearJoint(const LJoint::Specs& specs,Cluster* body0,Body body1){
-    
-     }
+
+    }
      public void appendLinearJoint(const LJoint::Specs& specs,Body body=Body()) {
-    
-     }
-     public void appendLinearJoint(const LJoint::Specs& specs,btSoftBody* body) {
-    
+
+    }
+
      }
      */
  /* Append linear joint	*/
