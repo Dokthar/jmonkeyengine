@@ -57,7 +57,7 @@ extern "C" {
 
         btVector3 pos = btVector3();
         jmeBulletUtil::convert(env, position, &pos);
-        
+
         joint->m_refs[0] = joint->m_bodies[0].xform().inverse() * pos;
         joint->m_refs[1] = joint->m_bodies[1].xform().inverse() * pos;
     }
