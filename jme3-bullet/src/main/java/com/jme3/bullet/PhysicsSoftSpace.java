@@ -32,11 +32,16 @@
 package com.jme3.bullet;
 
 import com.jme3.bullet.collision.PhysicsCollisionObject;
+import com.jme3.bullet.control.SoftBodyControl;
+import com.jme3.bullet.joints.SoftPhysicsJoint;
 import com.jme3.bullet.objects.PhysicsSoftBody;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -50,21 +55,10 @@ public class PhysicsSoftSpace extends PhysicsSpace {
 
     private static final Logger logger = Logger.getLogger(PhysicsSpace.class.getName());
     private Map<Long, PhysicsSoftBody> softBodies = new ConcurrentHashMap<Long, PhysicsSoftBody>();
+    private Map<Long, SoftPhysicsJoint> physicsJoints = new ConcurrentHashMap<Long, SoftPhysicsJoint>();
 
-    /*    
-     btSoftBodyArray m_softBodies; <- done
-     int	m_drawFlags;
-     bool	m_drawNodeTree;
-     bool	m_drawFaceTree;
-     bool	m_drawClusterTree;
-     btSoftBodyWorldInfo m_sbi; <- done
-     ///Solver classes that encapsulate multiple soft bodies for solving
-     btSoftBodySolver *m_softBodySolver;
-     bool	m_ownsSolver;
-     */
-    
     /**
-     * Get the current PhysicsSpace <b>running on this thread</b><br/> For
+     * Get the current PhysicsSoftSpace <b>running on this thread</b><br> For
      * parallel physics, this can also be called from the OpenGL thread to
      * receive the PhysicsSoftSpace
      *
@@ -104,6 +98,8 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     public void add(Object obj) {
         if (obj instanceof PhysicsSoftBody) {
             addSoftBody((PhysicsSoftBody) obj);
+        } else if (obj instanceof SoftPhysicsJoint) {
+            addSoftJoint((SoftPhysicsJoint) obj);
         } else {
             super.add(obj);
         }
@@ -122,6 +118,8 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     public void remove(Object obj) {
         if (obj instanceof PhysicsSoftBody) {
             removeSoftBody((PhysicsSoftBody) obj);
+        } else if (obj instanceof SoftPhysicsJoint) {
+            removeSoftJoint((SoftPhysicsJoint) obj);
         } else {
             super.remove(obj);
         }
@@ -135,6 +133,27 @@ public class PhysicsSoftSpace extends PhysicsSpace {
         } else {
             super.removeCollisionObject(obj);
         }
+    }
+
+    @Override
+    public void addAll(Spatial spatial) {
+        if (spatial.getControl(SoftBodyControl.class) != null) {
+            SoftBodyControl physicsNode = spatial.getControl(SoftBodyControl.class);
+            add(physicsNode);
+            //add joints with physicsNode as BodyA
+            List<SoftPhysicsJoint> joints = physicsNode.getJoints();
+            for (SoftPhysicsJoint physicsJoint : joints) {
+                if (physicsNode.equals(physicsJoint.getSoftBodyA())) {
+                    add(physicsJoint);
+                }
+            }
+        }
+        super.addAll(spatial); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeAll(Spatial spatial) {
+        super.removeAll(spatial); //To change body of generated methods, choose Tools | Templates.
     }
 
     private void addSoftBody(PhysicsSoftBody body) {
@@ -164,14 +183,26 @@ public class PhysicsSoftSpace extends PhysicsSpace {
 
     private native void removeSoftBody(long space, long id);
 
-    /*
-     public int getDrawFlags() {
-     return 0;
-     }
+    private void addSoftJoint(SoftPhysicsJoint joint) {
+        if (physicsJoints.containsKey(joint.getObjectId())) {
+            logger.log(Level.WARNING, "Joint {0} already exists in PhysicsSpace, cannot add.", joint);
+            return;
+        }
+        logger.log(Level.FINE, "Adding Joint {0} to physics space.", Long.toHexString(joint.getObjectId()));
+        physicsJoints.put(joint.getObjectId(), joint);
+        joint.addConstraint();
+    }
 
-     public void setDrawFlags(int f) {
+    private void removeSoftJoint(SoftPhysicsJoint joint) {
+        if (!physicsJoints.containsKey(joint.getObjectId())) {
+            logger.log(Level.WARNING, "Joint {0} does not exist in PhysicsSpace, cannot remove.", joint);
+            return;
+        }
+        logger.log(Level.FINE, "Removing Joint {0} from physics space.", Long.toHexString(joint.getObjectId()));
+        physicsJoints.remove(joint.getObjectId());
+        joint.removeConstraint();
+    }
 
-     }*/
     public SoftBodyWorldInfo getWorldInfo() {
         long worlInfoId = getWorldInfo(getSpaceId());
         SoftBodyWorldInfo worldInfo = new SoftBodyWorldInfo(worlInfoId);
@@ -180,37 +211,13 @@ public class PhysicsSoftSpace extends PhysicsSpace {
 
     private native long getWorldInfo(long objectId);
 
-    /*public void setWorldInfo(SoftBodyWorldInfo worldInfo) {
-     //no native getter for setting worldInfo
-     //plus the PhysicsSoftSpace worldInfo is shared by default with all SoftBodies
-     //setWorldInfo(getSpaceId(), worldInfo.getWorldInfoId());
-     }*/
-    //private native void setWorldInfo(long objectId, long worldInfoId);
-
-    /*
-     virtual btDynamicsWorldType getWorldType() const
-     {
-     return	BT_SOFT_RIGID_DYNAMICS_WORLD;
-     }
-     */
     public Collection<PhysicsSoftBody> getSoftBodyList() {
         return new LinkedList<PhysicsSoftBody>(softBodies.values());
     }
-}
-/*
- public: from btSoftRidiWorld
- btSoftRigidDynamicsWorld(btDispatcher* dispatcher,btBroadphaseInterface* pairCache,btConstraintSolver* constraintSolver, btCollisionConfiguration* collisionConfiguration, btSoftBodySolver *softBodySolver = 0 );
- virtual ~btSoftRigidDynamicsWorld();
- virtual void	debugDrawWorld();
 
- virtual void rayTest(const btVector3& rayFromWorld, const btVector3& rayToWorld, RayResultCallback& resultCallback) const;
- /// rayTestSingle performs a raycast call and calls the resultCallback. It is used internally by rayTest.
- /// In a future implementation, we consider moving the ray test as a virtual method in btCollisionShape.
- /// This allows more customization.
- static void	rayTestSingle(const btTransform& rayFromTrans,const btTransform& rayToTrans,
- btCollisionObject* collisionObject,
- const btCollisionShape* collisionShape,
- const btTransform& colObjWorldTransform,
- RayResultCallback& resultCallback);
- virtual	void	serialize(btSerializer* serializer);
- */
+    @Override
+    public void destroy() {
+        super.destroy(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+}

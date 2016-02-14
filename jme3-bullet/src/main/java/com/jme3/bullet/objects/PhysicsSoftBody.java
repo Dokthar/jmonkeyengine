@@ -34,6 +34,7 @@ package com.jme3.bullet.objects;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.joints.PhysicsJoint;
+import com.jme3.bullet.joints.SoftPhysicsJoint;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.InputCapsule;
@@ -55,6 +56,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,6 +70,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private Material material = null;
     private IntBuffer jmeToBulletMap;
     private boolean ropeMesh = false;
+    protected ArrayList<SoftPhysicsJoint> joints = new ArrayList<SoftPhysicsJoint>();
 
     public PhysicsSoftBody() {
     }
@@ -295,10 +298,25 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
      }
      */
- /* Append linear joint	*/
+ /* Append angular joint	*/
 // public void appendAngularJoint(const AJoint::Specs& specs,Cluster* body0,Body body1);
 // public void appendAngularJoint(const AJoint::Specs& specs,Body body=Body());
 // public void appendAngularJoint(const AJoint::Specs& specs,btSoftBody* body);
+    public void addJoint(SoftPhysicsJoint joint) {
+        if (!joints.contains(joint)) {
+            joints.add(joint);
+        }
+    }
+
+    public void removeJoint(SoftPhysicsJoint joint) {
+        joints.remove(joint);
+    }
+
+     public List<SoftPhysicsJoint> getJoints() {
+         return joints;
+     }
+
+    
     /**
      * Add force (or gravity) to the entire body.
      *
@@ -334,13 +352,13 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void addAeroForceToNode(long objectId, Vector3f windVelocity, int nodeIndex);
 
-    /* Add aero force to a face of the body */
+    /* Add aero force to a face of the body 
     public void addAeroForceToFace(Vector3f windVelocity, int faceIndex) {
         throw new UnsupportedOperationException("Not supported yet. No face index availiable");
 //        addAeroForceToFace(objectId, windVelocity, faceIndex);
     }
 
-    private native void addAeroForceToFace(long objectId, Vector3f windVelocity, int faceIndex);
+    private native void addAeroForceToFace(long objectId, Vector3f windVelocity, int faceIndex);*/
 
     /**
      * Add velocity to the entire body.
