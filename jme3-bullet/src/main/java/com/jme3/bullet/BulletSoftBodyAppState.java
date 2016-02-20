@@ -50,12 +50,13 @@ public class BulletSoftBodyAppState extends BulletAppState {
             executor.shutdown();
         }
         executor = new ScheduledThreadPoolExecutor(1);
-        final BulletSoftBodyAppState app = this;
+        final BulletSoftBodyAppState softApp = this;
         Callable<Boolean> call = new Callable<Boolean>() {
+            @Override
             public Boolean call() throws Exception {
                 detachedPhysicsLastUpdate = System.currentTimeMillis();
                 pSpace = new PhysicsSoftSpace(worldMin, worldMax, broadphaseType);
-                pSpace.addTickListener(app);
+                pSpace.addTickListener(softApp);
                 return true;
             }
         };
@@ -69,7 +70,7 @@ public class BulletSoftBodyAppState extends BulletAppState {
             return false;
         }
     }
-    
+
     public PhysicsSoftSpace getPhysicsSoftSpace() {
         return (PhysicsSoftSpace) pSpace;
     }
@@ -78,6 +79,7 @@ public class BulletSoftBodyAppState extends BulletAppState {
      * The physics system is started automatically on attaching, if you want to
      * start it before for some reason, you can use this method.
      */
+    @Override
     public void startPhysics() {
         if (initialized) {
             return;
@@ -92,6 +94,7 @@ public class BulletSoftBodyAppState extends BulletAppState {
         initialized = true;
     }
 
+    @Override
     public void stateAttached(AppStateManager stateManager) {
         if (!initialized) {
             startPhysics();
@@ -105,6 +108,7 @@ public class BulletSoftBodyAppState extends BulletAppState {
         }
     }
 
+    @Override
     public void update(float tpf) {
         if (debugEnabled && debugAppState == null && pSpace != null) {
             debugAppState = new BulletSoftBodyDebugAppState(getPhysicsSoftSpace());
