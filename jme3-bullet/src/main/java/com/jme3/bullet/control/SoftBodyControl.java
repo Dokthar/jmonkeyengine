@@ -34,11 +34,11 @@ package com.jme3.bullet.control;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.objects.PhysicsSoftBody;
-import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
@@ -49,7 +49,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -94,7 +93,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         }
 
         control.setPhysicsLocation(getPhysicsLocation());
-        
+
         control.config().copyValues(config());
 
         control.material().setAngularStiffnessFactor(material().getAngularStiffnessFactor());
@@ -113,6 +112,8 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                 this.mesh = getFirstGeometry(spatial).getMesh();
                 this.meshHaveNormal = doHaveNormalBuffer(this.mesh);
                 createFromMesh(mesh);
+                setPhysicsLocation(spatial.getWorldTranslation());
+                //setPhysicsRotation(spatial.getWorldRotation());
             }
         }
     }
@@ -169,22 +170,22 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
             if (meshInLocalOrigin) {
                 this.spatial.setLocalTranslation(this.getBoundingCenter());
             }
-            spatial.updateModelBound();
+            if (mesh != null) {
+                switch (mesh.getMode()) {
+                    case Triangles:
+                        this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
+                        break;
+                    case Lines:
+                        this.updateTriMesh(mesh, meshInLocalOrigin, false);
+                        break;
+                }
+                spatial.updateModelBound();
+            }
         }
     }
 
     @Override
     public void render(RenderManager rm, ViewPort vp) {
-        if (enabled && spatial != null && mesh != null) {
-            switch (mesh.getMode()) {
-                case Triangles:
-                    this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
-                    break;
-                case Lines:
-                    this.updateTriMesh(mesh, meshInLocalOrigin, false);
-                    break;
-            }
-        }
     }
 
     public void setPhysicsSpace(PhysicsSoftSpace space) {
