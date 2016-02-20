@@ -39,7 +39,6 @@ import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +53,8 @@ import java.util.logging.Logger;
 public class PhysicsSoftSpace extends PhysicsSpace {
 
     private static final Logger logger = Logger.getLogger(PhysicsSpace.class.getName());
-    private Map<Long, PhysicsSoftBody> softBodies = new ConcurrentHashMap<Long, PhysicsSoftBody>();
-    private Map<Long, SoftPhysicsJoint> physicsJoints = new ConcurrentHashMap<Long, SoftPhysicsJoint>();
+    private final Map<Long, PhysicsSoftBody> physicsSoftBodies = new ConcurrentHashMap<Long, PhysicsSoftBody>();
+    private final Map<Long, SoftPhysicsJoint> physicsSoftJoints = new ConcurrentHashMap<Long, SoftPhysicsJoint>();
 
     /**
      * Get the current PhysicsSoftSpace <b>running on this thread</b><br> For
@@ -125,7 +124,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
         }
     }
 
-    ///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call btDiscreteDynamicsWorld::removeCollisionObject
+    ///removeCollisionObject will first check if it is a rigid body, if so call removeRigidBody otherwise call super (btDiscreteDynamicsWorld::removeCollisionObject)
     @Override
     public void removeCollisionObject(PhysicsCollisionObject obj) {
         if (obj instanceof PhysicsSoftBody) {
@@ -148,20 +147,31 @@ public class PhysicsSoftSpace extends PhysicsSpace {
                 }
             }
         }
-        super.addAll(spatial); //To change body of generated methods, choose Tools | Templates.
+        super.addAll(spatial);
     }
 
     @Override
     public void removeAll(Spatial spatial) {
-        super.removeAll(spatial); //To change body of generated methods, choose Tools | Templates.
+        if (spatial.getControl(SoftBodyControl.class) != null) {
+            SoftBodyControl physicsNode = spatial.getControl(SoftBodyControl.class);
+            //remove joints with physicsNode as BodyA
+            List<SoftPhysicsJoint> joints = physicsNode.getJoints();
+            for (SoftPhysicsJoint physicsJoint : joints) {
+                if (physicsNode.equals(physicsJoint.getSoftBodyA())) {
+                    removeSoftJoint(physicsJoint);
+                }
+            }
+            remove(physicsNode);
+        }
+        super.removeAll(spatial);
     }
 
     private void addSoftBody(PhysicsSoftBody body) {
-        if (softBodies.containsKey(body.getObjectId())) {
+        if (physicsSoftBodies.containsKey(body.getObjectId())) {
             logger.log(Level.WARNING, "SoftBody {0} already exists in PhysicsSpace, cannot add.", body);
             return;
         }
-        softBodies.put(body.getObjectId(), body);
+        physicsSoftBodies.put(body.getObjectId(), body);
         logger.log(Level.FINE, "Adding SoftBody {0} to physics space.", body.getObjectId());
         //used to avoid having to set the SoftBodyWorldInfo in the SoftBody Constructor
         body.setSoftBodyWorldInfo(getWorldInfo());
@@ -171,11 +181,11 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     private native void addSoftBody(long space, long id);
 
     private void removeSoftBody(PhysicsSoftBody body) {
-        if (!softBodies.containsKey(body.getObjectId())) {
+        if (!physicsSoftBodies.containsKey(body.getObjectId())) {
             logger.log(Level.WARNING, "SoftObject {0} does not exist in PhysicsSpace, cannot remove.", body);
             return;
         }
-        softBodies.remove(body.getObjectId());
+        physicsSoftBodies.remove(body.getObjectId());
         logger.log(Level.FINE, "Removing SoftBody {0} to physics space.", body.getObjectId());
         removeSoftBody(getSpaceId(), body.getObjectId());
 
@@ -184,22 +194,24 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     private native void removeSoftBody(long space, long id);
 
     private void addSoftJoint(SoftPhysicsJoint joint) {
-        if (physicsJoints.containsKey(joint.getObjectId())) {
+        if (physicsSoftJoints.containsKey(joint.getObjectId())) {
             logger.log(Level.WARNING, "Joint {0} already exists in PhysicsSpace, cannot add.", joint);
             return;
         }
         logger.log(Level.FINE, "Adding Joint {0} to physics space.", Long.toHexString(joint.getObjectId()));
-        physicsJoints.put(joint.getObjectId(), joint);
+        physicsSoftJoints.put(joint.getObjectId(), joint);
+        //add the contraint at bullet level
         joint.addConstraint();
     }
 
     private void removeSoftJoint(SoftPhysicsJoint joint) {
-        if (!physicsJoints.containsKey(joint.getObjectId())) {
+        if (!physicsSoftJoints.containsKey(joint.getObjectId())) {
             logger.log(Level.WARNING, "Joint {0} does not exist in PhysicsSpace, cannot remove.", joint);
             return;
         }
         logger.log(Level.FINE, "Removing Joint {0} from physics space.", Long.toHexString(joint.getObjectId()));
-        physicsJoints.remove(joint.getObjectId());
+        physicsSoftJoints.remove(joint.getObjectId());
+        //remove the constraint at bullet level
         joint.removeConstraint();
     }
 
@@ -212,7 +224,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
     private native long getWorldInfo(long objectId);
 
     public Collection<PhysicsSoftBody> getSoftBodyList() {
-        return new LinkedList<PhysicsSoftBody>(softBodies.values());
+        return new LinkedList<PhysicsSoftBody>(physicsSoftBodies.values());
     }
 
     @Override
