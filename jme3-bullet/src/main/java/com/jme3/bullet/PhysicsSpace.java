@@ -206,15 +206,13 @@ public class PhysicsSpace {
             }
             task = pQueue.poll();
         }
-        for (Iterator<PhysicsTickListener> it = tickListeners.iterator(); it.hasNext();) {
-            PhysicsTickListener physicsTickCallback = it.next();
+        for (PhysicsTickListener physicsTickCallback : tickListeners) {
             physicsTickCallback.prePhysicsTick(this, f);
         }
     }
 
     private void postTick_native(float f) {
-        for (Iterator<PhysicsTickListener> it = tickListeners.iterator(); it.hasNext();) {
-            PhysicsTickListener physicsTickCallback = it.next();
+        for (PhysicsTickListener physicsTickCallback : tickListeners) {
             physicsTickCallback.physicsTick(this, f);
         }
     }
@@ -495,8 +493,7 @@ public class PhysicsSpace {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
             //add joints with physicsNode as BodyA
             List<PhysicsJoint> joints = physicsNode.getJoints();
-            for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
-                PhysicsJoint physicsJoint = it1.next();
+            for (PhysicsJoint physicsJoint : joints) {
                 if (physicsNode.equals(physicsJoint.getBodyA())) {
                     //add(physicsJoint.getBodyB());
                     add(physicsJoint);
@@ -506,8 +503,7 @@ public class PhysicsSpace {
         //recursion
         if (spatial instanceof Node) {
             List<Spatial> children = ((Node) spatial).getChildren();
-            for (Iterator<Spatial> it = children.iterator(); it.hasNext();) {
-                Spatial spat = it.next();
+            for (Spatial spat : children) {
                 addAll(spat);
             }
         }
@@ -523,8 +519,7 @@ public class PhysicsSpace {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
             //remove joints with physicsNode as BodyA
             List<PhysicsJoint> joints = physicsNode.getJoints();
-            for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
-                PhysicsJoint physicsJoint = it1.next();
+            for (PhysicsJoint physicsJoint : joints) {
                 if (physicsNode.equals(physicsJoint.getBodyA())) {
                     removeJoint(physicsJoint);
                     //remove(physicsJoint.getBodyB());
