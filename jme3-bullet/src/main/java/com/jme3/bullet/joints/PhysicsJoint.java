@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <p>PhysicsJoint - Basic Phyiscs Joint</p>
+ * <p>
+ * PhysicsJoint - Basic Phyiscs Joint
+ * </p>
+ *
  * @author normenhansen
  */
 public abstract class PhysicsJoint implements Savable {
@@ -55,6 +58,8 @@ public abstract class PhysicsJoint implements Savable {
     }
 
     /**
+     * @param nodeA first node of the joint
+     * @param nodeB second node of the joint
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
      */
@@ -90,7 +95,9 @@ public abstract class PhysicsJoint implements Savable {
     /**
      * toggles collisions between linked bodys<br>
      * joint has to be removed from and added to PhyiscsSpace to apply this.
-     * @param collisionBetweenLinkedBodys set to false to have no collisions between linked bodys
+     *
+     * @param collisionBetweenLinkedBodys set to false to have no collisions
+     * between linked bodys
      */
     public void setCollisionBetweenLinkedBodys(boolean collisionBetweenLinkedBodys) {
         this.collisionBetweenLinkedBodys = collisionBetweenLinkedBodys;
@@ -113,13 +120,15 @@ public abstract class PhysicsJoint implements Savable {
     }
 
     /**
-     * destroys this joint and removes it from its connected PhysicsRigidBodys joint lists
+     * destroys this joint and removes it from its connected PhysicsRigidBodys
+     * joint lists
      */
     public void destroy() {
         getBodyA().removeJoint(this);
         getBodyB().removeJoint(this);
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(nodeA, "nodeA", null);
@@ -128,6 +137,7 @@ public abstract class PhysicsJoint implements Savable {
         capsule.write(pivotB, "pivotB", null);
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule capsule = im.getCapsule(this);
         this.nodeA = ((PhysicsRigidBody) capsule.readSavable("nodeA", new PhysicsRigidBody()));
@@ -138,10 +148,13 @@ public abstract class PhysicsJoint implements Savable {
 
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Joint {0}", Long.toHexString(objectId));
-        finalizeNative(objectId);
+        try {
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Joint {0}", Long.toHexString(objectId));
+            finalizeNative(objectId);
+        } finally {
+            super.finalize();
+        }
     }
 
-    private native void finalizeNative(long objectId);
+    protected native void finalizeNative(long objectId);
 }

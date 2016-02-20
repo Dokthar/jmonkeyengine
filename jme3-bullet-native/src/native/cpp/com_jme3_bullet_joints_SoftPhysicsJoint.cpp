@@ -204,7 +204,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        delete joint;
+        btAlignedFree(joint);
     }
 
 #ifdef __cplusplus

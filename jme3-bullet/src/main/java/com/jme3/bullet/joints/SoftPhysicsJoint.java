@@ -36,12 +36,11 @@ import com.jme3.bullet.objects.PhysicsSoftBody;
 import com.jme3.export.*;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>
- * SoftPhysicsJoint - Basic Phyiscs Joint for softbody</p>
+ * SoftPhysicsJoint - Basic Phyiscs Joint for softbody
+ * </p>
  *
  * @author dokthar
  */
@@ -49,9 +48,6 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     protected PhysicsSoftBody softA;
     protected PhysicsSoftBody softB;
-    //protected PhysicsRigidBody rigidB;
-    //protected Vector3f pivotA;
-    //protected Vector3f pivotA;
 
     protected float errorReductionParameter = 1;
     protected float constraintForceMixing = 1;
@@ -61,8 +57,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
     }
 
     /**
-     * @param nodeA
-     * @param nodeB
+     * @param nodeA first node of the joint
+     * @param nodeB second node of the joint
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
      */
@@ -78,8 +74,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
     }
 
     /**
-     * @param nodeA
-     * @param nodeB
+     * @param nodeA first node of the joint
+     * @param nodeB second node of the joint
      * @param pivotA local translation of the joint connection point in node A
      * @param pivotB local translation of the joint connection point in node B
      */
@@ -212,7 +208,7 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
      */
     @Override
     public PhysicsRigidBody getBodyA() {
-        return super.getBodyA(); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     public PhysicsSoftBody getSoftBodyA() {
@@ -300,15 +296,5 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
     private native void removeConstraint(long jointId, long bodyId);
 
     @Override
-    protected void finalize() throws Throwable {
-        try {
-            super.finalize();
-        } catch (Exception e) { // XXX hack : call Object.finalize then catch the NPE exception throw by native finalize from PhysicsJoint
-        }
-        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Joint {0}", Long.toHexString(objectId));
-        finalizeNative(objectId);
-
-    }
-
-    private native void finalizeNative(long objectId);
+    protected native void finalizeNative(long objectId);
 }
