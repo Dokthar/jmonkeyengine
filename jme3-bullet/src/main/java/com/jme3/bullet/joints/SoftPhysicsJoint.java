@@ -248,8 +248,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
         capsule.write(softA, "softA", null);
         capsule.write(softB, "softB", null);
 
-        capsule.write(pivotA, "pivotA", Vector3f.ZERO);
-        capsule.write(pivotB, "pivotB", Vector3f.ZERO);
+        capsule.write(pivotA, "pivotA", null);
+        capsule.write(pivotB, "pivotB", null);
 
         capsule.write(getConstraintForceMixing(), "constraintForceMixing", 1);
         capsule.write(getErrorReductionParameter(), "errorReductionParameter", 1);
@@ -264,8 +264,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
         this.softB = (PhysicsSoftBody) capsule.readSavable("softB", null);
         this.nodeB = (PhysicsRigidBody) capsule.readSavable("nodeB", null);
 
-        this.pivotA = (Vector3f) capsule.readSavable("pivotA", Vector3f.ZERO);
-        this.pivotB = (Vector3f) capsule.readSavable("pivotB", Vector3f.ZERO);
+        this.pivotA = (Vector3f) capsule.readSavable("pivotA", new Vector3f());
+        this.pivotB = (Vector3f) capsule.readSavable("pivotB", new Vector3f());
 
         this.constraintForceMixing = capsule.readFloat("constraintForceMixing", 1);
         this.errorReductionParameter = capsule.readFloat("errorReductionParameter", 1);
