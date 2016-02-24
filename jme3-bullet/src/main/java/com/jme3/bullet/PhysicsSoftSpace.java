@@ -225,6 +225,10 @@ public class PhysicsSoftSpace extends PhysicsSpace {
 
     public Collection<PhysicsSoftBody> getSoftBodyList() {
         return new LinkedList<PhysicsSoftBody>(physicsSoftBodies.values());
+    }  
+    
+    public Collection<SoftPhysicsJoint> getSoftJointList() {
+        return new LinkedList<SoftPhysicsJoint>(physicsSoftJoints.values());
     }
 
     @Override
