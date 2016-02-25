@@ -288,20 +288,12 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void appendAnchor(long bodyId, int node, long rigidId, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence);
 
-    /* Append linear joint	*/
- /*public void appendLinearJoint(const LJoint::Specs& specs,Cluster* body0,Body body1){
-
+    public void removeAnchor(int node, PhysicsRigidBody rigidBody) {
+        removeAnchor(objectId, node, rigidBody.getObjectId());
     }
-     public void appendLinearJoint(const LJoint::Specs& specs,Body body=Body()) {
-
-    }
-
-     }
-     */
- /* Append angular joint	*/
-// public void appendAngularJoint(const AJoint::Specs& specs,Cluster* body0,Body body1);
-// public void appendAngularJoint(const AJoint::Specs& specs,Body body=Body());
-// public void appendAngularJoint(const AJoint::Specs& specs,btSoftBody* body);
+    
+    private native void removeAnchor(long bodyId, int node, long rigidId);
+    
     public void addJoint(SoftPhysicsJoint joint) {
         if (!joints.contains(joint)) {
             joints.add(joint);
@@ -312,11 +304,10 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         joints.remove(joint);
     }
 
-     public List<SoftPhysicsJoint> getJoints() {
-         return joints;
-     }
+    public List<SoftPhysicsJoint> getJoints() {
+        return joints;
+    }
 
-    
     /**
      * Add force (or gravity) to the entire body.
      *
@@ -351,14 +342,6 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     }
 
     private native void addAeroForceToNode(long objectId, Vector3f windVelocity, int nodeIndex);
-
-    /* Add aero force to a face of the body 
-    public void addAeroForceToFace(Vector3f windVelocity, int faceIndex) {
-        throw new UnsupportedOperationException("Not supported yet. No face index availiable");
-//        addAeroForceToFace(objectId, windVelocity, faceIndex);
-    }
-
-    private native void addAeroForceToFace(long objectId, Vector3f windVelocity, int faceIndex);*/
 
     /**
      * Add velocity to the entire body.
@@ -417,6 +400,27 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     }
 
     private native float getMass(long objectId, int node);
+
+    public void setMasses(FloatBuffer masses) {
+        setMasses(objectId, masses);
+    }
+
+    private native void setMasses(long objectId, FloatBuffer masses);
+
+    public FloatBuffer getMasses() {
+        return getMasses(null);
+    }
+
+    public FloatBuffer getMasses(FloatBuffer store) {
+        if (store == null) {
+            int nbVertex = NativeSoftBodyUtil.getNbVertices(objectId);
+            store = BufferUtils.createFloatBuffer(nbVertex);
+        }
+        getMasses(objectId, store);
+        return store;
+    }
+
+    private native void getMasses(long objectId, FloatBuffer masses);
 
     /**
      * Get the total mass of the body.
@@ -483,27 +487,6 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     }
 
     private native void setVolumeDensity(long objectId, float density);
-
-    public void setMasses(FloatBuffer masses) {
-        setMasses(objectId, masses);
-    }
-
-    private native void setMasses(long objectId, FloatBuffer masses);
-
-    public FloatBuffer getMasses() {
-        return getMasses(null);
-    }
-
-    public FloatBuffer getMasses(FloatBuffer store) {
-        if (store == null) {
-            int nbVertex = NativeSoftBodyUtil.getNbVertices(objectId);
-            store = BufferUtils.createFloatBuffer(nbVertex);
-        }
-        getMasses(objectId, store);
-        return store;
-    }
-
-    private native void getMasses(long objectId, FloatBuffer masses);
 
     /**
      * Transform the body.

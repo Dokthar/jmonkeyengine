@@ -212,10 +212,47 @@ extern "C" {
         if (localPivot != NULL) {
             btVector3 vec = btVector3();
             jmeBulletUtil::convert(env, localPivot, &vec);
-            
+
             body->appendAnchor(nodeId, rigid, vec, !collisionBetweenLinkedBodies, influence);
         } else {
             body->appendAnchor(nodeId, rigid, !collisionBetweenLinkedBodies, influence);
+        }
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    removeAnchor
+     * Signature: (JIJ)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_removeAnchor
+    (JNIEnv *env, jobject object, jlong bodyId, jint nodeId, jlong rigidId) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        btRigidBody* rigid = reinterpret_cast<btRigidBody*> (rigidId);
+        if (rigid == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        int size = body->m_anchors.size();
+        for (int i = 0; i < size; i++) {
+            if (body->m_anchors[i].m_node == &body->m_nodes[nodeId] && body->m_anchors[i].m_body == rigid) {
+                // body->m_anchors.remove(body->m_anchors[i]);
+                // as we can use remove because of no operator== between Anchors
+                // we do the same but we don't have to do a second search
+                body->m_anchors.swap(i, size - 1);
+                body->m_anchors.pop_back();
+                
+                // set to 1 when attached, 0 by default
+                body->m_nodes[nodeId].m_battach = 0;
+                break;
+            }
         }
     }
 
@@ -275,24 +312,6 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    addAeroForceToFace
-     * Signature: (JLcom/jme3/math/Vector3f;I)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToFace
-    (JNIEnv *env, jobject object, jlong bodyId, jobject force, jint faceId) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-        btVector3 vec = btVector3();
-        jmeBulletUtil::convert(env, force, &vec);
-        body->addAeroForceToFace(vec, faceId);
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
      * Method:    setMass
      * Signature: (JIF)V
      */
@@ -321,6 +340,46 @@ extern "C" {
             return 0;
         }
         return body->getMass(nodeId);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    setMasses
+     * Signature: (JLjava/nio/FloatBuffer;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMasses
+    (JNIEnv *env, jobject object, jlong bodyId, jobject massBuffer) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jfloat* masses = (jfloat*) env->GetDirectBufferAddress(massBuffer);
+        int length = env->GetDirectBufferCapacity(massBuffer);
+        for (int i = 0; i < length; ++i) {
+            body->setMass(i, masses[i]);
+        }
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+     * Method:    getMasses
+     * Signature: (JLjava/nio/FloatBuffer;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMasses
+    (JNIEnv *env, jobject object, jlong bodyId, jobject massBuffer) {
+        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jfloat* masses = (jfloat*) env->GetDirectBufferAddress(massBuffer);
+        int length = env->GetDirectBufferCapacity(massBuffer);
+        for (int i = 0; i < length; ++i) {
+            masses[i] = body->getMass(i);
+        }
     }
 
     /*
@@ -406,46 +465,6 @@ extern "C" {
         }
 
         body->setVolumeDensity(density);
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    setMasses
-     * Signature: (JLjava/nio/FloatBuffer;)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMasses
-    (JNIEnv *env, jobject object, jlong bodyId, jobject massBuffer) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-        jfloat* masses = (jfloat*) env->GetDirectBufferAddress(massBuffer);
-        int length = env->GetDirectBufferCapacity(massBuffer);
-        for (int i = 0; i < length; ++i) {
-            body->setMass(i, masses[i]);
-        }
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsSoftBody
-     * Method:    getMasses
-     * Signature: (JLjava/nio/FloatBuffer;)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMasses
-    (JNIEnv *env, jobject object, jlong bodyId, jobject massBuffer) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-        jfloat* masses = (jfloat*) env->GetDirectBufferAddress(massBuffer);
-        int length = env->GetDirectBufferCapacity(massBuffer);
-        for (int i = 0; i < length; ++i) {
-            masses[i] = body->getMass(i);
-        }
     }
 
     /*

@@ -99,6 +99,14 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendAnchor
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    removeAnchor
+ * Signature: (JIJ)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_removeAnchor
+  (JNIEnv *, jobject, jlong, jint, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    addForce
  * Signature: (JLcom/jme3/math/Vector3f;)V
  */
@@ -119,14 +127,6 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addForce__JL
  * Signature: (JLcom/jme3/math/Vector3f;I)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToNode
-  (JNIEnv *, jobject, jlong, jobject, jint);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    addAeroForceToFace
- * Signature: (JLcom/jme3/math/Vector3f;I)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_addAeroForceToFace
   (JNIEnv *, jobject, jlong, jobject, jint);
 
 /*
@@ -171,6 +171,22 @@ JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMass
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    setMasses
+ * Signature: (JLjava/nio/FloatBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMasses
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getMasses
+ * Signature: (JLjava/nio/FloatBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMasses
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
  * Method:    getTotalMass
  * Signature: (J)F
  */
@@ -208,22 +224,6 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setVolumeMas
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setVolumeDensity
   (JNIEnv *, jobject, jlong, jfloat);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    setMasses
- * Signature: (JLjava/nio/FloatBuffer;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_setMasses
-  (JNIEnv *, jobject, jlong, jobject);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    getMasses
- * Signature: (JLjava/nio/FloatBuffer;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getMasses
-  (JNIEnv *, jobject, jlong, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
