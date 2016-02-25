@@ -437,7 +437,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
      * Set the total mass (weighted by previous masses) for the body.
      *
      * @param mass the total mass to set
-     * @param fromfaces, weighted by faces surface instead of previous masses.
+     * @param fromfaces weighted by faces surface instead of previous masses.
      */
     public void setTotalMass(float mass, boolean fromfaces) {
         setTotalMass(objectId, mass, fromfaces);
@@ -620,8 +620,8 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
      * Set current state of the softbody as "default pose" or "lowest energy
      * state".
      *
-     * @param bvolume, boolean volume pose
-     * @param bframe, boolean frame pose
+     * @param bvolume boolean volume pose
+     * @param bframe boolean frame pose
      */
     public void setPose(boolean bvolume, boolean bframe) {
         setPose(objectId, bvolume, bframe);
@@ -663,8 +663,8 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     /**
      * Generate bending constraints based on distance in the adjency graph.
      *
-     * @param distance, greater than 1 (else do nothing)
-     * @param mat , the material to append links
+     * @param distance greater than 1 (else do nothing)
+     * @param mat the material to append links
      */
     public void generateBendingConstraints(int distance, Material mat) {
         generateBendingConstraints(objectId, distance, mat.materialId);
@@ -684,7 +684,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     /**
      * Release a cluster.
      *
-     * @param index, the index of the cluster to remove.
+     * @param index the index of the cluster to remove.
      */
     public void releaseCluster(int index) {
         releaseCluster(objectId, index);
@@ -707,7 +707,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
      * approximation will be used (better performance). By default maxiterations
      * is set to 8192.
      *
-     * @param k, the number of cluster to create, can't be bigger than the
+     * @param k the number of cluster to create, can't be bigger than the
      * number of nodes.
      */
     public void generateClusters(int k) {
@@ -719,9 +719,9 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
      * convex cluster for each tetrahedron or triangle, otherwise an
      * approximation will be used (better performance).
      *
-     * @param k, the number of cluster to create, can't be bigger than the
+     * @param k the number of cluster to create, can't be bigger than the
      * number of nodes.
-     * @param maxiterations, the maximum of iterations, used for the generation
+     * @param maxiterations the maximum of iterations, used for the generation
      * of cluster. By default maxiterations is set to 8192.
      */
     public void generateClusters(int k, int maxiterations) {

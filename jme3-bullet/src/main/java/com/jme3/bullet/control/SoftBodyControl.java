@@ -212,7 +212,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     /**
      * Only used internally, do not call.
      *
-     * @param space, a PhysicsSpace that extends PhysicsSoftSpace.
+     * @param space a PhysicsSpace that extends PhysicsSoftSpace.
      * @throws IllegalArgumentException, if the space isn't a PhysicsSoftSpace.
      */
     @Override
