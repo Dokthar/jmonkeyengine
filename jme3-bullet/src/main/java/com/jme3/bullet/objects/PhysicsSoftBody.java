@@ -291,9 +291,9 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     public void removeAnchor(int node, PhysicsRigidBody rigidBody) {
         removeAnchor(objectId, node, rigidBody.getObjectId());
     }
-    
+
     private native void removeAnchor(long bodyId, int node, long rigidId);
-    
+
     public void addJoint(SoftPhysicsJoint joint) {
         if (!joints.contains(joint)) {
             joints.add(joint);
@@ -704,11 +704,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     /**
      * Generate clusters (K-mean) : generateClusters with k=0 will create a
      * convex cluster for each tetrahedron or triangle, otherwise an
-     * approximation will be used (better performance). By default maxiterations
-     * is set to 8192.
+     * approximation will be used (better performance). By default
+     * {@code maxiterations} is set to 8192.
      *
-     * @param k the number of cluster to create, can't be bigger than the
-     * number of nodes.
+     * @param k the number of cluster to create, can't be bigger than the number
+     * of nodes.
      */
     public void generateClusters(int k) {
         generateClusters(k, 8192);
@@ -719,10 +719,10 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
      * convex cluster for each tetrahedron or triangle, otherwise an
      * approximation will be used (better performance).
      *
-     * @param k the number of cluster to create, can't be bigger than the
-     * number of nodes.
+     * @param k the number of cluster to create, can't be bigger than the number
+     * of nodes.
      * @param maxiterations the maximum of iterations, used for the generation
-     * of cluster. By default maxiterations is set to 8192.
+     * of cluster. By default {@code maxiterations} is set to 8192.
      */
     public void generateClusters(int k, int maxiterations) {
         generateClusters(objectId, k, maxiterations);
@@ -742,16 +742,31 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private native boolean isInWorld(long objectId);
 
     /**
-     * Get the center of the bouding volume of this body. This "center" may not
+     * Get the center of the bounding volume of this body. This "center" may not
      * be exactly in the center of the object as it's move. The value of the
      * boundingCenter isn't updated each frame.
      *
      * @return the position of the bounding center.
      */
     public Vector3f getBoundingCenter() {
-        Vector3f result = new Vector3f();
-        getBoundingCenter(objectId, result);
-        return result;
+        return getBoundingCenter(null);
+    }
+
+    /**
+     * Get the center of the bounding volume of this body. This "center" may not
+     * be exactly in the center of the object as it's move. The value of the
+     * boundingCenter isn't updated each frame.
+     *
+     * @param store the vector3f to store the result, if null a new vector is
+     * used.
+     * @return {@code store} storing the position of the bounding center.
+     */
+    public Vector3f getBoundingCenter(Vector3f store) {
+        if (store == null) {
+            store = new Vector3f();
+        }
+        getBoundingCenter(objectId, store);
+        return store;
     }
 
     private native void getBoundingCenter(long bodyId, Vector3f store);

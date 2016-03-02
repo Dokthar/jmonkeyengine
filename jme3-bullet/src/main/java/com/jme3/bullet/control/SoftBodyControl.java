@@ -48,6 +48,7 @@ import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -149,6 +150,19 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                 if (spatial != null) {
                     setPhysicsLocation(spatial.getWorldTranslation());
                     //setPhysicsRotation(getSpatialRotation());
+                    TempVars vars = TempVars.get();
+                    try {
+                        if (meshInLocalOrigin) {
+                            getBoundingCenter(vars.vect1);
+                            spatial.getParent().worldToLocal(vars.vect1, vars.vect2);
+                            spatial.setLocalTranslation(vars.vect2);
+                        } else {
+                            spatial.getParent().worldToLocal(Vector3f.ZERO, vars.vect2);
+                            spatial.setLocalTranslation(vars.vect2);
+                        }
+                    } finally {
+                        vars.release();
+                    }
                 }
                 space.addCollisionObject(this);
                 added = true;
@@ -167,19 +181,29 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     @Override
     public void update(float tpf) {
         if (enabled && spatial != null) {
-            if (meshInLocalOrigin) {
-                this.spatial.setLocalTranslation(this.getBoundingCenter());
-            }
-            if (mesh != null) {
-                switch (mesh.getMode()) {
-                    case Triangles:
-                        this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
-                        break;
-                    case Lines:
-                        this.updateTriMesh(mesh, meshInLocalOrigin, false);
-                        break;
+            TempVars vars = TempVars.get();
+            try {
+                if (meshInLocalOrigin) {
+                    getBoundingCenter(vars.vect1);
+                    spatial.getParent().worldToLocal(vars.vect1, vars.vect2);
+                    spatial.setLocalTranslation(vars.vect2);
+                } else {
+                    spatial.getParent().worldToLocal(Vector3f.ZERO, vars.vect2);
+                    spatial.setLocalTranslation(vars.vect2);
                 }
-                spatial.updateModelBound();
+                if (mesh != null) {
+                    switch (mesh.getMode()) {
+                        case Triangles:
+                            this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
+                            break;
+                        case Lines:
+                            this.updateTriMesh(mesh, meshInLocalOrigin, false);
+                            break;
+                    }
+                    spatial.updateModelBound();
+                }
+            } finally {
+                vars.release();
             }
         }
     }
