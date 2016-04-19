@@ -36,6 +36,8 @@ import com.jme3.bullet.objects.PhysicsSoftBody;
 import com.jme3.export.*;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <p>
@@ -52,6 +54,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
     protected float errorReductionParameter = 1;
     protected float constraintForceMixing = 1;
     protected float split = 1;
+
+    private boolean added = false;
 
     protected SoftPhysicsJoint() {
     }
@@ -97,6 +101,7 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Get the error reduction parameter coefficient (aka ERP).
+     * <p>From bullet documentation :</p>
      * <p>
      * The ERP specifies what proportion of the joint error will be fixed during
      * the next simulation step.
@@ -121,6 +126,7 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Set the error reduction parameter coefficient (aka ERP).
+     * <p>From bullet documentation :</p>
      * <p>
      * The ERP specifies what proportion of the joint error will be fixed during
      * the next simulation step.
@@ -145,6 +151,7 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Get the constraint force mixing coefficient (aka CFM).
+     * <p>From bullet documentation :</p>
      * <ul>
      * <li>If CFM = 0 then the constraint will be hard.
      * <li>If CFM is set to a positive value, it will be possible to violate the
@@ -168,6 +175,7 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Set the constraint force mixing coefficient (aka CFM).
+     * <p> From bullet documentation :</p>
      * <ul>
      * <li>If CFM = 0 then the constraint will be hard.
      * <li>If CFM is set to a positive value, it will be possible to violate the
@@ -279,22 +287,38 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
      * SoftPhysicsSpace.
      */
     public void addConstraint() {
-        addConstraint(objectId, softA.getObjectId());
+        if (!added) {
+            addConstraint(objectId, softA.getObjectId());
+            added = true;
+        }
     }
 
     private native void addConstraint(long jointId, long bodyId);
 
     /**
-     * Remove the constraint to bodies. The constraint must be already added.
+     * Remove the constraint from bodies.
      * This method shouldn't be called in the user code, already called by the
      * SoftPhysicsSpace.
      */
     public void removeConstraint() {
-        removeConstraint(objectId, softA.getObjectId());
+        if (added) {
+            removeConstraint(objectId, softA.getObjectId());
+            added = false;
+        }
     }
 
     private native void removeConstraint(long jointId, long bodyId);
 
     @Override
-    protected native void finalizeNative(long objectId);
+    protected void finalizeNative(long objectId){
+        // override finalizeNative instead of finalize
+        // only want to verify condition on 'added' boolean before native finalize call
+        // this way it will still call Object.finalize()
+        if (added) {
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "SoftJoint {0} is still attached, it will be destroyed by the softBody", Long.toHexString(objectId));
+        } else {
+            super.finalizeNative(objectId);
+        }
+    }
+    
 }
