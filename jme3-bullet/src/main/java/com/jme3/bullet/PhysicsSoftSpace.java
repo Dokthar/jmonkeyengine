@@ -172,7 +172,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
             return;
         }
         physicsSoftBodies.put(body.getObjectId(), body);
-        logger.log(Level.FINE, "Adding SoftBody {0} to physics space.", body.getObjectId());
+        logger.log(Level.FINE, "Adding SoftBody {0} to physics space.", Long.toHexString(body.getObjectId()));
         //used to avoid having to set the SoftBodyWorldInfo in the SoftBody Constructor
         body.setSoftBodyWorldInfo(getWorldInfo());
         addSoftBody(getSpaceId(), body.getObjectId());
@@ -186,7 +186,7 @@ public class PhysicsSoftSpace extends PhysicsSpace {
             return;
         }
         physicsSoftBodies.remove(body.getObjectId());
-        logger.log(Level.FINE, "Removing SoftBody {0} to physics space.", body.getObjectId());
+        logger.log(Level.FINE, "Removing SoftBody {0} from physics space.", Long.toHexString(body.getObjectId()));
         removeSoftBody(getSpaceId(), body.getObjectId());
 
     }

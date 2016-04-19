@@ -630,7 +630,7 @@ public class PhysicsSpace {
             node.setKinematic(true);
         }
 
-        logger.log(Level.FINE, "Adding RigidBody {0} to physics space.", node.getObjectId());
+        logger.log(Level.FINE, "Adding RigidBody {0} to physics space.", Long.toHexString(node.getObjectId()));
         if (node instanceof PhysicsVehicle) {
             logger.log(Level.FINE, "Adding vehicle constraint {0} to physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
             physicsVehicles.put(((PhysicsVehicle) node).getVehicleId(), (PhysicsVehicle) node);
