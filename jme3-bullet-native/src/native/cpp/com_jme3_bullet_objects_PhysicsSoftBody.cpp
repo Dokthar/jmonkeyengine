@@ -629,7 +629,7 @@ extern "C" {
             return;
         }
         btMatrix3x3 rot = btMatrix3x3();
-        jmeBulletUtil::convert(env, rotation, &rot);
+        jmeBulletUtil::convertQuat(env, rotation, &rot);
         rot = body->m_initialWorldTransform.inverse().getBasis() * rot;
         btQuaternion quat;
         rot.getRotation(quat);
