@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package com.jme3.bullet.control;
 import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.objects.PhysicsSoftBody;
+import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -48,10 +49,15 @@ import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.Control;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.TempVars;
 import java.io.IOException;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -64,27 +70,94 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     private boolean enabled = true;
     private boolean added = false;
     private PhysicsSoftSpace space = null;
-    private boolean doNormalUpdate = false;
-    private boolean meshInLocalOrigin = true;
+    
     private boolean meshHaveNormal = false;
+    private IntBuffer jmeToBulletMap = null;
 
+    private boolean meshInLocalOrigin;
+    private boolean updateNormals;
+    private boolean removeDuplicatedVertex;
+    
     public SoftBodyControl() {
+        this(true, false, true);
     }
 
-    public SoftBodyControl(boolean doNormalUpdate) {
-        this.doNormalUpdate = doNormalUpdate;
+    public SoftBodyControl(boolean updateNormals) {
+        this(true, updateNormals, true);
     }
 
     public SoftBodyControl(boolean meshInLocalOrigin, boolean doNormalUpdate) {
+        this(meshInLocalOrigin, doNormalUpdate, true);
+    }
+    public SoftBodyControl(boolean meshInLocalOrigin, boolean doNormalUpdate, boolean removeDuplicatedVertex) {
         this.meshInLocalOrigin = meshInLocalOrigin;
-        this.doNormalUpdate = doNormalUpdate;
+        this.updateNormals = doNormalUpdate;
+        this.removeDuplicatedVertex = removeDuplicatedVertex;
+    }
+
+    @Override
+    public void createSoftBody(FloatBuffer positions, IndexBuffer links, IndexBuffer triangles, IndexBuffer tetras) {
+        createSoftBody(positions, links, triangles, tetras, removeDuplicatedVertex);
+    }
+
+    public void createSoftBody(FloatBuffer positions, IndexBuffer links, IndexBuffer triangles, IndexBuffer tetras, boolean removeDuplicatedPositions) {
+        if (removeDuplicatedPositions) {
+            jmeToBulletMap = NativeSoftBodyUtil.generateIndexMap(positions);
+            positions = NativeSoftBodyUtil.apply(jmeToBulletMap, positions);
+            if (links != null) {
+                links = NativeSoftBodyUtil.cloneApply(jmeToBulletMap, links);
+            }
+            if (triangles != null) {
+                triangles = NativeSoftBodyUtil.cloneApply(jmeToBulletMap, triangles);
+            }
+            if (tetras != null) {
+                tetras = NativeSoftBodyUtil.cloneApply(jmeToBulletMap, tetras);
+            }
+        } else {
+            jmeToBulletMap = null;
+        }
+
+        super.createSoftBody(positions, links, triangles, tetras);
+    }
+
+    private void buildFromMesh(Mesh mesh) {
+        this.objectId = newEmptySoftBody();
+
+        this.mesh = mesh;
+        this.meshHaveNormal = doHaveNormalBuffer(mesh);
+
+        if (mesh.getMode() == Mesh.Mode.Lines) {
+            NativeSoftBodyUtil.createRopeFromMesh(mesh, this);
+        } else if (mesh.getMode() == Mesh.Mode.Triangles) {
+            NativeSoftBodyUtil.createFromTriMesh(mesh, this);
+        }
+    }
+
+    private void rebuildFromMesh(Mesh mesh) {
+        if (mesh != null) {
+
+            boolean wasInWorld = objectId != 0 && added;
+            if (objectId != 0) {
+                // remove the body from the physics space and detroy the native object
+                if (wasInWorld) {
+                    space.remove(this);
+                }
+                Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing SoftBody {0}", Long.toHexString(objectId));
+                finalizeNative(objectId);
+            }
+
+            buildFromMesh(mesh);
+
+            if (wasInWorld) {
+                space.add(this);
+            }
+        }
     }
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        SoftBodyControl control = new SoftBodyControl(meshInLocalOrigin, doNormalUpdate);
+        SoftBodyControl control = new SoftBodyControl(meshInLocalOrigin, updateNormals);
         control.rebuildFromMesh(mesh);
-        control.mesh = mesh;
 
         control.setMasses(getMasses());
         control.setRestLengthScale(getRestLengthScale());
@@ -111,8 +184,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
             this.spatial = spatial;
             if (mesh == null) {
                 this.mesh = getFirstGeometry(spatial).getMesh();
-                this.meshHaveNormal = doHaveNormalBuffer(this.mesh);
-                createFromMesh(mesh);
+                buildFromMesh(mesh);
                 setPhysicsLocation(spatial.getWorldTranslation());
                 //setPhysicsRotation(spatial.getWorldRotation());
             }
@@ -192,14 +264,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                     spatial.setLocalTranslation(vars.vect2);
                 }
                 if (mesh != null) {
-                    switch (mesh.getMode()) {
-                        case Triangles:
-                            this.updateTriMesh(mesh, meshInLocalOrigin, doNormalUpdate && meshHaveNormal);
-                            break;
-                        case Lines:
-                            this.updateTriMesh(mesh, meshInLocalOrigin, false);
-                            break;
-                    }
+                    NativeSoftBodyUtil.updateMesh(this, jmeToBulletMap, mesh, meshInLocalOrigin, updateNormals && meshHaveNormal);
                     spatial.updateModelBound();
                 }
             } finally {
@@ -258,7 +323,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         capsule.write(mesh, "mesh", null);
 
         capsule.write(meshInLocalOrigin, "meshInLocalOrigin", true);
-        capsule.write(doNormalUpdate, "doNormalUpdate", false);
+        capsule.write(updateNormals, "doNormalUpdate", false);
 
     }
 
@@ -272,7 +337,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         mesh = (Mesh) capsule.readSavable("mesh", null);
 
         meshInLocalOrigin = capsule.readBoolean("meshInLocalorigin", true);
-        doNormalUpdate = capsule.readBoolean("doNormalUpdate", false);
+        updateNormals = capsule.readBoolean("doNormalUpdate", false);
         meshHaveNormal = doHaveNormalBuffer(mesh);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,155 +43,86 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getVertices
-     * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
+     * Method:    updateMesh
+     * Signature: (JLjava/nio/IntBuffer;Ljava/nio/FloatBuffer;Ljava/nio/FloatBuffer;ZZ)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getVertices
-    (JNIEnv *env, jclass clazz, jlong bodyId, jobject callback) {
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateMesh__JLjava_nio_IntBuffer_2Ljava_nio_FloatBuffer_2Ljava_nio_FloatBuffer_2ZZ
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject indexMap, jobject positionsBuffer, jobject normalsBuffer, jboolean meshInLocalSpace, jboolean doNormalUpdate) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
+        const jint* jme2bulletMap = (jint*) env->GetDirectBufferAddress(indexMap);
+        const int mapCapacity = env->GetDirectBufferCapacity(indexMap);
 
-        btVector3 vertex;
+        jfloat* positions = (jfloat*) env->GetDirectBufferAddress(positionsBuffer);
 
-        for (int i = 0; i < body->m_nodes.size(); i++) {
-            const btSoftBody::Node& n = body->m_nodes[i];
+        const btVector3 center = (meshInLocalSpace ? (body->m_bounds[0] + body->m_bounds[1]) / 2 : btVector3(0, 0, 0));
 
-            // Grab the data
-            vertex = n.m_x;
+        if (doNormalUpdate) {
+            jfloat* normals = (jfloat*) env->GetDirectBufferAddress(normalsBuffer);
 
-            // Put the vertex into the vertex buffer
-            env->CallVoidMethod(callback, jmeClasses::DebugMeshCallback_addVector, vertex.getX(), vertex.getY(), vertex.getZ());
-            if (env->ExceptionCheck()) {
-                env->Throw(env->ExceptionOccurred());
-                return;
+            for (int i = 0; i < mapCapacity; ++i) {
+                const btSoftBody::Node& n = body->m_nodes[jme2bulletMap[i]];
+                positions[i * 3 + 0] = n.m_x.getX() - center.getX();
+                positions[i * 3 + 1] = n.m_x.getY() - center.getY();
+                positions[i * 3 + 2] = n.m_x.getZ() - center.getZ();
+                //--- normals
+                normals[i * 3 + 0] = n.m_n.getX();
+                normals[i * 3 + 1] = n.m_n.getY();
+                normals[i * 3 + 2] = n.m_n.getZ();
+            }
+        } else {
+            for (int i = 0; i < mapCapacity; ++i) {
+                const btSoftBody::Node& n = body->m_nodes[jme2bulletMap[i]];
+                positions[i * 3 + 0] = n.m_x.getX() - center.getX();
+                positions[i * 3 + 1] = n.m_x.getY() - center.getY();
+                positions[i * 3 + 2] = n.m_x.getZ() - center.getZ();
             }
         }
     }
 
     /*
      * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getFacesIndexes
-     * Signature: (JLjava/nio/IntBuffer;)V
+     * Method:    updateMesh
+     * Signature: (JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;ZZ)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getFacesIndexes
-    (JNIEnv *env, jclass clazz, jlong bodyId, jobject indexBuffer) {
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateMesh__JLjava_nio_FloatBuffer_2Ljava_nio_FloatBuffer_2ZZ
+    (JNIEnv *env, jclass clazz, jlong bodyId, jobject positionsBuffer, jobject normalsBuffer, jboolean meshInLocalSpace, jboolean doNormalUpdate) {
         btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        jint* indexes = (jint*) env->GetDirectBufferAddress(indexBuffer);
+        const int nodeSize = body->m_nodes.size();
 
-        btSoftBody::Node* firstNode = &body->m_nodes[0];
+        jfloat* positions = (jfloat*) env->GetDirectBufferAddress(positionsBuffer);
 
-        for (int i = 0; i < body->m_faces.size(); i++) {
-            const btSoftBody::Face& f = body->m_faces[i];
-            indexes[i * 3 + 0] = int(f.m_n[0] - firstNode);
-            indexes[i * 3 + 1] = int(f.m_n[1] - firstNode);
-            indexes[i * 3 + 2] = int(f.m_n[2] - firstNode);
-        }
+        const btVector3 center = (meshInLocalSpace ? (body->m_bounds[0] + body->m_bounds[1]) / 2 : btVector3(0, 0, 0));
 
-    }
+        if (doNormalUpdate) {
+            jfloat* normals = (jfloat*) env->GetDirectBufferAddress(normalsBuffer);
 
-    /*
-     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getNbFaces
-     * Signature: (J)I
-     */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbFaces
-    (JNIEnv *env, jclass clazz, jlong bodyId) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
-        }
-        return body->m_faces.size();
-    }
-
-    /*
-     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getNbLinks
-     * Signature: (J)I
-     */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbLinks
-    (JNIEnv *env, jclass clazz, jlong bodyId) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
-        }
-        return body->m_links.size();
-    }
-
-    /*
-     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getLinksIndexes
-     * Signature: (JLjava/nio/IntBuffer;)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getLinksIndexes
-    (JNIEnv *env, jclass clazz, jlong bodyId, jobject indexBuffer) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-        jint* indexes = (jint*) env->GetDirectBufferAddress(indexBuffer);
-
-        btSoftBody::Node* firstNode = &body->m_nodes[0];
-
-        for (int i = 0; i < body->m_links.size(); i++) {
-            const btSoftBody::Link& l = body->m_links[i];
-            indexes[i * 2 + 0] = int(l.m_n[0] - firstNode);
-            indexes[i * 2 + 1] = int(l.m_n[1] - firstNode);
-        }
-    }
-
-    /*
-     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    getNbVertices
-     * Signature: (J)I
-     */
-    JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbVertices
-    (JNIEnv *env, jclass clazz, jlong bodyId) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
-        }
-
-        return body->m_nodes.size();
-    }
-
-    /*
-     * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
-     * Method:    updateDebugMesh
-     * Signature: (JLjava/nio/FloatBuffer;)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateDebugMesh
-    (JNIEnv *env, jclass clazz, jlong bodyId, jobject verticesBuffer) {
-        btSoftBody* body = reinterpret_cast<btSoftBody*> (bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-
-        jfloat* vertices = (jfloat*) env->GetDirectBufferAddress(verticesBuffer);
-
-        for (int i = 0; i < body->m_nodes.size(); ++i) {
-            const btSoftBody::Node& n = body->m_nodes[i];
-            vertices[i * 3 + 0] = n.m_x.getX();
-            vertices[i * 3 + 1] = n.m_x.getY();
-            vertices[i * 3 + 2] = n.m_x.getZ();
+            for (int i = 0; i < nodeSize; ++i) {
+                const btSoftBody::Node& n = body->m_nodes[i];
+                positions[i * 3 + 0] = n.m_x.getX() - center.getX();
+                positions[i * 3 + 1] = n.m_x.getY() - center.getY();
+                positions[i * 3 + 2] = n.m_x.getZ() - center.getZ();
+                //--- normals
+                normals[i * 3 + 0] = n.m_n.getX();
+                normals[i * 3 + 1] = n.m_n.getY();
+                normals[i * 3 + 2] = n.m_n.getZ();
+            }
+        } else {
+            for (int i = 0; i < nodeSize; ++i) {
+                const btSoftBody::Node& n = body->m_nodes[i];
+                positions[i * 3 + 0] = n.m_x.getX() - center.getX();
+                positions[i * 3 + 1] = n.m_x.getY() - center.getY();
+                positions[i * 3 + 2] = n.m_x.getZ() - center.getZ();
+            }
         }
     }
 

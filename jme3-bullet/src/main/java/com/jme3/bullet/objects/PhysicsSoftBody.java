@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,9 @@
  */
 package com.jme3.bullet.objects;
 
-import com.jme3.bullet.PhysicsSoftSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.joints.PhysicsJoint;
 import com.jme3.bullet.joints.SoftPhysicsJoint;
 import com.jme3.bullet.objects.infos.SoftBodyWorldInfo;
-import com.jme3.bullet.util.NativeSoftBodyUtil;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -45,20 +42,16 @@ import com.jme3.export.Savable;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -68,165 +61,178 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private final Config config = new Config(this);
     private Material material = null;
-    private IntBuffer jmeToBulletMap;
-    private boolean ropeMesh = false;
-    protected ArrayList<SoftPhysicsJoint> joints = new ArrayList<SoftPhysicsJoint>();
+    protected List<SoftPhysicsJoint> joints = new ArrayList<SoftPhysicsJoint>();
 
     public PhysicsSoftBody() {
+        objectId = createEmptySoftBody();
+        super.initUserPointer();
     }
 
-    public PhysicsSoftBody(Mesh mesh) {
-        createFromMesh(mesh);
-    }
-
-    protected final void createFromMesh(Mesh mesh) {
-        if (mesh.getMode() == Mesh.Mode.Triangles) {
-            createFromTriMesh(mesh);
-        } else if (mesh.getMode() == Mesh.Mode.Lines) {
-            createRope(mesh);
-        }
-        postRebuild(false);
-    }
-
-    // SoftBodies need to have a direct access to JME's Mesh buffer in order a have a more
-    // efficient way when updating the Mesh each frame
-    // Must remove "duplicated" vertex (vertex with same position, hapen with uv mapping) to prevent the mesh from tearing apart.
-    private long createFromTriMesh(Mesh triMesh) {
-        /*
-         * Exemple :
-         * mesh :   P1\P3----P4
-         *            ¦¯\_   ¦
-         *            ¦   ¯\_¦
-         *           P2----P6\P5
-         *
-         * with P1==P3 and P6==P5
-         * Buffers indexes        :  | 0| 1| 2| 3| 4| 5|
-         * >-  JME PositionBuffer :  [P1,P2,P3,P4,P5,P6] 
-         * >-  JME IndexBuffer    :  [ 0, 1, 5, 2, 4, 3]
-         * <-> JME -> Bullet map  :  [ 0, 1, 0, 2, 3, 3]
-         *  -> Bullet Positions   :  [P3,P2,P4,P6]       == [P1,P2,P4,P5]
-         *  -> Bullet Index       :  [ 0, 1, 3, 0, 3, 2]
-         */
-        FloatBuffer jmePositions = triMesh.getFloatBuffer(Type.Position);
-        IndexBuffer jmeIndex = triMesh.getIndexBuffer();
-
-        // Generation of jmeToBulletMap, mapping JME index to Bullet index.
-        int jmePositionSize = jmePositions.capacity();
-        jmeToBulletMap = BufferUtils.createIntBuffer(jmePositionSize / 3);
-        HashMap<Vector3f, Integer> uniquePositions = new HashMap<Vector3f, Integer>();
-        for (int i = 0, indice = 0; i < jmePositionSize; i += 3) {
-            float x = jmePositions.get(i + 0);
-            float y = jmePositions.get(i + 1);
-            float z = jmePositions.get(i + 2);
-            Vector3f p = new Vector3f(x, y, z);
-            if (!uniquePositions.containsKey(p)) {
-                uniquePositions.put(p, indice);
-                jmeToBulletMap.put(indice);
-                indice++;
-            } else {
-                jmeToBulletMap.put(uniquePositions.get(p));
-            }
-        }
-        jmeToBulletMap.rewind();
-        jmePositions.rewind();
-
-        // Generation of bullet indexes with the help of jmeToBulletMap
-        int jmeIndexSize = jmeIndex.size();
-        IntBuffer bulletIndexBuffer = BufferUtils.createIntBuffer(jmeIndexSize);
-        for (int i = 0; i < jmeIndexSize; i += 3) {
-            // create the bullet index to recreate each face with bullet position
-            bulletIndexBuffer.put(jmeToBulletMap.get(jmeIndex.get(i + 0)));
-            bulletIndexBuffer.put(jmeToBulletMap.get(jmeIndex.get(i + 1)));
-            bulletIndexBuffer.put(jmeToBulletMap.get(jmeIndex.get(i + 2)));
-        }
-
-        bulletIndexBuffer.rewind();
-
-        // Generation of bullet position with the help of jmeToBulletMap
-        int bulletNbPosition = uniquePositions.size() * 3;
-        FloatBuffer bulletPositions = BufferUtils.createFloatBuffer(bulletNbPosition);
-        for (int i = 0; i < jmePositionSize / 3; i++) {
-            // create the bullet positions, do the conversion from JME -> Bullet (not 1:1, with some overwrite)
-            int iBullet = jmeToBulletMap.get(i);
-            bulletPositions.put(iBullet * 3 + 0, jmePositions.get(i * 3 + 0));
-            bulletPositions.put(iBullet * 3 + 1, jmePositions.get(i * 3 + 1));
-            bulletPositions.put(iBullet * 3 + 2, jmePositions.get(i * 3 + 2));
-        }
-
-        objectId = createFromTriMesh(bulletIndexBuffer, bulletPositions, jmeIndexSize / 3, false);
-        return objectId;
-    }
-
-    private native long createFromTriMesh(IntBuffer triangles, FloatBuffer vertices, int numTriangles, boolean randomizeConstraints);
-
-    private long createRope(Mesh mesh) {
-        FloatBuffer jmePositions = mesh.getFloatBuffer(Type.Position);
-        IndexBuffer jmeIndex = mesh.getIndexBuffer();
-
-        int jmePositionSize = jmePositions.capacity();
-
-        //set a 1:1 map
-        jmeToBulletMap = BufferUtils.createIntBuffer(jmePositionSize / 3);
-        for (int i = 0; i < (jmePositionSize / 3); i++) {
-            jmeToBulletMap.put(i);
-        }
-        jmeToBulletMap.rewind();
-
-        int indexSize = jmeIndex.size();
-        IntBuffer bulletIndex = BufferUtils.createIntBuffer(indexSize);
-        for (int i = 0; i < indexSize; i++) {
-            bulletIndex.put(jmeIndex.get(i));
-        }
-        objectId = createRope(bulletIndex, jmePositions);
-        ropeMesh = true;
-
-        return objectId;
-    }
-
-    private native long createRope(IntBuffer lines, FloatBuffer vertices);
-
-    public boolean isRope() {
-        return ropeMesh;
-    }
-
-    public void rebuildFromMesh(Mesh mesh) {
-        // {} => {old Native object is removed & destroyed; new Native object is created & added}
-        if (mesh != null) {
-            if (objectId != 0) {
-                boolean wasInWorld = isInWorld();
-                preRebuild();
-                createFromMesh(mesh);
-                postRebuild(wasInWorld);
-            } else {
-                createFromMesh(mesh);
-            }
-        }
-    }
-
-    protected final void preRebuild() {
-        // {} = > {remove the body from the physics space and detroy the native object}
-
-        /* if (collisionShape instanceof MeshCollisionShape && mass != 0) {
-         throw new IllegalStateException("Dynamic rigidbody can not have mesh collision shape!");
-         }*/
-        if (objectId != 0) {
-            if (isInWorld()) {
-                PhysicsSoftSpace.getPhysicsSoftSpace().remove(this);
-            }
-            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing RigidBody {0}", Long.toHexString(objectId));
-            finalizeNative(objectId);
-        }
-    }
-
-    protected final void postRebuild(boolean wasInWorld) {
-        // {} => {initUserPoint on the native object, if this wasInWorld add this into the physicsSpace}
+    public void createSoftBody(FloatBuffer positions, IndexBuffer links, IndexBuffer triangles, IndexBuffer tetras) {
+        objectId = newEmptySoftBody();
         initUserPointer();
-        if (wasInWorld) {
-            PhysicsSoftSpace.getPhysicsSoftSpace().add(this);
+        if (positions != null) {
+            appendNodes(positions);
+            if (links != null) {
+                appendLinks(links);
+            }
+            if (triangles != null) {
+                appendFaces(triangles);
+            }
+            if (tetras != null) {
+                appendTetras(tetras);
+            }
         }
     }
 
-    private void initDefault() {
+    protected long newEmptySoftBody() {
+        return createEmptySoftBody();
+    }
+
+    private native long createEmptySoftBody();
+
+    public void appendNodes(FloatBuffer positions) {
+        appendNodes(objectId, positions);
+    }
+
+    private native void appendNodes(long objectId, FloatBuffer positions);
+
+    public void appendLinks(IndexBuffer edges) {
+        if (edges.size() % 2 != 0) {
+            throw new IllegalArgumentException();
+        }
+        Buffer b = edges.getBuffer();
+        if (b instanceof ByteBuffer) {
+            appendLinks(objectId, (ByteBuffer) b);
+        } else if (b instanceof ShortBuffer) {
+            appendLinks(objectId, (ShortBuffer) b);
+        } else if (b instanceof IntBuffer) {
+            appendLinks(objectId, (IntBuffer) b);
+        } else {
+            // error
+        }
+    }
+
+    private native void appendLinks(long objectId, ByteBuffer edges);
+
+    private native void appendLinks(long objectId, ShortBuffer edges);
+
+    private native void appendLinks(long objectId, IntBuffer edges);
+
+    public void appendFaces(IndexBuffer triangles) {
+        if (triangles.size() % 3 != 0) {
+            throw new IllegalArgumentException();
+        }
+        Buffer b = triangles.getBuffer();
+        if (b instanceof ByteBuffer) {
+            appendFaces(objectId, (ByteBuffer) b);
+        } else if (b instanceof ShortBuffer) {
+            appendFaces(objectId, (ShortBuffer) b);
+        } else if (b instanceof IntBuffer) {
+            appendFaces(objectId, (IntBuffer) b);
+        } else {
+            // error
+        }
+    }
+
+    private native void appendFaces(long objectId, ByteBuffer triangles);
+
+    private native void appendFaces(long objectId, ShortBuffer triangles);
+
+    private native void appendFaces(long objectId, IntBuffer triangles);
+
+    public void appendTetras(IndexBuffer tetraedres) {
+        if (tetraedres.size() % 4 != 0) {
+            throw new IllegalArgumentException();
+        }
+        Buffer b = tetraedres.getBuffer();
+
+        if (b instanceof ByteBuffer) {
+            appendTetras(objectId, (ByteBuffer) b);
+        } else if (b instanceof ShortBuffer) {
+            appendTetras(objectId, (ShortBuffer) b);
+        } else if (b instanceof IntBuffer) {
+            appendTetras(objectId, (IntBuffer) b);
+        } else {
+            // error
+        }
+    }
+
+    private native void appendTetras(long objectId, ByteBuffer tetrahedrons);
+
+    private native void appendTetras(long objectId, ShortBuffer tetrahedrons);
+
+    private native void appendTetras(long objectId, IntBuffer tetrahedrons);
+
+    /**
+     *
+     * @return
+     */
+    public int getNbNodes() {
+        return getNbNodes(objectId);
+    }
+
+    private native int getNbNodes(long bodyId);
+
+    public int getNbLinks() {
+        return getNbLinks(objectId);
+    }
+
+    private native int getNbLinks(long bodyId);
+
+    public int getNbFaces() {
+        return getNbFaces(objectId);
+    }
+
+    private native int getNbFaces(long bodyId);
+
+    public int getNbTetras() {
+        return getNbTetras(objectId);
+    }
+
+    private native int getNbTetras(long bodyId);
+
+    public FloatBuffer getNodesPositions() {
+        int n = getNbNodes();
+        FloatBuffer buf = BufferUtils.createFloatBuffer(n * 3);
+        getNodesPositions(objectId, buf);
+        return buf;
+    }
+
+    private native void getNodesPositions(long bodyId, FloatBuffer buffer);
+
+    public IntBuffer getLinksIndexes() {
+        int n = getNbLinks();
+        IntBuffer buf = BufferUtils.createIntBuffer(n * 2);
+        getLinksIndexes(objectId, buf);
+        return buf;
+    }
+
+    private native void getLinksIndexes(long bodyId, IntBuffer buffer);
+
+    public IntBuffer getFacesIndexes() {
+        int n = getNbFaces();
+        IntBuffer buf = BufferUtils.createIntBuffer(n * 3);
+        getFacesIndexes(objectId, buf);
+        return buf;
+    }
+
+    private native void getFacesIndexes(long bodyId, IntBuffer buffer);
+
+    public IntBuffer getTetrasIndexes() {
+        int n = getNbTetras();
+        IntBuffer buf = BufferUtils.createIntBuffer(n * 4);
+        getTetrasIndexes(objectId, buf);
+        return buf;
+    }
+
+    private native void getTetrasIndexes(long bodyId, IntBuffer buffer);
+
+    /**
+     * already called upon the creation of a new SoftBody (in bullet's
+     * constructor).
+     */
+    protected void initDefault() {
         initDefault(objectId);
     }
 
@@ -413,8 +419,8 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     public FloatBuffer getMasses(FloatBuffer store) {
         if (store == null) {
-            int nbVertex = NativeSoftBodyUtil.getNbVertices(objectId);
-            store = BufferUtils.createFloatBuffer(nbVertex);
+            int n = getNbNodes();
+            store = BufferUtils.createFloatBuffer(n);
         }
         getMasses(objectId, store);
         return store;
@@ -771,19 +777,6 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void getBoundingCenter(long bodyId, Vector3f store);
 
-    public final void updateTriMesh(Mesh store, boolean meshInLocalSpace, boolean updateNormals) {
-        FloatBuffer positionBuffer = store.getFloatBuffer(VertexBuffer.Type.Position);
-        FloatBuffer normalBuffer = store.getFloatBuffer(VertexBuffer.Type.Normal);
-        updateTriMesh(this.getObjectId(), this.jmeToBulletMap.capacity(), this.jmeToBulletMap, positionBuffer, normalBuffer, meshInLocalSpace, updateNormals);
-
-        store.getBuffer(VertexBuffer.Type.Position).setUpdateNeeded();
-        if (updateNormals) {
-            store.getBuffer(VertexBuffer.Type.Normal).setUpdateNeeded();
-        }
-    }
-
-    private native void updateTriMesh(long bodyId, int bufferSize, IntBuffer positionMapping, FloatBuffer positionBuffer, FloatBuffer normalBuffer, boolean meshInLocalSpace, boolean updateNormals);
-
     /**
      * Get the config object which hold methods to access to the native config
      * fields.
@@ -799,12 +792,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);
 
-        capsule.write(NativeSoftBodyUtil.getDebugMesh(this), "nativeBulletMesh", null);
-        capsule.write(jmeToBulletMap, "jmeToBulletMap", null);
-        capsule.write(getMasses(), "masses", null);
-
         capsule.write(getRestLengthScale(), "RestLengthScale", 0);
-        capsule.write(getClusterCount(), "ClusterCount", 0);
         capsule.write(getPhysicsLocation(), "PhysicsLocation", Vector3f.ZERO);
 
         config().write(capsule);
@@ -816,15 +804,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         super.read(e);
         InputCapsule capsule = e.getCapsule(this);
 
-        createFromMesh((Mesh) capsule.readSavable("nativeBulletMesh", null));
-        jmeToBulletMap = (IntBuffer) capsule.readSavable("jmeToBulletMap", null);
-        setMasses(capsule.readFloatBuffer("masses", null));
-
         setRestLengthScale(capsule.readFloat("RestLengthScale", 0));
-        int clusterCount = capsule.readInt("ClusterCount", 0);
-        if (clusterCount > 0) {
-            generateClusters(clusterCount);
-        }
         setPhysicsLocation((Vector3f) capsule.readSavable("PhysicsLocation", Vector3f.ZERO));
 
         config().read(capsule);
