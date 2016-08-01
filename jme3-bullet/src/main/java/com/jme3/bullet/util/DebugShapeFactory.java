@@ -42,7 +42,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.TempVars;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -57,10 +56,14 @@ public class DebugShapeFactory {
 //    private static final Vector3f aabbMin = new Vector3f(-1e30f, -1e30f, -1e30f);
 
     /**
-     * Creates a debug shape from the given collision shape. This is mostly used internally.<br>
-     * To attach a debug shape to a physics object, call <code>attachDebugShape(AssetManager manager);</code> on it.
+     * Creates a debug shape from the given collision shape. This is mostly used
+     * internally.<br>
+     * To attach a debug shape to a physics object, call
+     * <code>attachDebugShape(AssetManager manager);</code> on it.
+     *
      * @param collisionShape
-     * @return
+     * @return null if collisionShape is null, otherwise return the created
+     * debug shape.
      */
     public static Spatial getDebugShape(CollisionShape collisionShape) {
         if (collisionShape == null) {
@@ -71,8 +74,7 @@ public class DebugShapeFactory {
             CompoundCollisionShape shape = (CompoundCollisionShape) collisionShape;
             List<ChildCollisionShape> children = shape.getChildren();
             Node node = new Node("DebugShapeNode");
-            for (Iterator<ChildCollisionShape> it = children.iterator(); it.hasNext();) {
-                ChildCollisionShape childCollisionShape = it.next();
+            for (ChildCollisionShape childCollisionShape : children) {
                 CollisionShape ccollisionShape = childCollisionShape.shape;
                 Geometry geometry = createDebugShape(ccollisionShape);
 
@@ -80,7 +82,7 @@ public class DebugShapeFactory {
                 geometry.setLocalTranslation(childCollisionShape.location);
 
                 // apply rotation
-                TempVars vars = TempVars.get();                
+                TempVars vars = TempVars.get();
                 Matrix3f tempRot = vars.tempMat3;
 
                 tempRot.set(geometry.getLocalRotation());

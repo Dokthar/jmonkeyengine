@@ -149,7 +149,7 @@ public abstract class PhysicsJoint implements Savable {
     @Override
     protected void finalize() throws Throwable {
         try {
-            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Joint {0}", Long.toHexString(objectId));
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing {1} Joint {0}", new Object[]{Long.toHexString(objectId), this.getClass()});
             finalizeNative(objectId);
         } finally {
             super.finalize();
