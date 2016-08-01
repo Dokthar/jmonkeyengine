@@ -43,19 +43,155 @@ extern "C" {
 #define com_jme3_bullet_objects_PhysicsSoftBody_COLLISION_GROUP_16 32768L
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    createFromTriMesh
- * Signature: (Ljava/nio/IntBuffer;Ljava/nio/FloatBuffer;IZ)J
+ * Method:    createEmptySoftBody
+ * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createFromTriMesh
-  (JNIEnv *, jobject, jobject, jobject, jint, jboolean);
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createEmptySoftBody
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    createRope
- * Signature: (Ljava/nio/IntBuffer;Ljava/nio/FloatBuffer;)J
+ * Method:    appendNodes
+ * Signature: (JLjava/nio/FloatBuffer;)V
  */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_createRope
-  (JNIEnv *, jobject, jobject, jobject);
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendNodes
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendLinks
+ * Signature: (JLjava/nio/ByteBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendLinks__JLjava_nio_ByteBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendLinks
+ * Signature: (JLjava/nio/ShortBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendLinks__JLjava_nio_ShortBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendLinks
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendLinks__JLjava_nio_IntBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendFaces
+ * Signature: (JLjava/nio/ByteBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendFaces__JLjava_nio_ByteBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendFaces
+ * Signature: (JLjava/nio/ShortBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendFaces__JLjava_nio_ShortBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendFaces
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendFaces__JLjava_nio_IntBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendTetras
+ * Signature: (JLjava/nio/ByteBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendTetras__JLjava_nio_ByteBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendTetras
+ * Signature: (JLjava/nio/ShortBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendTetras__JLjava_nio_ShortBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    appendTetras
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_appendTetras__JLjava_nio_IntBuffer_2
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getNbNodes
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNbNodes
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getNbLinks
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNbLinks
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getNbFaces
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNbFaces
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getNbTetras
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNbTetras
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getNodesPositions
+ * Signature: (JLjava/nio/FloatBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getNodesPositions
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getLinksIndexes
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getLinksIndexes
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getFacesIndexes
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getFacesIndexes
+  (JNIEnv *, jobject, jlong, jobject);
+
+/*
+ * Class:     com_jme3_bullet_objects_PhysicsSoftBody
+ * Method:    getTetrasIndexes
+ * Signature: (JLjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getTetrasIndexes
+  (JNIEnv *, jobject, jlong, jobject);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsSoftBody
@@ -408,14 +544,6 @@ JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_isInWorl
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_getBoundingCenter
   (JNIEnv *, jobject, jlong, jobject);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsSoftBody
- * Method:    updateTriMesh
- * Signature: (JILjava/nio/IntBuffer;Ljava/nio/FloatBuffer;Ljava/nio/FloatBuffer;ZZ)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsSoftBody_updateTriMesh
-  (JNIEnv *, jobject, jlong, jint, jobject, jobject, jobject, jboolean, jboolean);
 
 #ifdef __cplusplus
 }

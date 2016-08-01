@@ -9,59 +9,19 @@ extern "C" {
 #endif
 /*
  * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getVertices
- * Signature: (JLcom/jme3/bullet/util/DebugMeshCallback;)V
+ * Method:    updateMesh
+ * Signature: (JLjava/nio/IntBuffer;Ljava/nio/FloatBuffer;Ljava/nio/FloatBuffer;ZZ)V
  */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getVertices
-  (JNIEnv *, jclass, jlong, jobject);
+JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateMesh__JLjava_nio_IntBuffer_2Ljava_nio_FloatBuffer_2Ljava_nio_FloatBuffer_2ZZ
+  (JNIEnv *, jclass, jlong, jobject, jobject, jobject, jboolean, jboolean);
 
 /*
  * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getNbFaces
- * Signature: (J)I
+ * Method:    updateMesh
+ * Signature: (JLjava/nio/FloatBuffer;Ljava/nio/FloatBuffer;ZZ)V
  */
-JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbFaces
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getFacesIndexes
- * Signature: (JLjava/nio/IntBuffer;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getFacesIndexes
-  (JNIEnv *, jclass, jlong, jobject);
-
-/*
- * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getNbLinks
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbLinks
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getLinksIndexes
- * Signature: (JLjava/nio/IntBuffer;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getLinksIndexes
-  (JNIEnv *, jclass, jlong, jobject);
-
-/*
- * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    getNbVertices
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_getNbVertices
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_jme3_bullet_util_NativeSoftBodyUtil
- * Method:    updateDebugMesh
- * Signature: (JLjava/nio/FloatBuffer;)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateDebugMesh
-  (JNIEnv *, jclass, jlong, jobject);
+JNIEXPORT void JNICALL Java_com_jme3_bullet_util_NativeSoftBodyUtil_updateMesh__JLjava_nio_FloatBuffer_2Ljava_nio_FloatBuffer_2ZZ
+  (JNIEnv *, jclass, jlong, jobject, jobject, jboolean, jboolean);
 
 #ifdef __cplusplus
 }
