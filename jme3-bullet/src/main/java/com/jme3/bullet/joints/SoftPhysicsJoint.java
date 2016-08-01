@@ -101,7 +101,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Get the error reduction parameter coefficient (aka ERP).
-     * <p>From bullet documentation :</p>
+     * <p>
+     * From bullet documentation :</p>
      * <p>
      * The ERP specifies what proportion of the joint error will be fixed during
      * the next simulation step.
@@ -126,7 +127,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Set the error reduction parameter coefficient (aka ERP).
-     * <p>From bullet documentation :</p>
+     * <p>
+     * From bullet documentation :</p>
      * <p>
      * The ERP specifies what proportion of the joint error will be fixed during
      * the next simulation step.
@@ -151,7 +153,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Get the constraint force mixing coefficient (aka CFM).
-     * <p>From bullet documentation :</p>
+     * <p>
+     * From bullet documentation :</p>
      * <ul>
      * <li>If CFM = 0 then the constraint will be hard.
      * <li>If CFM is set to a positive value, it will be possible to violate the
@@ -175,7 +178,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
 
     /**
      * Set the constraint force mixing coefficient (aka CFM).
-     * <p> From bullet documentation :</p>
+     * <p>
+     * From bullet documentation :</p>
      * <ul>
      * <li>If CFM = 0 then the constraint will be hard.
      * <li>If CFM is set to a positive value, it will be possible to violate the
@@ -296,9 +300,8 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
     private native void addConstraint(long jointId, long bodyId);
 
     /**
-     * Remove the constraint from bodies.
-     * This method shouldn't be called in the user code, already called by the
-     * SoftPhysicsSpace.
+     * Remove the constraint from bodies. This method shouldn't be called in the
+     * user code, already called by the SoftPhysicsSpace.
      */
     public void removeConstraint() {
         if (added) {
@@ -310,15 +313,19 @@ public abstract class SoftPhysicsJoint extends PhysicsJoint {
     private native void removeConstraint(long jointId, long bodyId);
 
     @Override
-    protected void finalizeNative(long objectId){
-        // override finalizeNative instead of finalize
-        // only want to verify condition on 'added' boolean before native finalize call
-        // this way it will still call Object.finalize()
+    protected void finalize() throws Throwable {
         if (added) {
-            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "SoftJoint {0} is still attached, it will be destroyed by the softBody", Long.toHexString(objectId));
+            // the joint is still attached to a softbody,
+            // assuming the joint is Garbage collected at the same time as his softbody
+            // (the softbody have a reference to this in his joint list)
+            // when deleted the softbody will delete all his joints as well.
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "SoftPhysicsJoint {0} is still attached, it will be destroyed by the softBody", Long.toHexString(objectId));
         } else {
-            super.finalizeNative(objectId);
+            // finalizeNative will be called by the super finalize
+            super.finalize();
         }
     }
-    
+
+    @Override
+    protected native void finalizeNative(long objectId);
 }
