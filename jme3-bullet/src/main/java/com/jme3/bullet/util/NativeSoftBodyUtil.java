@@ -53,9 +53,15 @@ import java.util.Set;
  */
 public class NativeSoftBodyUtil {
 
-    // SoftBodies need to have a direct access to JME's Mesh buffer in order a have a more
-    // efficient way when updating the Mesh each frame
-    // Must remove "duplicated" vertex (vertex with same position, hapen with uv mapping) to prevent the mesh from tearing apart.
+    /**
+     * Create an index map to remove vertexes with the same position and to
+     * still be able to update them all. If different vertexes have the same
+     * position (for example when using uv mapping) it will result in a teared
+     * soft body mesh.
+     *
+     * @param jmePositions the vertex positions buffer.
+     * @return a index map, mapping jme indexes to bullet indexes.
+     */
     public static IntBuffer generateIndexMap(FloatBuffer jmePositions) {
         /*
          * Exemple :
@@ -96,20 +102,53 @@ public class NativeSoftBodyUtil {
         return jmeToBulletMap;
     }
 
-    public static void apply(IntBuffer map, IndexBuffer inBuffer, IndexBuffer outBuffer) {
+    /**
+     * Map the index buffer to bullet indexes according to the index map. The
+     * outBuffer's size isn't checked. It's should have the same size as the
+     * inBuffer.
+     *
+     * @param jme2bulletMap the index map for translation from jme to bullet,
+     * see {@link #generateIndexMap(java.nio.FloatBuffer) }
+     * @param inBuffer the original buffer to map
+     * @param outBuffer the storage buffer for the result.
+     *
+     * @see #cloneMapBulletIndex
+     */
+    public static void mapBulletIndex(IntBuffer jme2bulletMap, IndexBuffer inBuffer, IndexBuffer outBuffer) {
         int size = inBuffer.size();
         for (int i = 0; i < size; i++) {
-            outBuffer.put(i, map.get(inBuffer.get(i)));
+            outBuffer.put(i, jme2bulletMap.get(inBuffer.get(i)));
         }
     }
 
-    public static IndexBuffer cloneApply(IntBuffer map, IndexBuffer buffer) {
+    /**
+     * Clone and map the index buffer to bullet indexes according to the index
+     * map. Clone the indexes and then call {@link #mapBulletIndex}.
+     *
+     * @param jme2bulletMap the index map for translation from jme to bullet,
+     * see {@link #generateIndexMap(java.nio.FloatBuffer) }
+     * @param buffer the original buffer to map
+     * @return a newly created IndexBuffer containing the bullet indexes.
+     *
+     * @see #mapBulletIndex
+     */
+    public static IndexBuffer cloneMapBulletIndex(IntBuffer jme2bulletMap, IndexBuffer buffer) {
         IndexBuffer ib = IndexBuffer.wrapIndexBuffer(BufferUtils.clone(buffer.getBuffer()));
-        apply(map, buffer, ib);
+        mapBulletIndex(jme2bulletMap, buffer, ib);
         return ib;
     }
 
-    public static FloatBuffer apply(IntBuffer jme2BulletMap, FloatBuffer positions) {
+    /**
+     * Create a FloatBuffer for bullet vertexes position based on the jme to
+     * bullet indexes map. So it only contain needed positions, (remove actual
+     * duplicated positions).
+     *
+     * @param jme2BulletMap the index map for translation from jme to bullet,
+     * see {@link #generateIndexMap(java.nio.FloatBuffer) }
+     * @param positions the jme positions.
+     * @return a FloatBufer containing the unique positions for bullet.
+     */
+    public static FloatBuffer mapBulletPositions(IntBuffer jme2BulletMap, FloatBuffer positions) {
         int positionSize = positions.limit();
         FloatBuffer bulletPositions = BufferUtils.createFloatBuffer(positionSize);
         for (int i = 0; i < positionSize / 3; i++) {
@@ -123,12 +162,40 @@ public class NativeSoftBodyUtil {
         return bulletPositions;
     }
 
+    /**
+     * Helper method for creating a softbody from a mesh. This will try to
+     * create a rope softbody from the position buffer of the mesh and it's
+     * index buffer. The IndexBuffer is expected to by type of
+     * {@link com.jme3.scene.Mesh.Mode#Lines}.
+     *
+     * @param <T extends PhysicsSoftBody>
+     * @param mesh the mesh to create the softbody from
+     * @param emptySoftBody the softbody where the links will be added.
+     * @return the softBody with the added links
+     *
+     * @see PhysicsSoftBody#createSoftBody
+     */
     public static <T extends PhysicsSoftBody> T createRopeFromMesh(Mesh mesh, T emptySoftBody) {
         emptySoftBody.createSoftBody(mesh.getFloatBuffer(VertexBuffer.Type.Position),
                 mesh.getIndexBuffer(), null, null);
         return emptySoftBody;
     }
 
+    /**
+     * Helper method for creating a softbody from a mesh. This will try to
+     * create a softbody from the position buffer of the mesh and it's index
+     * buffer. The IndexBuffer is expected to by type of
+     * {@link com.jme3.scene.Mesh.Mode#Triangles}. This will add all the
+     * triangles of the mesh (faces) plus each edge (links) exactly once.
+     *
+     * @param <T extends PhysicsSoftBody>
+     * @param mesh the mesh to create the softbody from
+     * @param emptySoftBody the softbody where the faces and links will be
+     * added.
+     * @return the softBody with the added faces and links.
+     *
+     * @see PhysicsSoftBody#createSoftBody
+     */
     public static <T extends PhysicsSoftBody> T createFromTriMesh(Mesh mesh, T emptySoftBody) {
         FloatBuffer position = mesh.getFloatBuffer(VertexBuffer.Type.Position);
         IndexBuffer triangles = mesh.getIndexBuffer();
@@ -170,10 +237,36 @@ public class NativeSoftBodyUtil {
         return emptySoftBody;
     }
 
+    /**
+     * Update the mesh vertexes positions and optionally normals, from a given
+     * softbody. Directly update the mesh buffers. Same as {@link #updateMesh(com.jme3.bullet.objects.PhysicsSoftBody,
+     * java.nio.IntBuffer, com.jme3.scene.Mesh, boolean, boolean) }
+     * with a 1:1 mapping.
+     *
+     * @param body the softbody where the position and normals are read.
+     * @param store the Mesh to write the position and normals into.
+     * @param meshInLocalSpace boolean for transforming the vertexes position
+     * into the "localSapce" of the body. (ie the bullet's bounding box center)
+     * @param updateNormals boolean for updating the normal buffer as the same
+     * time. (if true the buffer should be != null).
+     */
     public static void updateMesh(PhysicsSoftBody body, Mesh store, boolean meshInLocalSpace, boolean updateNormals) {
         updateMesh(body, null, store, meshInLocalSpace, updateNormals);
     }
 
+    /**
+     * Update the mesh vertexes positions and optionally normals, from a given
+     * softbody. Directly update the mesh buffers. A mapping is used to
+     * translate the jme indexes to bullet indexes.
+     *
+     * @param body the softbody where the position and normals are read.
+     * @param jmeToBulletMap the index mapping. (null for a 1:1 mapping)
+     * @param store the Mesh to write the position and normals into.
+     * @param meshInLocalSpace boolean for transforming the vertexes position
+     * into the "localSapce" of the body. (ie the bullet's bounding box center)
+     * @param updateNormals boolean for updating the normal buffer as the same
+     * time. (if true the buffer should be != null).
+     */
     public static void updateMesh(PhysicsSoftBody body, IntBuffer jmeToBulletMap, Mesh store, boolean meshInLocalSpace, boolean updateNormals) {
         FloatBuffer positionBuffer = store.getFloatBuffer(VertexBuffer.Type.Position);
         FloatBuffer normalBuffer = store.getFloatBuffer(VertexBuffer.Type.Normal);
