@@ -103,15 +103,15 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     public void createSoftBody(FloatBuffer positions, IndexBuffer links, IndexBuffer triangles, IndexBuffer tetras, boolean removeDuplicatedPositions) {
         if (removeDuplicatedPositions) {
             jmeToBulletMap = NativeSoftBodyUtil.generateIndexMap(positions);
-            positions = NativeSoftBodyUtil.apply(jmeToBulletMap, positions);
+            positions = NativeSoftBodyUtil.mapBulletPositions(jmeToBulletMap, positions);
             if (links != null) {
-                links = NativeSoftBodyUtil.cloneApply(jmeToBulletMap, links);
+                links = NativeSoftBodyUtil.cloneMapBulletIndex(jmeToBulletMap, links);
             }
             if (triangles != null) {
-                triangles = NativeSoftBodyUtil.cloneApply(jmeToBulletMap, triangles);
+                triangles = NativeSoftBodyUtil.cloneMapBulletIndex(jmeToBulletMap, triangles);
             }
             if (tetras != null) {
-                tetras = NativeSoftBodyUtil.cloneApply(jmeToBulletMap, tetras);
+                tetras = NativeSoftBodyUtil.cloneMapBulletIndex(jmeToBulletMap, tetras);
             }
         } else {
             jmeToBulletMap = null;
