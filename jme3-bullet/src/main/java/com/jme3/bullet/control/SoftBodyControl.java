@@ -39,6 +39,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -56,8 +57,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -70,25 +69,38 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     private boolean enabled = true;
     private boolean added = false;
     private PhysicsSoftSpace space = null;
-    
+
     private boolean meshHaveNormal = false;
     private IntBuffer jmeToBulletMap = null;
 
     private boolean meshInLocalOrigin;
     private boolean updateNormals;
     private boolean removeDuplicatedVertex;
-    
+
     public SoftBodyControl() {
-        this(true, false, true);
+        this(false, false, true);
     }
 
     public SoftBodyControl(boolean updateNormals) {
-        this(true, updateNormals, true);
+        this(false, updateNormals, true);
     }
 
     public SoftBodyControl(boolean meshInLocalOrigin, boolean doNormalUpdate) {
         this(meshInLocalOrigin, doNormalUpdate, true);
     }
+
+    /**
+     * The softbody mesh is automatically generated from the first geometry
+     * encountered when the Control is added to a Spatial.
+     *
+     * @param meshInLocalOrigin update vertexes position into the "localSapce"
+     * of the body, (ie the bullet's bounding box center) and move the spatial
+     * too.
+     * @param doNormalUpdate boolean for updating the normal buffer as the same
+     * time
+     * @param removeDuplicatedVertex remove duplicated vertex when creating the
+     * softbody, see {@link NativeSoftBodyUtil#generateIndexMap }
+     */
     public SoftBodyControl(boolean meshInLocalOrigin, boolean doNormalUpdate, boolean removeDuplicatedVertex) {
         this.meshInLocalOrigin = meshInLocalOrigin;
         this.updateNormals = doNormalUpdate;
@@ -121,7 +133,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
     }
 
     private void buildFromMesh(Mesh mesh) {
-        this.objectId = newEmptySoftBody();
+        newEmptySoftBody();
 
         this.mesh = mesh;
         this.meshHaveNormal = doHaveNormalBuffer(mesh);
@@ -142,8 +154,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                 if (wasInWorld) {
                     space.remove(this);
                 }
-                Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing SoftBody {0}", Long.toHexString(objectId));
-                finalizeNative(objectId);
+                destroySoftBody();
             }
 
             buildFromMesh(mesh);
@@ -186,7 +197,15 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                 this.mesh = getFirstGeometry(spatial).getMesh();
                 buildFromMesh(mesh);
                 setPhysicsLocation(spatial.getWorldTranslation());
-                //setPhysicsRotation(spatial.getWorldRotation());
+                setPhysicsRotation(spatial.getWorldRotation());
+                Spatial parent = spatial.getParent();
+                if (parent != null) {
+                    Quaternion rot = parent.getWorldRotation().inverse();
+                    //rot.multLocal(Quaternion.IDENTITY);
+                    spatial.setLocalRotation(rot);
+                } else {
+                    spatial.setLocalRotation(new Quaternion(Quaternion.IDENTITY));
+                }
             }
         }
     }
@@ -221,7 +240,7 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
             if (enabled && !added) {
                 if (spatial != null) {
                     setPhysicsLocation(spatial.getWorldTranslation());
-                    //setPhysicsRotation(getSpatialRotation());
+                    setPhysicsRotation(spatial.getWorldRotation());
                     TempVars vars = TempVars.get();
                     try {
                         if (meshInLocalOrigin) {
@@ -231,6 +250,16 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                         } else {
                             spatial.getParent().worldToLocal(Vector3f.ZERO, vars.vect2);
                             spatial.setLocalTranslation(vars.vect2);
+                        }
+                        if (!spatial.getWorldRotation().equals(Quaternion.IDENTITY)) {
+                            Spatial parent = spatial.getParent();
+                            if (parent != null) {
+                                Quaternion rot = parent.getWorldRotation().inverse();
+                                //rot.multLocal(Quaternion.IDENTITY);
+                                spatial.setLocalRotation(rot);
+                            } else {
+                                spatial.setLocalRotation(new Quaternion(Quaternion.IDENTITY));
+                            }
                         }
                     } finally {
                         vars.release();
@@ -262,6 +291,16 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
                 } else {
                     spatial.getParent().worldToLocal(Vector3f.ZERO, vars.vect2);
                     spatial.setLocalTranslation(vars.vect2);
+                }
+                if (!spatial.getWorldRotation().equals(Quaternion.IDENTITY)) {
+                    Spatial parent = spatial.getParent();
+                    if (parent != null) {
+                        Quaternion rot = parent.getWorldRotation().inverse();
+                        //rot.multLocal(Quaternion.IDENTITY);
+                        spatial.setLocalRotation(rot);
+                    } else {
+                        spatial.setLocalRotation(new Quaternion(Quaternion.IDENTITY));
+                    }
                 }
                 if (mesh != null) {
                     NativeSoftBodyUtil.updateMesh(this, jmeToBulletMap, mesh, meshInLocalOrigin, updateNormals && meshHaveNormal);
@@ -322,8 +361,9 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         capsule.write(spatial, "spatial", null);
         capsule.write(mesh, "mesh", null);
 
-        capsule.write(meshInLocalOrigin, "meshInLocalOrigin", true);
-        capsule.write(updateNormals, "doNormalUpdate", false);
+        capsule.write(meshInLocalOrigin, "meshInLocalOrigin", false);
+        capsule.write(updateNormals, "updateNormals", false);
+        capsule.write(removeDuplicatedVertex, "removeDuplicatedVertex", false);
 
     }
 
@@ -336,8 +376,10 @@ public class SoftBodyControl extends PhysicsSoftBody implements PhysicsControl {
         spatial = (Spatial) capsule.readSavable("spatial", null);
         mesh = (Mesh) capsule.readSavable("mesh", null);
 
-        meshInLocalOrigin = capsule.readBoolean("meshInLocalorigin", true);
-        updateNormals = capsule.readBoolean("doNormalUpdate", false);
+        meshInLocalOrigin = capsule.readBoolean("meshInLocalorigin", false);
+        updateNormals = capsule.readBoolean("updateNormals", false);
+        removeDuplicatedVertex = capsule.readBoolean("removeDuplicatedVertex", false);
+
         meshHaveNormal = doHaveNormalBuffer(mesh);
     }
 

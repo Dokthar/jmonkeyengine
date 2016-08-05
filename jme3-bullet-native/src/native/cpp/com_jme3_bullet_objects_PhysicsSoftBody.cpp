@@ -87,7 +87,7 @@ extern "C" {
             return;
         }
         const jfloat* position = (jfloat*) env->GetDirectBufferAddress(floatBuffer);
-        const int capacity = env->GetDirectBufferCapacity(floatBuffer);
+        const int capacity = env->GetDirectBufferCapacity(floatBuffer) - 2;
 
         for (int i = 0; i < capacity;) {
             const float x = position[i++];
@@ -992,7 +992,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        jmeBulletUtil::convertQuat(env, &body->getWorldTransform().getBasis(), rotation);
+        jmeBulletUtil::convertQuat(env, &body->m_initialWorldTransform.getBasis(), rotation);
     }
 
     /*

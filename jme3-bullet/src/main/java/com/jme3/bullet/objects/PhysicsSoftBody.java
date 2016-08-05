@@ -52,6 +52,8 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -63,14 +65,30 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private Material material = null;
     protected List<SoftPhysicsJoint> joints = new ArrayList<SoftPhysicsJoint>();
 
+    /**
+     * Create a new empty soft body. See {@link #createSoftBody} for a
+     * construction helper.
+     */
     public PhysicsSoftBody() {
         objectId = createEmptySoftBody();
         super.initUserPointer();
     }
 
+    /**
+     * Helper method for creating a soft body. This will not create a new native
+     * softbody but it is intended to help the creation of the current one.
+     *
+     * @param positions positions of vertexes, they will be added as Node. If
+     * null the softbody will be empty, see
+     * {@link #appendNodes(java.nio.FloatBuffer)}.
+     * @param links indexes for links, can be null, see
+     * {@link #appendLinks(com.jme3.scene.mesh.IndexBuffer)}.
+     * @param triangles indexes for triangles, can be null, see
+     * {@link #appendFaces(com.jme3.scene.mesh.IndexBuffer)}.
+     * @param tetras indexes for tetrahedron, can be null, see
+     * {@link #appendTetras(com.jme3.scene.mesh.IndexBuffer)}.
+     */
     public void createSoftBody(FloatBuffer positions, IndexBuffer links, IndexBuffer triangles, IndexBuffer tetras) {
-        objectId = newEmptySoftBody();
-        initUserPointer();
         if (positions != null) {
             appendNodes(positions);
             if (links != null) {
@@ -85,18 +103,49 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
         }
     }
 
-    protected long newEmptySoftBody() {
-        return createEmptySoftBody();
+    protected void destroySoftBody() {
+        if (objectId != 0) {
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing SoftBody {0}", Long.toHexString(objectId));
+            finalizeNative(objectId);
+            objectId = 0;
+        }
+    }
+
+    /**
+     * Create a new native softbody instance, the created softbody is empty. If
+     * an instance was already created it will be destroyed.
+     */
+    protected void newEmptySoftBody() {
+        destroySoftBody();
+        objectId = createEmptySoftBody();
+        initUserPointer();
     }
 
     private native long createEmptySoftBody();
 
+    /**
+     * Append nodes to the softbody. Node are the base structure of a softbody.
+     * A node store a position vector (and more). Each groupe of 3 floats will
+     * make a node.
+     *
+     * @param positions used to create vertex position, capacity must be
+     * multiple of 3.
+     */
     public void appendNodes(FloatBuffer positions) {
+        if (positions.capacity() % 3 != 0) {
+            throw new IllegalArgumentException();
+        }
         appendNodes(objectId, positions);
     }
 
     private native void appendNodes(long objectId, FloatBuffer positions);
 
+    /**
+     * Append links to the sofbody. A link is a interaction (or force) between
+     * two nodes.
+     *
+     * @param edges indexes to use, capacity must be multiple of 2.
+     */
     public void appendLinks(IndexBuffer edges) {
         if (edges.size() % 2 != 0) {
             throw new IllegalArgumentException();
@@ -119,6 +168,12 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void appendLinks(long objectId, IntBuffer edges);
 
+    /**
+     * Append faces to the sofbody. A Face is a triangle between 3 nodes
+     * representing a face of the softbody.
+     *
+     * @param triangles indexes to use, capacity must be multiple of 3.
+     */
     public void appendFaces(IndexBuffer triangles) {
         if (triangles.size() % 3 != 0) {
             throw new IllegalArgumentException();
@@ -141,6 +196,12 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void appendFaces(long objectId, IntBuffer triangles);
 
+    /**
+     * Append tetrahedron to the softbody. A Tetrahedron define a volume between
+     * 4 nodes.
+     *
+     * @param tetraedres indexes to use, capacity must be multiple of 4.
+     */
     public void appendTetras(IndexBuffer tetraedres) {
         if (tetraedres.size() % 4 != 0) {
             throw new IllegalArgumentException();
@@ -165,8 +226,9 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private native void appendTetras(long objectId, IntBuffer tetrahedrons);
 
     /**
+     * Get the number of nodes in this softbody.
      *
-     * @return
+     * @return the number of nodes in this softbody.
      */
     public int getNbNodes() {
         return getNbNodes(objectId);
@@ -174,24 +236,44 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native int getNbNodes(long bodyId);
 
+    /**
+     * Get the number of links in this softbody.
+     *
+     * @return the number of links in this softbody.
+     */
     public int getNbLinks() {
         return getNbLinks(objectId);
     }
 
     private native int getNbLinks(long bodyId);
 
+    /**
+     * Get the number of faces in this softbody.
+     *
+     * @return the number of faces in this softbody.
+     */
     public int getNbFaces() {
         return getNbFaces(objectId);
     }
 
     private native int getNbFaces(long bodyId);
 
+    /**
+     * Get the number of tetrahedrons in this softbody.
+     *
+     * @return the number of tetrahedrons in this softbody.
+     */
     public int getNbTetras() {
         return getNbTetras(objectId);
     }
 
     private native int getNbTetras(long bodyId);
 
+    /**
+     * Create and fill a FloatBuffer containing the nodes position.
+     *
+     * @return the positions of each node (3 floats).
+     */
     public FloatBuffer getNodesPositions() {
         int n = getNbNodes();
         FloatBuffer buf = BufferUtils.createFloatBuffer(n * 3);
@@ -201,6 +283,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void getNodesPositions(long bodyId, FloatBuffer buffer);
 
+    /**
+     * Create and fill a IntBuffer containing the links indexes.
+     *
+     * @return 2 indexes for each link.
+     */
     public IntBuffer getLinksIndexes() {
         int n = getNbLinks();
         IntBuffer buf = BufferUtils.createIntBuffer(n * 2);
@@ -210,6 +297,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void getLinksIndexes(long bodyId, IntBuffer buffer);
 
+    /**
+     * Create and fill a IntBuffer containing the faces indexes.
+     *
+     * @return 3 indexes for each faces.
+     */
     public IntBuffer getFacesIndexes() {
         int n = getNbFaces();
         IntBuffer buf = BufferUtils.createIntBuffer(n * 3);
@@ -219,6 +311,11 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native void getFacesIndexes(long bodyId, IntBuffer buffer);
 
+    /**
+     * Create and fill a IntBuffer containing the tetras indexes.
+     *
+     * @return 4 indexes for each tetras
+     */
     public IntBuffer getTetrasIndexes() {
         int n = getNbTetras();
         IntBuffer buf = BufferUtils.createIntBuffer(n * 4);
@@ -229,7 +326,7 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
     private native void getTetrasIndexes(long bodyId, IntBuffer buffer);
 
     /**
-     * already called upon the creation of a new SoftBody (in bullet's
+     * Already called upon the creation of a new SoftBody (in bullet's
      * constructor).
      */
     protected void initDefault() {
@@ -278,22 +375,59 @@ public class PhysicsSoftBody extends PhysicsCollisionObject implements Savable {
 
     private native long getMaterial(long bodyId);
 
-
-    /* Append anchor */
+    /**
+     * Create an anchor between this softbody and the rigidbody. An anchore act
+     * like a weld between a softbody's node and a rigidbody.
+     *
+     * @param node the node attached to the rigid body.
+     * @param rigidBody the body attached to the node.
+     * @param collisionBetweenLinkedBodies enable collision between this
+     * softbody and the rigidbody.
+     * @param influence define how the anchor influence the softbody (0 for no
+     * influence, 1 for a "strong" influence).
+     */
     public void appendAnchor(int node, PhysicsRigidBody rigidBody, boolean collisionBetweenLinkedBodies, float influence) {
         appendAnchor(objectId, node, rigidBody.getObjectId(), null, collisionBetweenLinkedBodies, influence);
     }
 
+    /**
+     * Create an anchor between this softbody and the rigidbody. An anchore act
+     * like a weld between a softbody's node and a rigidbody.
+     *
+     * @param node the node attached to the rigid body.
+     * @param rigidBody the body attached to the node.
+     * @param localPivot used for anchor position, if null the node position is
+     * used
+     * @param collisionBetweenLinkedBodies enable collision between this
+     * softbody and the rigidbody.
+     * @param influence define how the anchor influence the softbody (0 for no
+     * influence, 1 for a "strong" influence).
+     */
     public void appendAnchor(int node, PhysicsRigidBody rigidBody, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence) {
         appendAnchor(objectId, node, rigidBody.getObjectId(), localPivot, collisionBetweenLinkedBodies, influence);
     }
 
+    /**
+     * Create an anchor between this softbody and the rigidbody. An anchore act
+     * like a weld between a softbody's node and a rigidbody. Collision between
+     * linked bodies is enabled, and infulence 1f is used.
+     *
+     * @param node the node attached to the rigid body.
+     * @param rigidBody the body attached to the node.
+     */
     public void appendAnchor(int node, PhysicsRigidBody rigidBody) {
         appendAnchor(node, rigidBody, true, 1);
     }
 
     private native void appendAnchor(long bodyId, int node, long rigidId, Vector3f localPivot, boolean collisionBetweenLinkedBodies, float influence);
 
+    /**
+     * Remove an anchor between this softbody and the rigidbody. The anchor
+     * should have already been added.
+     *
+     * @param node the node on which the anchor has been added.
+     * @param rigidBody the body used to create the anchor to.
+     */
     public void removeAnchor(int node, PhysicsRigidBody rigidBody) {
         removeAnchor(objectId, node, rigidBody.getObjectId());
     }
