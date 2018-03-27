@@ -48,11 +48,9 @@ class jmePhysicsSpace {
 private:
 	JNIEnv* env;
 	JavaVM* vm;
-       	jobject javaPhysicsSpace;
+	jobject javaPhysicsSpace;
 protected:
 	btDynamicsWorld* dynamicsWorld;
-        btThreadSupportInterface* createSolverThreadSupport(int);
-        btThreadSupportInterface* createDispatchThreadSupport(int);
         void attachThread();
 public:
 	jmePhysicsSpace(){};

@@ -42,7 +42,7 @@ jmePhysicsSoftSpace::jmePhysicsSoftSpace(JNIEnv* env, jobject javaSpace)
 
 // Signature: (Lcom/jme3/math/Vector3f;Lcom/jme3/math/Vector3f;IZ)V
 
-void jmePhysicsSoftSpace::createPhysicsSoftSpace(jobject min_vec, jobject max_vec, jint broadphaseId, jboolean threading) {
+void jmePhysicsSoftSpace::createPhysicsSoftSpace(jobject min_vec, jobject max_vec, jint broadphaseId, jboolean threading /*unused*/) {
     // collision configuration contains default setup for memory, collision setup
     btDefaultCollisionConstructionInfo cci;
     //    if(threading){
@@ -80,28 +80,8 @@ void jmePhysicsSoftSpace::createPhysicsSoftSpace(jobject min_vec, jobject max_ve
 
     btSoftBodyRigidBodyCollisionConfiguration* collisionConfiguration = new btSoftBodyRigidBodyCollisionConfiguration();
 
-    btCollisionDispatcher* dispatcher;
-    // use the default collision dispatcher. For parallel processing you can use a different dispatcher (see Extras/BulletMultiThreaded)
-    if (threading) {
-        btThreadSupportInterface* dispatchThreads = createDispatchThreadSupport(4);
-        dispatcher = new SpuGatheringCollisionDispatcher(dispatchThreads, 4, collisionConfiguration);
-        dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
-    } else {
-        dispatcher = new btCollisionDispatcher(collisionConfiguration);
-    }
-
-
-
-    btConstraintSolver* solver;
-    // the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-    if (threading) {
-        btThreadSupportInterface* solverThreads = createSolverThreadSupport(4);
-        solver = new btParallelConstraintSolver(solverThreads);
-    } else {
-        solver = new btSequentialImpulseConstraintSolver;
-    }
-
-
+    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+    btConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
 
     //create dynamics world
     btSoftBodySolver* softBodySolver = 0; //use default
